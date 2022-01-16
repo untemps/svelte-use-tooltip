@@ -1,0 +1,137 @@
+{
+	"name": "@untemps/svelte-use-tooltip",
+	"version": "0.0.0",
+	"author": "Vincent Le Badezet <v.lebadezet@untemps.net>",
+	"license": "MIT",
+	"description": "Svelte action to display a tooltip",
+	"keywords": [
+		"tooltip",
+		"svelte",
+		"svelte-action",
+		"action",
+		"javascript"
+	],
+	"private": false,
+	"publishConfig": {
+		"access": "public"
+	},
+	"main": "dist/index.js",
+	"module": "dist/index.es.js",
+	"svelte": "dist/index.js",
+	"files": [
+		"dist"
+	],
+	"devDependencies": {
+		"@babel/cli": "^7.12.10",
+		"@babel/core": "^7.12.10",
+		"@babel/plugin-proposal-class-properties": "^7.12.1",
+		"@babel/plugin-transform-runtime": "^7.12.10",
+		"@babel/preset-env": "^7.12.11",
+		"@commitlint/cli": "^14.1.0",
+		"@commitlint/config-conventional": "^14.1.0",
+		"@rollup/plugin-babel": "^5.2.2",
+		"@rollup/plugin-commonjs": "^21.0.1",
+		"@rollup/plugin-node-resolve": "^13.0.6",
+		"@semantic-release/changelog": "^6.0.1",
+		"@semantic-release/git": "^10.0.1",
+		"@semantic-release/github": "^8.0.2",
+		"@testing-library/dom": "^8.11.0",
+		"@testing-library/jest-dom": "^5.11.6",
+		"@testing-library/svelte": "^3.0.3",
+		"babel-jest": "^27.3.1",
+		"cross-env": "^7.0.3",
+		"husky": "^7.0.4",
+		"identity-obj-proxy": "^3.0.0",
+		"jest": "^27.3.1",
+		"postcss": "^8.3.11",
+		"prettier": "^2.2.1",
+		"prettier-plugin-svelte": "^2.4.0",
+		"rimraf": "^3.0.2",
+		"rollup": "^2.35.1",
+		"rollup-plugin-filesize": "^9.1.0",
+		"rollup-plugin-postcss": "^4.0.1",
+		"rollup-plugin-svelte": "^7.0.0",
+		"rollup-plugin-terser": "^7.0.2",
+		"rollup-plugin-visualizer": "^5.5.2",
+		"semantic-release": "^18.0.0",
+		"svelte-jester": "^2.1.5"
+	},
+	"peerDependencies": {
+		"@untemps/dom-observer": "^2.0.0",
+		"svelte": "3.39.0"
+	},
+	"jest": {
+		"transform": {
+			"^.+\\.js$": "babel-jest",
+			"^.+\\.svelte$": "svelte-jester"
+		},
+		"moduleNameMapper": {
+			"\\.(css|less|scss)$": "identity-obj-proxy"
+		},
+		"moduleFileExtensions": [
+			"js",
+			"svelte"
+		],
+		"setupFilesAfterEnv": [
+			"<rootDir>/jest/jest.setup.js"
+		]
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "yarn test:ci && yarn prettier",
+			"commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+		}
+	},
+	"release": {
+		"branches": [
+			"main"
+		],
+		"plugins": [
+			[
+				"@semantic-release/commit-analyzer",
+				{
+					"releaseRules": [
+						{
+							"type": "chore",
+							"scope": "force",
+							"release": "patch"
+						}
+					]
+				}
+			],
+			"@semantic-release/release-notes-generator",
+			"@semantic-release/changelog",
+			"@semantic-release/npm",
+			"@semantic-release/git",
+			[
+				"@semantic-release/github",
+				{
+					"assets": [
+						{
+							"path": "dist/index.js",
+							"label": "CJS distribution"
+						},
+						{
+							"path": "dist/index.es.js",
+							"label": "ES distribution"
+						},
+						{
+							"path": "dist/index.umd.js",
+							"label": "UMD distribution"
+						}
+					]
+				}
+			]
+		]
+	},
+	"scripts": {
+		"dev": "cd dev && rimraf dist && yarn && yarn dev",
+		"test": "jest -u --watch --coverage",
+		"test:ci": "jest -u -b --ci --coverage",
+		"build": "rimraf dist && yarn build:cjs && yarn build:es && yarn build:umd",
+		"build:cjs": "cross-env NODE_ENV=production BABEL_ENV=cjs rollup -c",
+		"build:es": "cross-env NODE_ENV=production BABEL_ENV=es rollup -c",
+		"build:umd": "cross-env NODE_ENV=production BABEL_ENV=umd rollup -c",
+		"prettier": "prettier \"*/**/*.js\" --ignore-path ./.prettierignore --write && git add . && git status"
+	}
+}

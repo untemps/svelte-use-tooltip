@@ -1,0 +1,30 @@
+{
+	"pluginSearchDirs": ["."],
+	"printWidth": 120,
+	"useTabs": true,
+	"tabWidth": 4,
+	"singleQuote": true,
+	"semi": false,
+	"trailingComma": "es5",
+	"bracketSpacing": true,
+	"overrides": [
+		{
+			"files": "./**/*.js",
+			"options": {
+				"parser": "babylon"
+			}
+		},
+		{
+			"files": "./**/*.json",
+			"options": {
+				"parser": "json"
+			}
+		},
+		{
+			"files": ".prettierrc",
+			"options": {
+				"parser": "json"
+			}
+		}
+	]
+}
