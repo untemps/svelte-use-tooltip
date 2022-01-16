@@ -55,9 +55,7 @@ describe('useTooltip', () => {
 				action = useTooltip(target, options)
 				await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
 				await fireEvent.mouseEnter(target)
-				console.log(document.body.innerHTML)
 				await fireEvent.mouseLeave(target)
-				console.log(document.body.innerHTML)
 				expect(template).not.toBeVisible()
 			})
 		})
