@@ -2,26 +2,26 @@ import { DOMObserver } from '@untemps/dom-observer'
 
 import './useTooltip.css'
 
-const useTooltip = (node, { contentSelector, contentClone, contentActions, containerClassName, disabled, animated }) => {
+const useTooltip = (node, { position, contentSelector, contentClone, contentActions, contentClassName, disabled }) => {
 	Tooltip.init(contentSelector, contentClone)
 
-	const tooltip = new Tooltip(node, contentActions, containerClassName, animated)
+	const tooltip = new Tooltip(node, position, contentActions, contentClassName)
 	if (disabled) {
 		tooltip.disable()
 	}
 
 	return {
 		update: ({
+			position: newPosition,
 			contentSelector: newContentSelector,
 			contentClone: newContentClone,
 			contentActions: newContentActions,
-			containerClassName: newContainerClassName,
+			contentClassName: newContentClassName,
 			disabled: newDisabled,
-			animated: newAnimated,
 		}) => {
 			Tooltip.update(newContentSelector, newContentClone)
 
-			tooltip.update(newContentActions, newContainerClassName, newAnimated)
+			tooltip.update(newPosition, newContentActions, newContentClassName)
 			newDisabled ? tooltip.disable() : tooltip.enable()
 		},
 		destroy: () => {
@@ -38,6 +38,7 @@ export class Tooltip {
 	static #instances = []
 
 	#target = null
+	#position = null
 	#actions = null
 	#animated = false
 	#container = null
@@ -45,14 +46,14 @@ export class Tooltip {
 
 	#boundEnterHandler = null
 	#boundLeaveHandler = null
-
-	constructor(target, actions, className, animated) {
+	
+	constructor(target, position, actions, className) {
 		this.#target = target
+		this.#position = position
 		this.#actions = actions
 		this.#container = Tooltip.#tooltip
-		this.#animated = animated
-
-		this.#className = className
+		
+		this.#container?.setAttribute('class', className || `__tooltip__default __tooltip__${this.#position}`)
 
 		this.#activateTarget()
 
@@ -102,23 +103,16 @@ export class Tooltip {
 		Tooltip.#isInitialized = false
 	}
 
-	get #className() {
-		return this.#container?.getAttribute('class')
-	}
-
-	set #className(value) {
-		this.#container?.setAttribute('class', value || '__tooltip__default')
-	}
-
-	update(actions, className, animated) {
+	update(position, actions, className) {
+		this.#position = position
 		this.#actions = actions
-		this.#className = className
-		this.#animated = animated
+		
+		this.#container?.setAttribute('class', className || `__tooltip__default __tooltip__${this.#position}`)
 	}
 
 	destroy() {
 		this.#deactivateTarget()
-		this.#removeContainerFromTarget();
+		this.#removeContainerFromTarget()
 	}
 
 	enable() {
@@ -148,11 +142,7 @@ export class Tooltip {
 		this.disable()
 	}
 
-	async #appendContainerToTarget() {
-		if(this.#animated) {
-			await this.#manageTransition(1)
-		}
-
+	#appendContainerToTarget() {
 		this.#target.appendChild(this.#container)
 
 		if (this.#actions) {
@@ -172,60 +162,56 @@ export class Tooltip {
 		}
 	}
 
-	async #removeContainerFromTarget() {
-		if(this.#animated) {
-			await this.#manageTransition(0)
+	#removeContainerFromTarget() {
+		if (this.#target.contains(this.#container)) {
+			this.#target.removeChild(this.#container)
 		}
-
-		this.#container.remove()
 
 		this.#events.forEach(({ trigger, eventType, listener }) => trigger.removeEventListener(eventType, listener))
 		this.#events = []
 	}
 
-	#manageTransition(direction) {
-		return new Promise((resolve) => {
-			let classToAdd, classToRemove
-			switch(direction) {
-				case 1: {
-					classToAdd = '__tooltip__show'
-					classToRemove = '__tooltip__hide'
+	#onTargetEnter() {
+		this.#appendContainerToTarget()
+
+		Tooltip.#observer.wait(`#tooltip`, null, { events: [DOMObserver.EXIST] }).then(({ node }) => {
+			const { width: targetWidth, height: targetHeight } = this.#target.getBoundingClientRect()
+			const { width: tooltipWidth, height: tooltipHeight } = this.#container.getBoundingClientRect()
+			console.log(this.#position)
+			switch(this.#position) {
+				case 'left': {
+					this.#container.style.top = `${-(tooltipHeight - targetHeight) >> 1}px`
+					this.#container.style.bottom = null
+					this.#container.style.left = `${-tooltipWidth - 6}px`
+					this.#container.style.right = null
+					break
+				}
+				case 'right': {
+					this.#container.style.top = `${-(tooltipHeight - targetHeight) >> 1}px`
+					this.#container.style.bottom = null
+					this.#container.style.right = `${-tooltipWidth - 6}px`
+					this.#container.style.left = null
+					break
+				}
+				case 'bottom': {
+					this.#container.style.left = `${-(tooltipWidth - targetWidth) >> 1}px`
+					this.#container.style.right = null
+					this.#container.style.bottom = `${-tooltipHeight - 6}px`
+					this.#container.style.top = null
 					break
 				}
 				default: {
-					classToAdd = '__tooltip__hide'
-					classToRemove = '__tooltip__show'
+					this.#container.style.left = `${-(tooltipWidth - targetWidth) >> 1}px`
+					this.#container.style.right = null
+					this.#container.style.top = `${-tooltipHeight - 6}px`
+					this.#container.style.bottom = null
 				}
 			}
-			this.#container.classList.add(classToAdd)
-			this.#container.classList.remove(classToRemove)
-
-			if(direction === 1) {
-				resolve()
-			}
-
-			const onTransitionEnd = () => {
-				this.#container.removeEventListener("animationend", onTransitionEnd)
-				this.#container.classList.remove(classToAdd)
-				resolve()
-			}
-			this.#container.addEventListener("animationend", onTransitionEnd)
 		})
 	}
 
-	async #onTargetEnter() {
-		await this.#appendContainerToTarget()
-
-		Tooltip.#observer.wait(`#tooltip`, null, { events: [DOMObserver.EXIST] }).then(({ node }) => {
-			const { width: targetWidth } = this.#target.getBoundingClientRect()
-			const { width: tooltipWidth, height: tooltipHeight } = this.#container.getBoundingClientRect()
-			this.#container.style.left = `${-(tooltipWidth - targetWidth) >> 1}px`
-			this.#container.style.top = `${-tooltipHeight - 6}px`
-		})
-	}
-
-	async #onTargetLeave() {
-		await this.#removeContainerFromTarget()
+	#onTargetLeave() {
+		this.#removeContainerFromTarget()
 	}
 }
 

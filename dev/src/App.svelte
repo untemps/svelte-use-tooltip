@@ -1,8 +1,8 @@
 <script>
 	import { useTooltip } from '../../src'
 
+	let tooltipPosition = 'top'
 	let useCustomTooltipClass = false
-	let animateTooltip = false
 
     const _onTooltipClick = (arg, event) => {
 		console.log(arg)
@@ -12,48 +12,38 @@
 <main>
 	<div class="container">
 		<div use:useTooltip={{
-					contentSelector: '.tooltip__content',
+			        position: tooltipPosition,
+					contentSelector: '.tooltip__button',
 					contentClone: false,
 					contentActions: {
-						 '#button1': {
-            eventType: 'mouseenter',
-            callback: (arg) => console.log(arg),
-            callbackParams: ['Haha you\'re hovering the button 1'],
-            closeOnCallback: false
-        },
-        '#button2': {
-            eventType: 'mouseenter',
-            callback: (arg1, arg2) => console.log(arg1, arg2),
-            callbackParams: ['Haha you\'re hovering the', 'button 2'],
-            closeOnCallback: false
-        },
-        '#button2': {
-            eventType: 'click',
-            callback: (arg1, arg2) => console.log(arg1, arg2),
-            callbackParams: ['Haha you\'ve clicked the', 'button 2'],
-            closeOnCallback: true
-        },
+						'*': {
+							eventType: 'click',
+							callback: _onTooltipClick,
+							callbackParams: ['ok'],
+							closeOnCallback: true
+						},
 					},
 					contentClassName: useCustomTooltipClass ? 'tooltip' : null,
 					disabled: false,
-					animated: animateTooltip
-				}} class="tooltip__target">Hover me</div>
-        <span class="tooltip__content">
-			<button id="button1">Action 1</button>
-			<button id="button2">Action 2</button>
-		</span>
+				}} class="target">Hover me</div>
+        <span class="tooltip__button">Hi!</span>
 		<form class="settings__form">
 			<h1>Settings</h1>
+            <fieldset>
+                <label>
+                    Use Custom Tooltip Class:
+                    <input type="checkbox" bind:checked={useCustomTooltipClass} />
+                </label>
+            </fieldset>
 			<fieldset>
 				<label>
-					Use Custom Tooltip Class:
-					<input type="checkbox" bind:checked={useCustomTooltipClass} />
-				</label>
-			</fieldset>
-			<fieldset>
-				<label>
-					Animate tooltip:
-					<input type="checkbox" bind:checked={animateTooltip} />
+					Tooltip Position:
+					<select bind:value={tooltipPosition}>
+                        <option value="left">Left</option>
+                        <option value="right">Right</option>
+                        <option value="top">Top</option>
+                        <option value="bottom">Bottom</option>
+                    </select>
 				</label>
 			</fieldset>
 		</form>
@@ -76,7 +66,7 @@
 		row-gap: 1rem;
 	}
 
-	.tooltip__target {
+	.target {
 		width: 10rem;
         height: 3rem;
         background-color: white;
@@ -87,15 +77,11 @@
         box-shadow: 0 0 5px 0 rgba(0,0,0,0.5);
 	}
 
-    .tooltip__target:hover {
+    .target:hover {
         cursor: pointer;
         background-color: black;
         color: white;
     }
-
-	.tooltip__content {
-		color: white
-	}
 
 	.settings__form {
 		display: flex;

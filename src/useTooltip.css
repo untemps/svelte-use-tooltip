@@ -12,10 +12,31 @@
 .__tooltip__default::after {
     content: "";
     position: absolute;
-    top: 100%;
-    left: 50%;
     margin-left: -5px;
     border-width: 5px;
     border-style: solid;
+}
+
+.__tooltip__top::after {
+    bottom: -10px;
+    left: 50%;
     border-color: black transparent transparent transparent;
+}
+
+.__tooltip__bottom::after {
+    top: -10px;
+    left: 50%;
+    border-color: transparent transparent black transparent;
+}
+
+.__tooltip__left::after {
+    top: calc(50% - 5px);
+    right: -10px;
+    border-color: transparent transparent transparent black;
+}
+
+.__tooltip__right::after {
+    top: calc(50% - 5px);
+    left: -5px;
+    border-color: transparent black transparent transparent;
 }
