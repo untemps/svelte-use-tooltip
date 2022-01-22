@@ -40,3 +40,28 @@
     left: -5px;
     border-color: transparent black transparent transparent;
 }
+
+.__tooltip__show {
+    animation: fadeIn .2s linear forwards;
+}
+
+.__tooltip__hide {
+    animation: fadeOut .2s linear forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}

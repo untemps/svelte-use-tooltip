@@ -137,6 +137,8 @@ export class Tooltip {
 	}
 
 	#appendContainerToTarget() {
+		await this.#manageTransition(1)
+		
 		this.#target.appendChild(this.#container)
 
 		if (this.#actions) {
@@ -156,17 +158,47 @@ export class Tooltip {
 		}
 	}
 
-	#removeContainerFromTarget() {
-		if (this.#target.contains(this.#container)) {
-			this.#target.removeChild(this.#container)
-		}
+	async #removeContainerFromTarget() {
+		await this.#manageTransition(0)
+
+		this.#container.remove()
 
 		this.#events.forEach(({ trigger, eventType, listener }) => trigger.removeEventListener(eventType, listener))
 		this.#events = []
 	}
 
-	#onTargetEnter() {
-		this.#appendContainerToTarget()
+	#manageTransition(direction) {
+		return new Promise((resolve) => {
+			let classToAdd, classToRemove
+			switch(direction) {
+				case 1: {
+					classToAdd = '__tooltip__show'
+					classToRemove = '__tooltip__hide'
+					break
+				}
+				default: {
+					classToAdd = '__tooltip__hide'
+					classToRemove = '__tooltip__show'
+				}
+			}
+			this.#container.classList.add(classToAdd)
+			this.#container.classList.remove(classToRemove)
+
+			if(direction === 1) {
+				resolve()
+			}
+
+			const onTransitionEnd = () => {
+				this.#container.removeEventListener("animationend", onTransitionEnd)
+				this.#container.classList.remove(classToAdd)
+				resolve()
+			}
+			this.#container.addEventListener("animationend", onTransitionEnd)
+		})
+	}
+
+	async #onTargetEnter() {
+		await this.#appendContainerToTarget()
 
 		Tooltip.#observer.wait(`#tooltip`, null, { events: [DOMObserver.EXIST] }).then(({ node }) => {
 			const { width: targetWidth, height: targetHeight } = this.#target.getBoundingClientRect()
@@ -203,8 +235,8 @@ export class Tooltip {
 		})
 	}
 
-	#onTargetLeave() {
-		this.#removeContainerFromTarget()
+	async #onTargetLeave() {
+		await this.#removeContainerFromTarget()
 	}
 }
 

@@ -48,7 +48,7 @@ describe('useTooltip', () => {
 				action = useTooltip(target, options)
 				await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
 				await fireEvent.mouseEnter(target)
-				expect(template).toBeVisible()
+				expect(template).toBeInTheDocument()
 			})
 
 			it('Hides tooltip on mouse leave', async () => {
@@ -56,7 +56,8 @@ describe('useTooltip', () => {
 				await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
 				await fireEvent.mouseEnter(target)
 				await fireEvent.mouseLeave(target)
-				expect(template).not.toBeVisible()
+				await fireEvent.animationEnd(template.parentNode)
+				expect(template).not.toBeInTheDocument()
 			})
 		})
 
@@ -97,7 +98,7 @@ describe('useTooltip', () => {
 			await fireEvent.mouseEnter(target)
 			await fireEvent.click(template)
 			expect(contentAction.callback).toHaveBeenCalledWith(contentAction.callbackParams[0], expect.any(Event))
-			expect(template).toBeVisible()
+			expect(template).toBeInTheDocument()
 		})
 		
 		it('Closes tooltip after triggering callback', async () => {
@@ -108,7 +109,8 @@ describe('useTooltip', () => {
 			await fireEvent.mouseEnter(target)
 			await fireEvent.click(template)
 			expect(contentAction.callback).toHaveBeenCalledWith(contentAction.callbackParams[0], expect.any(Event))
-			expect(template).not.toBeVisible()
+			await fireEvent.animationEnd(template.parentNode)
+			expect(template).not.toBeInTheDocument()
 		})
 
 		it('Triggers new callback on tooltip click after update', async () => {
