@@ -4,6 +4,7 @@
 	let tooltipPosition = 'top'
 	let useCustomTooltipClass = false
 	let isTooltipDisabled = false
+	let animateTooltip = false
 
     const _onTooltipClick = (arg, event) => {
 		console.log(arg)
@@ -26,6 +27,7 @@
 					},
 					contentClassName: useCustomTooltipClass ? 'tooltip' : null,
 					disabled: isTooltipDisabled,
+					animated: animateTooltip
 				}} class="target">Hover me</div>
         <span class="tooltip__button">Hi! I'm a fancy tooltip!</span>
 		<form class="settings__form">
@@ -47,6 +49,12 @@
                     </select>
 				</label>
 			</fieldset>
+            <fieldset>
+                <label>
+                    Animate tooltip:
+                    <input type="checkbox" bind:checked={animateTooltip} />
+                </label>
+            </fieldset>
             <fieldset>
                 <label>
                     Disable Tooltip:

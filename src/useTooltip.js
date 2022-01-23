@@ -2,10 +2,10 @@ import { DOMObserver } from '@untemps/dom-observer'
 
 import './useTooltip.css'
 
-const useTooltip = (node, { position, contentSelector, contentClone, contentActions, contentClassName, disabled }) => {
+const useTooltip = (node, { position, contentSelector, contentClone, contentActions, contentClassName, animated, disabled }) => {
 	Tooltip.init(contentSelector, contentClone)
 
-	const tooltip = new Tooltip(node, position, disabled, contentActions, contentClassName)
+	const tooltip = new Tooltip(node, position, disabled, contentActions, contentClassName, animated)
 
 	return {
 		update: ({
@@ -15,10 +15,11 @@ const useTooltip = (node, { position, contentSelector, contentClone, contentActi
 			contentActions: newContentActions,
 			contentClassName: newContentClassName,
 			disabled: newDisabled,
+			animated: newAnimated,
 		}) => {
 			Tooltip.update(newContentSelector, newContentClone)
 
-			tooltip.update(newPosition, newDisabled, newContentActions, newContentClassName)
+			tooltip.update(newPosition, newDisabled, newContentActions, newContentClassName, newAnimated)
 		},
 		destroy: () => {
 			tooltip.destroy()
@@ -36,17 +37,19 @@ export class Tooltip {
 	#target = null
 	#position = null
 	#actions = null
+	#animated = false
 	#container = null
 	#events = []
 
 	#boundEnterHandler = null
 	#boundLeaveHandler = null
 
-	constructor(target, position, disabled, actions, className) {
+	constructor(target, position, disabled, actions, className, animated) {
 		this.#target = target
 		this.#position = position
 		this.#actions = actions
 		this.#container = Tooltip.#tooltip
+		this.#animated = animated
 		
 		this.#container?.setAttribute('class', className || `__tooltip__default __tooltip__${this.#position}`)
 		
@@ -101,9 +104,10 @@ export class Tooltip {
 		Tooltip.#isInitialized = false
 	}
 
-	update(position, disabled, actions, className) {
+	update(position, disabled, actions, className, animated) {
 		this.#position = position
 		this.#actions = actions
+		this.#animated = animated
 		
 		this.#container?.setAttribute('class', className || `__tooltip__default __tooltip__${this.#position}`)
 		
@@ -136,8 +140,10 @@ export class Tooltip {
 		this.#boundLeaveHandler = null
 	}
 
-	#appendContainerToTarget() {
-		await this.#manageTransition(1)
+	async #appendContainerToTarget() {
+		if(this.#animated) {
+			await this.#manageTransition(1)
+		}
 		
 		this.#target.appendChild(this.#container)
 
@@ -159,7 +165,9 @@ export class Tooltip {
 	}
 
 	async #removeContainerFromTarget() {
-		await this.#manageTransition(0)
+		if(this.#animated) {
+			await this.#manageTransition(0)
+		}
 
 		this.#container.remove()
 

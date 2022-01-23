@@ -56,6 +56,17 @@ describe('useTooltip', () => {
 				await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
 				await fireEvent.mouseEnter(target)
 				await fireEvent.mouseLeave(target)
+				expect(template).not.toBeInTheDocument()
+				await fireEvent.animationEnd(template.parentNode)
+				expect(template).not.toBeInTheDocument()
+			})
+
+			it('Hides tooltip on mouse leave when animated', async () => {
+				action = useTooltip(target, {...options, animated: true})
+				await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
+				await fireEvent.mouseEnter(target)
+				await fireEvent.mouseLeave(target)
+				expect(template).toBeInTheDocument()
 				await fireEvent.animationEnd(template.parentNode)
 				expect(template).not.toBeInTheDocument()
 			})
@@ -109,6 +120,20 @@ describe('useTooltip', () => {
 			await fireEvent.mouseEnter(target)
 			await fireEvent.click(template)
 			expect(contentAction.callback).toHaveBeenCalledWith(contentAction.callbackParams[0], expect.any(Event))
+			expect(template).not.toBeInTheDocument()
+			await fireEvent.animationEnd(template.parentNode)
+			expect(template).not.toBeInTheDocument()
+		})
+
+		it('Closes tooltip after triggering callback when animated', async () => {
+			action = useTooltip(target, {...options, animated: true})
+			options.contentActions['*'].closeOnCallback = true
+			const contentAction = options.contentActions['*']
+			await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
+			await fireEvent.mouseEnter(target)
+			await fireEvent.click(template)
+			expect(contentAction.callback).toHaveBeenCalledWith(contentAction.callbackParams[0], expect.any(Event))
+			expect(template).toBeInTheDocument()
 			await fireEvent.animationEnd(template.parentNode)
 			expect(template).not.toBeInTheDocument()
 		})
