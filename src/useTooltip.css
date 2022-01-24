@@ -1,4 +1,4 @@
-.__tooltip__default {
+.__tooltip {
     position: absolute;
     z-index: 9999;
     max-width: 100%;
@@ -9,7 +9,7 @@
     padding: 0.5rem;
 }
 
-.__tooltip__default::after {
+.__tooltip::after {
     content: "";
     position: absolute;
     margin-left: -5px;
@@ -41,11 +41,11 @@
     border-color: transparent black transparent transparent;
 }
 
-.__tooltip__show {
+.__tooltip-enter {
     animation: fadeIn .2s linear forwards;
 }
 
-.__tooltip__hide {
+.__tooltip-leave {
     animation: fadeOut .2s linear forwards;
 }
 

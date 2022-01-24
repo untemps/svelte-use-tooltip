@@ -169,14 +169,14 @@ describe('useTooltip', () => {
 			action = useTooltip(target, options)
 			await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
 			await fireEvent.mouseEnter(target)
-			expect(template.parentNode).toHaveClass('__tooltip__default')
+			expect(template.parentNode).toHaveClass('__tooltip')
 		})
 
 		it('Sets new tooltip class after update', async () => {
 			action = useTooltip(target, options)
 			await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
 			await fireEvent.mouseEnter(target)
-			expect(template.parentNode).toHaveClass('__tooltip__default')
+			expect(template.parentNode).toHaveClass('__tooltip')
 			action.update({
 				...options,
 				contentClassName: 'foo',

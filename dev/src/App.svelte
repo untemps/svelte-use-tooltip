@@ -5,6 +5,8 @@
 	let useCustomTooltipClass = false
 	let isTooltipDisabled = false
 	let animateTooltip = false
+	let useCustomAnimationEnterClass = false
+	let useCustomAnimationLeaveClass = false
 
     const _onTooltipClick = (arg, event) => {
 		console.log(arg)
@@ -28,6 +30,8 @@
 					contentClassName: useCustomTooltipClass ? 'tooltip' : null,
 					disabled: isTooltipDisabled,
 					animated: animateTooltip
+					animationEnterClassName: useCustomAnimationEnterClass ? 'tooltip-enter' : null,
+					animationLeaveClassName: useCustomAnimationLeaveClass ? 'tooltip-leave' : null
 				}} class="target">Hover me</div>
         <span class="tooltip__button">Hi! I'm a fancy tooltip!</span>
 		<form class="settings__form">
@@ -53,6 +57,18 @@
                 <label>
                     Animate tooltip:
                     <input type="checkbox" bind:checked={animateTooltip} />
+                </label>
+            </fieldset>
+            <fieldset>
+                <label>
+                    Use Custom Animation Enter Class:
+                    <input type="checkbox" bind:checked={useCustomAnimationEnterClass} />
+                </label>
+            </fieldset>
+            <fieldset>
+                <label>
+                    Use Custom Animation Leave Class:
+                    <input type="checkbox" bind:checked={useCustomAnimationLeaveClass} />
                 </label>
             </fieldset>
             <fieldset>
@@ -147,5 +163,30 @@
 		border-width: 5px;
 		border-style: solid;
 		border-color: #ee7008 transparent transparent transparent;
+	}
+
+	:global(.tooltip-enter) {
+		animation: fadeIn .2s linear forwards;
+	}
+
+	:global(.tooltip-leave) {
+		animation: fadeOut .2s linear forwards;
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+			transform: translateX(50px);
+		}
+		to {
+			opacity: 1;
+			transform: translateX(0);
+		}
+	}
+	@keyframes fadeOut {
+		to {
+			opacity: 0;
+			transform: translateX(-50px);
+		}
 	}
 </style>
