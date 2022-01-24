@@ -1,7 +1,7 @@
 .__tooltip__default {
     position: absolute;
     z-index: 9999;
-    max-width: 120px;
+    max-width: 100%;
     background-color: black;
     color: #fff;
     text-align: center;

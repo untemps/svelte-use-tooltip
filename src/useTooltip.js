@@ -5,10 +5,7 @@ import './useTooltip.css'
 const useTooltip = (node, { position, contentSelector, contentClone, contentActions, contentClassName, disabled }) => {
 	Tooltip.init(contentSelector, contentClone)
 
-	const tooltip = new Tooltip(node, position, contentActions, contentClassName)
-	if (disabled) {
-		tooltip.disable()
-	}
+	const tooltip = new Tooltip(node, position, disabled, contentActions, contentClassName)
 
 	return {
 		update: ({
@@ -21,8 +18,7 @@ const useTooltip = (node, { position, contentSelector, contentClone, contentActi
 		}) => {
 			Tooltip.update(newContentSelector, newContentClone)
 
-			tooltip.update(newPosition, newContentActions, newContentClassName)
-			newDisabled ? tooltip.disable() : tooltip.enable()
+			tooltip.update(newPosition, newDisabled, newContentActions, newContentClassName)
 		},
 		destroy: () => {
 			tooltip.destroy()
@@ -39,23 +35,26 @@ export class Tooltip {
 
 	#target = null
 	#position = null
+	#disabled = false
 	#actions = null
-	#animated = false
 	#container = null
 	#events = []
 
 	#boundEnterHandler = null
 	#boundLeaveHandler = null
-	
-	constructor(target, position, actions, className) {
+
+	constructor(target, position, disabled, actions, className) {
 		this.#target = target
 		this.#position = position
 		this.#actions = actions
 		this.#container = Tooltip.#tooltip
 		
 		this.#container?.setAttribute('class', className || `__tooltip__default __tooltip__${this.#position}`)
-
-		this.#activateTarget()
+		
+		disabled ? this.#disable() : this.#enable()
+		
+		this.#target.title = ''
+		this.#target.setAttribute('style', 'position: relative')
 
 		Tooltip.#instances.push(this)
 	}
@@ -103,43 +102,35 @@ export class Tooltip {
 		Tooltip.#isInitialized = false
 	}
 
-	update(position, actions, className) {
+	update(position, disabled, actions, className) {
 		this.#position = position
 		this.#actions = actions
 		
 		this.#container?.setAttribute('class', className || `__tooltip__default __tooltip__${this.#position}`)
+		
+		!!this.#boundEnterHandler ? this.#disable() : this.#enable()
 	}
 
 	destroy() {
-		this.#deactivateTarget()
 		this.#removeContainerFromTarget()
+		
+		this.#disable()
 	}
-
-	enable() {
+	
+	#enable() {
 		this.#boundEnterHandler = this.#onTargetEnter.bind(this)
 		this.#boundLeaveHandler = this.#onTargetLeave.bind(this)
-
+		
 		this.#target.addEventListener('mouseenter', this.#boundEnterHandler)
 		this.#target.addEventListener('mouseleave', this.#boundLeaveHandler)
 	}
-
-	disable() {
+	
+	#disable() {
 		this.#target.removeEventListener('mouseenter', this.#boundEnterHandler)
 		this.#target.removeEventListener('mouseleave', this.#boundLeaveHandler)
-
+		
 		this.#boundEnterHandler = null
 		this.#boundLeaveHandler = null
-	}
-
-	#activateTarget() {
-		this.#target.title = ''
-		this.#target.setAttribute('style', 'position: relative')
-
-		this.enable()
-	}
-
-	#deactivateTarget() {
-		this.disable()
 	}
 
 	#appendContainerToTarget() {
