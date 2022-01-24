@@ -168,7 +168,6 @@ export class Tooltip {
 		Tooltip.#observer.wait(`#tooltip`, null, { events: [DOMObserver.EXIST] }).then(({ node }) => {
 			const { width: targetWidth, height: targetHeight } = this.#target.getBoundingClientRect()
 			const { width: tooltipWidth, height: tooltipHeight } = this.#container.getBoundingClientRect()
-			console.log(this.#position)
 			switch(this.#position) {
 				case 'left': {
 					this.#container.style.top = `${-(tooltipHeight - targetHeight) >> 1}px`
