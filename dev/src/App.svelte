@@ -2,6 +2,7 @@
 	import { useTooltip } from '../../src'
 
 	let useCustomTooltipClass = false
+	let animateTooltip = false
 
     const _onTooltipClick = (arg, event) => {
 		console.log(arg)
@@ -11,26 +12,48 @@
 <main>
 	<div class="container">
 		<div use:useTooltip={{
-					contentSelector: '.tooltip__button',
+					contentSelector: '.tooltip__content',
 					contentClone: false,
 					contentActions: {
-						'*': {
-							eventType: 'click',
-							callback: _onTooltipClick,
-							callbackParams: ['ok'],
-							closeOnCallback: true
-						},
+						 '#button1': {
+            eventType: 'mouseenter',
+            callback: (arg) => console.log(arg),
+            callbackParams: ['Haha you\'re hovering the button 1'],
+            closeOnCallback: false
+        },
+        '#button2': {
+            eventType: 'mouseenter',
+            callback: (arg1, arg2) => console.log(arg1, arg2),
+            callbackParams: ['Haha you\'re hovering the', 'button 2'],
+            closeOnCallback: false
+        },
+        '#button2': {
+            eventType: 'click',
+            callback: (arg1, arg2) => console.log(arg1, arg2),
+            callbackParams: ['Haha you\'ve clicked the', 'button 2'],
+            closeOnCallback: true
+        },
 					},
 					contentClassName: useCustomTooltipClass ? 'tooltip' : null,
 					disabled: false,
-				}} class="target">Hover me</div>
-        <span class="tooltip__button">Hi!</span>
+					animated: animateTooltip
+				}} class="tooltip__target">Hover me</div>
+        <span class="tooltip__content">
+			<button id="button1">Action 1</button>
+			<button id="button2">Action 2</button>
+		</span>
 		<form class="settings__form">
 			<h1>Settings</h1>
 			<fieldset>
 				<label>
 					Use Custom Tooltip Class:
 					<input type="checkbox" bind:checked={useCustomTooltipClass} />
+				</label>
+			</fieldset>
+			<fieldset>
+				<label>
+					Animate tooltip:
+					<input type="checkbox" bind:checked={animateTooltip} />
 				</label>
 			</fieldset>
 		</form>
@@ -53,7 +76,7 @@
 		row-gap: 1rem;
 	}
 
-	.target {
+	.tooltip__target {
 		width: 10rem;
         height: 3rem;
         background-color: white;
@@ -64,11 +87,15 @@
         box-shadow: 0 0 5px 0 rgba(0,0,0,0.5);
 	}
 
-    .target:hover {
+    .tooltip__target:hover {
         cursor: pointer;
         background-color: black;
         color: white;
     }
+
+	.tooltip__content {
+		color: white
+	}
 
 	.settings__form {
 		display: flex;
@@ -109,6 +136,7 @@
 		border-radius: 6px;
 		padding: 0.5rem;
 	}
+
 	:global(.tooltip::after) {
 		content: '';
 		position: absolute;

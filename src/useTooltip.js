@@ -2,10 +2,10 @@ import { DOMObserver } from '@untemps/dom-observer'
 
 import './useTooltip.css'
 
-const useTooltip = (node, { contentSelector, contentClone, contentActions, contentClassName, disabled }) => {
+const useTooltip = (node, { contentSelector, contentClone, contentActions, containerClassName, disabled, animated }) => {
 	Tooltip.init(contentSelector, contentClone)
 
-	const tooltip = new Tooltip(node, contentActions, contentClassName)
+	const tooltip = new Tooltip(node, contentActions, containerClassName, animated)
 	if (disabled) {
 		tooltip.disable()
 	}
@@ -15,12 +15,13 @@ const useTooltip = (node, { contentSelector, contentClone, contentActions, conte
 			contentSelector: newContentSelector,
 			contentClone: newContentClone,
 			contentActions: newContentActions,
-			contentClassName: newContentClassName,
+			containerClassName: newContainerClassName,
 			disabled: newDisabled,
+			animated: newAnimated,
 		}) => {
 			Tooltip.update(newContentSelector, newContentClone)
 
-			tooltip.update(newContentActions, newContentClassName)
+			tooltip.update(newContentActions, newContainerClassName, newAnimated)
 			newDisabled ? tooltip.disable() : tooltip.enable()
 		},
 		destroy: () => {
@@ -38,16 +39,18 @@ export class Tooltip {
 
 	#target = null
 	#actions = null
+	#animated = false
 	#container = null
 	#events = []
 
 	#boundEnterHandler = null
 	#boundLeaveHandler = null
 
-	constructor(target, actions, className) {
+	constructor(target, actions, className, animated) {
 		this.#target = target
 		this.#actions = actions
 		this.#container = Tooltip.#tooltip
+		this.#animated = animated
 
 		this.#className = className
 
@@ -59,6 +62,7 @@ export class Tooltip {
 	static init(contentSelector, contentClone = false) {
 		if (!Tooltip.#isInitialized) {
 			Tooltip.#tooltip = document.createElement('div')
+			Tooltip.#tooltip.id = 'tooltip'
 
 			Tooltip.#observer = new DOMObserver()
 			Tooltip.#observer.wait(contentSelector, null, { events: [DOMObserver.EXIST, DOMObserver.ADD] }).then(({ node }) => {
@@ -106,14 +110,15 @@ export class Tooltip {
 		this.#container?.setAttribute('class', value || '__tooltip__default')
 	}
 
-	update(actions, className) {
+	update(actions, className, animated) {
 		this.#actions = actions
 		this.#className = className
+		this.#animated = animated
 	}
 
 	destroy() {
 		this.#deactivateTarget()
-		this.#removeContainerFromTarget()
+		this.#removeContainerFromTarget();
 	}
 
 	enable() {
@@ -143,7 +148,11 @@ export class Tooltip {
 		this.disable()
 	}
 
-	#appendContainerToTarget() {
+	async #appendContainerToTarget() {
+		if(this.#animated) {
+			await this.#manageTransition(1)
+		}
+
 		this.#target.appendChild(this.#container)
 
 		if (this.#actions) {
@@ -163,19 +172,51 @@ export class Tooltip {
 		}
 	}
 
-	#removeContainerFromTarget() {
-		if (this.#target.contains(this.#container)) {
-			this.#target.removeChild(this.#container)
+	async #removeContainerFromTarget() {
+		if(this.#animated) {
+			await this.#manageTransition(0)
 		}
+
+		this.#container.remove()
 
 		this.#events.forEach(({ trigger, eventType, listener }) => trigger.removeEventListener(eventType, listener))
 		this.#events = []
 	}
 
-	#onTargetEnter() {
-		this.#appendContainerToTarget()
+	#manageTransition(direction) {
+		return new Promise((resolve) => {
+			let classToAdd, classToRemove
+			switch(direction) {
+				case 1: {
+					classToAdd = '__tooltip__show'
+					classToRemove = '__tooltip__hide'
+					break
+				}
+				default: {
+					classToAdd = '__tooltip__hide'
+					classToRemove = '__tooltip__show'
+				}
+			}
+			this.#container.classList.add(classToAdd)
+			this.#container.classList.remove(classToRemove)
 
-		Tooltip.#observer.wait(`.${this.#className}`, null, { events: [DOMObserver.EXIST] }).then(({ node }) => {
+			if(direction === 1) {
+				resolve()
+			}
+
+			const onTransitionEnd = () => {
+				this.#container.removeEventListener("animationend", onTransitionEnd)
+				this.#container.classList.remove(classToAdd)
+				resolve()
+			}
+			this.#container.addEventListener("animationend", onTransitionEnd)
+		})
+	}
+
+	async #onTargetEnter() {
+		await this.#appendContainerToTarget()
+
+		Tooltip.#observer.wait(`#tooltip`, null, { events: [DOMObserver.EXIST] }).then(({ node }) => {
 			const { width: targetWidth } = this.#target.getBoundingClientRect()
 			const { width: tooltipWidth, height: tooltipHeight } = this.#container.getBoundingClientRect()
 			this.#container.style.left = `${-(tooltipWidth - targetWidth) >> 1}px`
@@ -183,8 +224,8 @@ export class Tooltip {
 		})
 	}
 
-	#onTargetLeave() {
-		this.#removeContainerFromTarget()
+	async #onTargetLeave() {
+		await this.#removeContainerFromTarget()
 	}
 }
 
