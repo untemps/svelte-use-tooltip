@@ -18,6 +18,7 @@
 		<div
 			use:useTooltip={{
 				position: tooltipPosition,
+				content: 'Test',
 				contentSelector: '.tooltip__button',
 				contentClone: false,
 				contentActions: {
@@ -28,7 +29,7 @@
 						closeOnCallback: true,
 					},
 				},
-				contentClassName: useCustomTooltipClass ? 'tooltip' : null,
+				containerClassName: useCustomTooltipClass ? 'tooltip' : null,
 				disabled: isTooltipDisabled,
 				animated: animateTooltip,
 				animationEnterClassName: useCustomAnimationEnterClass ? 'tooltip-enter' : null,
