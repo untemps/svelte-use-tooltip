@@ -48,7 +48,7 @@ describe('useTooltip', () => {
 				action = useTooltip(target, options)
 				await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
 				await fireEvent.mouseEnter(target)
-				expect(template).toBeVisible()
+				expect(template).toBeInTheDocument()
 			})
 
 			it('Hides tooltip on mouse leave', async () => {
@@ -56,7 +56,19 @@ describe('useTooltip', () => {
 				await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
 				await fireEvent.mouseEnter(target)
 				await fireEvent.mouseLeave(target)
-				expect(template).not.toBeVisible()
+				expect(template).not.toBeInTheDocument()
+				await fireEvent.animationEnd(template.parentNode)
+				expect(template).not.toBeInTheDocument()
+			})
+
+			it('Hides tooltip on mouse leave when animated', async () => {
+				action = useTooltip(target, { ...options, animated: true })
+				await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
+				await fireEvent.mouseEnter(target)
+				await fireEvent.mouseLeave(target)
+				expect(template).toBeInTheDocument()
+				await fireEvent.animationEnd(template.parentNode)
+				expect(template).not.toBeInTheDocument()
 			})
 		})
 
@@ -70,7 +82,7 @@ describe('useTooltip', () => {
 				const newTemplate = _createElement('new-template')
 				action.update({
 					...options,
-					contentSelector: '#new-template'
+					contentSelector: '#new-template',
 				})
 				await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
 				await fireEvent.mouseEnter(target)
@@ -97,9 +109,9 @@ describe('useTooltip', () => {
 			await fireEvent.mouseEnter(target)
 			await fireEvent.click(template)
 			expect(contentAction.callback).toHaveBeenCalledWith(contentAction.callbackParams[0], expect.any(Event))
-			expect(template).toBeVisible()
+			expect(template).toBeInTheDocument()
 		})
-		
+
 		it('Closes tooltip after triggering callback', async () => {
 			action = useTooltip(target, options)
 			options.contentActions['*'].closeOnCallback = true
@@ -108,7 +120,22 @@ describe('useTooltip', () => {
 			await fireEvent.mouseEnter(target)
 			await fireEvent.click(template)
 			expect(contentAction.callback).toHaveBeenCalledWith(contentAction.callbackParams[0], expect.any(Event))
-			expect(template).not.toBeVisible()
+			expect(template).not.toBeInTheDocument()
+			await fireEvent.animationEnd(template.parentNode)
+			expect(template).not.toBeInTheDocument()
+		})
+
+		it('Closes tooltip after triggering callback when animated', async () => {
+			action = useTooltip(target, { ...options, animated: true })
+			options.contentActions['*'].closeOnCallback = true
+			const contentAction = options.contentActions['*']
+			await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
+			await fireEvent.mouseEnter(target)
+			await fireEvent.click(template)
+			expect(contentAction.callback).toHaveBeenCalledWith(contentAction.callbackParams[0], expect.any(Event))
+			expect(template).toBeInTheDocument()
+			await fireEvent.animationEnd(template.parentNode)
+			expect(template).not.toBeInTheDocument()
 		})
 
 		it('Triggers new callback on tooltip click after update', async () => {
@@ -142,14 +169,14 @@ describe('useTooltip', () => {
 			action = useTooltip(target, options)
 			await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
 			await fireEvent.mouseEnter(target)
-			expect(template.parentNode).toHaveClass('__tooltip__default')
+			expect(template.parentNode).toHaveClass('__tooltip')
 		})
 
 		it('Sets new tooltip class after update', async () => {
 			action = useTooltip(target, options)
 			await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
 			await fireEvent.mouseEnter(target)
-			expect(template.parentNode).toHaveClass('__tooltip__default')
+			expect(template.parentNode).toHaveClass('__tooltip')
 			action.update({
 				...options,
 				contentClassName: 'foo',
