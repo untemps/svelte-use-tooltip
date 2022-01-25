@@ -7,8 +7,12 @@ class Tooltip {
 	}
 	
 	#observer = null
+	#events = []
 	
 	#tooltip = null
+	
+	#boundEnterHandler = null
+	#boundLeaveHandler = null
 	
 	#target = null
 	#content = null
@@ -20,11 +24,6 @@ class Tooltip {
 	#animated = false
 	#animationEnterClassName = null
 	#animationLeaveClassName = null
-	
-	#events = []
-	
-	#boundEnterHandler = null
-	#boundLeaveHandler = null
 	
 	constructor(
 		target,
@@ -63,6 +62,9 @@ class Tooltip {
 					const child = this.#contentClone ? node.cloneNode(true) : node
 					this.#tooltip.appendChild(child)
 				})
+		} else if(this.#content) {
+			const textNode = document.createTextNode(this.#content)
+			this.#tooltip.appendChild(textNode)
 		}
 		
 		this.#tooltip?.setAttribute('class', this.#containerClassName || `__tooltip __tooltip-${this.#position}`)
@@ -90,13 +92,20 @@ class Tooltip {
 		this.#animationEnterClassName = animationEnterClassName || '__tooltip-enter'
 		this.#animationLeaveClassName = animationLeaveClassName || '__tooltip-leave'
 		
-		this.#observer
-			.wait(this.#contentSelector, null, { events: [DOMObserver.EXIST, DOMObserver.ADD] })
-			.then(({ node }) => {
-				this.#tooltip.innerHTML = ''
-				const child = this.#contentClone ? node.cloneNode(true) : node
-				this.#tooltip.appendChild(child)
-			})
+		if(this.#contentSelector) {
+			this.#observer
+				.wait(this.#contentSelector, null, { events: [DOMObserver.EXIST, DOMObserver.ADD] })
+				.then(({ node }) => {
+					this.#tooltip.innerHTML = ''
+					const child = this.#contentClone ? node.cloneNode(true) : node
+					this.#tooltip.appendChild(child)
+				})
+		} else if(this.#content) {
+			this.#tooltip.innerHTML = ''
+			const textNode = document.createTextNode(this.#content)
+			this.#tooltip.appendChild(textNode)
+		}
+		
 		
 		this.#tooltip?.setAttribute('class', this.#containerClassName || `__tooltip __tooltip-${this.#position}`)
 		
@@ -195,7 +204,6 @@ class Tooltip {
 	}
 	
 	async #onTargetEnter() {
-		console.log('ok')
 		await this.#appendContainerToTarget()
 		
 		this.#observer.wait(`#tooltip`, null, { events: [DOMObserver.EXIST] }).then(({ node }) => {

@@ -1,8 +1,9 @@
 <script>
 	import { useTooltip } from '../../src'
 
-	let tooltipPosition = 'top'
+	let textContent = null
 	let useCustomTooltipClass = false
+	let tooltipPosition = 'top'
 	let isTooltipDisabled = false
 	let animateTooltip = false
 	let useCustomAnimationEnterClass = false
@@ -18,9 +19,9 @@
 		<div
 			use:useTooltip={{
 				position: tooltipPosition,
-				content: 'Test',
-				contentSelector: '.tooltip__button',
-				contentClone: false,
+				content: textContent,
+				contentSelector: !textContent?.length ? '.tooltip__button' : null,
+				contentClone: true,
 				contentActions: {
 					'*': {
 						eventType: 'click',
@@ -42,6 +43,12 @@
 		<span class="tooltip__button">Hi! I'm a fancy tooltip!</span>
 		<form class="settings__form">
 			<h1>Settings</h1>
+            <fieldset>
+                <label>
+                    Text Content:
+                    <input type="text" bind:value={textContent} />
+                </label>
+            </fieldset>
 			<fieldset>
 				<label>
 					Use Custom Tooltip Class:
