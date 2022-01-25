@@ -1,67 +1,67 @@
 .__tooltip {
-    position: absolute;
-    z-index: 9999;
-    max-width: 100%;
-    background-color: black;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 0.5rem;
+	position: absolute;
+	z-index: 9999;
+	max-width: 100%;
+	background-color: black;
+	color: #fff;
+	text-align: center;
+	border-radius: 6px;
+	padding: 0.5rem;
 }
 
 .__tooltip::after {
-    content: "";
-    position: absolute;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
+	content: '';
+	position: absolute;
+	margin-left: -5px;
+	border-width: 5px;
+	border-style: solid;
 }
 
-.__tooltip__top::after {
-    bottom: -10px;
-    left: 50%;
-    border-color: black transparent transparent transparent;
+.__tooltip-top::after {
+	bottom: -10px;
+	left: 50%;
+	border-color: black transparent transparent transparent;
 }
 
-.__tooltip__bottom::after {
-    top: -10px;
-    left: 50%;
-    border-color: transparent transparent black transparent;
+.__tooltip-bottom::after {
+	top: -10px;
+	left: 50%;
+	border-color: transparent transparent black transparent;
 }
 
-.__tooltip__left::after {
-    top: calc(50% - 5px);
-    right: -10px;
-    border-color: transparent transparent transparent black;
+.__tooltip-left::after {
+	top: calc(50% - 5px);
+	right: -10px;
+	border-color: transparent transparent transparent black;
 }
 
-.__tooltip__right::after {
-    top: calc(50% - 5px);
-    left: -5px;
-    border-color: transparent black transparent transparent;
+.__tooltip-right::after {
+	top: calc(50% - 5px);
+	left: -5px;
+	border-color: transparent black transparent transparent;
 }
 
 .__tooltip-enter {
-    animation: fadeIn .2s linear forwards;
+	animation: fadeIn 0.2s linear forwards;
 }
 
 .__tooltip-leave {
-    animation: fadeOut .2s linear forwards;
+	animation: fadeOut 0.2s linear forwards;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
 }
 @keyframes fadeOut {
-    from {
-        opacity: 1;
-    }
-    to {
-        opacity: 0;
-    }
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
 }

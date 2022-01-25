@@ -62,7 +62,7 @@ describe('useTooltip', () => {
 			})
 
 			it('Hides tooltip on mouse leave when animated', async () => {
-				action = useTooltip(target, {...options, animated: true})
+				action = useTooltip(target, { ...options, animated: true })
 				await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
 				await fireEvent.mouseEnter(target)
 				await fireEvent.mouseLeave(target)
@@ -82,7 +82,7 @@ describe('useTooltip', () => {
 				const newTemplate = _createElement('new-template')
 				action.update({
 					...options,
-					contentSelector: '#new-template'
+					contentSelector: '#new-template',
 				})
 				await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
 				await fireEvent.mouseEnter(target)
@@ -111,7 +111,7 @@ describe('useTooltip', () => {
 			expect(contentAction.callback).toHaveBeenCalledWith(contentAction.callbackParams[0], expect.any(Event))
 			expect(template).toBeInTheDocument()
 		})
-		
+
 		it('Closes tooltip after triggering callback', async () => {
 			action = useTooltip(target, options)
 			options.contentActions['*'].closeOnCallback = true
@@ -126,7 +126,7 @@ describe('useTooltip', () => {
 		})
 
 		it('Closes tooltip after triggering callback when animated', async () => {
-			action = useTooltip(target, {...options, animated: true})
+			action = useTooltip(target, { ...options, animated: true })
 			options.contentActions['*'].closeOnCallback = true
 			const contentAction = options.contentActions['*']
 			await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before

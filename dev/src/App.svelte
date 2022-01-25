@@ -8,75 +8,80 @@
 	let useCustomAnimationEnterClass = false
 	let useCustomAnimationLeaveClass = false
 
-    const _onTooltipClick = (arg, event) => {
+	const _onTooltipClick = (arg, event) => {
 		console.log(arg)
-    }
+	}
 </script>
 
 <main>
 	<div class="container">
-		<div use:useTooltip={{
-			        position: tooltipPosition,
-					contentSelector: '.tooltip__button',
-					contentClone: false,
-					contentActions: {
-						'*': {
-							eventType: 'click',
-							callback: _onTooltipClick,
-							callbackParams: ['ok'],
-							closeOnCallback: true
-						},
+		<div
+			use:useTooltip={{
+				position: tooltipPosition,
+				contentSelector: '.tooltip__button',
+				contentClone: false,
+				contentActions: {
+					'*': {
+						eventType: 'click',
+						callback: _onTooltipClick,
+						callbackParams: ['ok'],
+						closeOnCallback: true,
 					},
-					contentClassName: useCustomTooltipClass ? 'tooltip' : null,
-					disabled: isTooltipDisabled,
-					animated: animateTooltip,
-					animationEnterClassName: useCustomAnimationEnterClass ? 'tooltip-enter' : null,
-					animationLeaveClassName: useCustomAnimationLeaveClass ? 'tooltip-leave' : null
-				}} class="target">Hover me</div>
-        <span class="tooltip__button">Hi! I'm a fancy tooltip!</span>
+				},
+				contentClassName: useCustomTooltipClass ? 'tooltip' : null,
+				disabled: isTooltipDisabled,
+				animated: animateTooltip,
+				animationEnterClassName: useCustomAnimationEnterClass ? 'tooltip-enter' : null,
+				animationLeaveClassName: useCustomAnimationLeaveClass ? 'tooltip-leave' : null,
+			}}
+			class="target"
+		>
+			Hover me
+		</div>
+		<span class="tooltip__button">Hi! I'm a fancy tooltip!</span>
 		<form class="settings__form">
 			<h1>Settings</h1>
-            <fieldset>
-                <label>
-                    Use Custom Tooltip Class:
-                    <input type="checkbox" bind:checked={useCustomTooltipClass} />
-                </label>
-            </fieldset>
+			<fieldset>
+				<label>
+					Use Custom Tooltip Class:
+					<input type="checkbox" bind:checked={useCustomTooltipClass} />
+				</label>
+			</fieldset>
 			<fieldset>
 				<label>
 					Tooltip Position:
 					<select bind:value={tooltipPosition}>
-                        <option value="left">Left</option>
-                        <option value="right">Right</option>
-                        <option value="top">Top</option>
-                        <option value="bottom">Bottom</option>
-                    </select>
+						<option value="left">Left</option>
+						<option value="right">Right</option>
+						<option value="top">Top</option>
+						<option value="bottom">Bottom</option>
+					</select>
 				</label>
 			</fieldset>
-            <fieldset>
-                <label>
-                    Animate tooltip:
-                    <input type="checkbox" bind:checked={animateTooltip} />
-                </label>
-            </fieldset>
-            <fieldset>
-                <label>
-                    Use Custom Animation Enter Class:
-                    <input type="checkbox" bind:checked={useCustomAnimationEnterClass} />
-                </label>
-            </fieldset>
-            <fieldset>
-                <label>
-                    Use Custom Animation Leave Class:
-                    <input type="checkbox" bind:checked={useCustomAnimationLeaveClass} />
-                </label>
-            </fieldset>
-            <fieldset>
-                <label>
-                    Disable Tooltip:
-                    <input type="checkbox" bind:checked={isTooltipDisabled} />
-                </label>
-            </fieldset>
+			<fieldset>
+				<label>
+					Animate tooltip:
+					<input type="checkbox" bind:checked={animateTooltip} />
+				</label>
+			</fieldset>
+			<fieldset>
+				<label>
+					Use Custom Animation Enter Class:
+					<input type="checkbox" bind:checked={useCustomAnimationEnterClass} />
+				</label>
+			</fieldset>
+			<fieldset>
+				<label>
+					Use Custom Animation Leave Class:
+					<input type="checkbox" bind:checked={useCustomAnimationLeaveClass} />
+				</label>
+			</fieldset>
+			<fieldset>
+				<label>
+					Disable Tooltip:
+					<input type="checkbox" bind:checked={isTooltipDisabled} />
+				</label>
+			</fieldset>
 		</form>
 	</div>
 </main>
@@ -99,20 +104,20 @@
 
 	.target {
 		width: 10rem;
-        height: 3rem;
-        background-color: white;
-        color: black;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 0 5px 0 rgba(0,0,0,0.5);
+		height: 3rem;
+		background-color: white;
+		color: black;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
 	}
 
-    .target:hover {
-        cursor: pointer;
-        background-color: black;
-        color: white;
-    }
+	.target:hover {
+		cursor: pointer;
+		background-color: black;
+		color: white;
+	}
 
 	.settings__form {
 		display: flex;
@@ -166,11 +171,11 @@
 	}
 
 	:global(.tooltip-enter) {
-		animation: fadeIn .2s linear forwards;
+		animation: fadeIn 0.2s linear forwards;
 	}
 
 	:global(.tooltip-leave) {
-		animation: fadeOut .2s linear forwards;
+		animation: fadeOut 0.2s linear forwards;
 	}
 
 	@keyframes fadeIn {

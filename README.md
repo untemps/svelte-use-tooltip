@@ -83,7 +83,7 @@ yarn add @untemps/svelte-use-tooltip
         border-radius: 6px;
         padding: 0.5rem;
     }
-    
+
     :global(.tooltip::after) {
         content: '';
         position: absolute;
@@ -100,7 +100,7 @@ yarn add @untemps/svelte-use-tooltip
 ## API
 
 | Props                | Type    | Default | Description                                                                                                     |
-|----------------------|---------|---------|-----------------------------------------------------------------------------------------------------------------|
+| -------------------- | ------- | ------- | --------------------------------------------------------------------------------------------------------------- |
 | `contentSelector`    | string  | null    | Selector of the content to display in the tooltip.                                                              |
 | `contentClone`       | boolean | null    | Flag to clone the content to display in the tooltip. If false, the content is removed from its previous parent. |
 | `contentActions`     | object  | null    | Configuration of the tooltip actions (see [Content Actions](#content-actions)).                                 |
@@ -110,7 +110,7 @@ yarn add @untemps/svelte-use-tooltip
 
 ### Content Actions
 
-The `contentActions` prop allow handling interactions within the tooltip content.  
+The `contentActions` prop allow handling interactions within the tooltip content.
 
 Each element inside the content parent may configure its own action since it can be queried using the key-selector.
 
@@ -146,11 +146,11 @@ One event by element is possible so far as elements are referenced by selector. 
 ```
 
 | Props             | Type     | Default | Description                                                                                              |
-|-------------------|----------|---------|----------------------------------------------------------------------------------------------------------|
+| ----------------- | -------- | ------- | -------------------------------------------------------------------------------------------------------- | --- |
 | `eventType`       | string   | null    | Type of the event. All available [events](https://developer.mozilla.org/fr/docs/Web/Events) can be used. |
 | `callback`        | function | null    | Function to be used as event handler.                                                                    |
 | `callbackParams`  | array    | null    | List of arguments to pass to the event handler in.                                                       |
-| `closeOnCallback` | boolean  | false   | Flag to automatically close the tooltip when the event handler is triggered.                             |                                                                        |
+| `closeOnCallback` | boolean  | false   | Flag to automatically close the tooltip when the event handler is triggered.                             |     |
 
 ## Development
 
