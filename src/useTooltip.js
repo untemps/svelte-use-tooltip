@@ -35,7 +35,6 @@ export class Tooltip {
 
 	#target = null
 	#position = null
-	#disabled = false
 	#actions = null
 	#container = null
 	#events = []
@@ -108,7 +107,11 @@ export class Tooltip {
 		
 		this.#container?.setAttribute('class', className || `__tooltip__default __tooltip__${this.#position}`)
 		
-		!!this.#boundEnterHandler ? this.#disable() : this.#enable()
+		if(!disabled && !this.#boundEnterHandler) {
+			this.#enable()
+		} else if(disabled && !!this.#boundEnterHandler) {
+			this.#disable()
+		}
 	}
 
 	destroy() {
