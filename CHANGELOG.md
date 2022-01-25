@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/untemps/svelte-use-tooltip/compare/v1.0.0...v1.1.0) (2022-01-25)
+
+
+### Features
+
+* Add position prop ([#5](https://github.com/untemps/svelte-use-tooltip/issues/5)) ([125be23](https://github.com/untemps/svelte-use-tooltip/commit/125be23343a342f4974e35419ace036709ae1eb7))
+
 # 1.0.0 (2022-01-16)
 
 
