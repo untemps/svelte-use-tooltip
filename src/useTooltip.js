@@ -5,7 +5,7 @@ import './useTooltip.css'
 const useTooltip = (node, { position, contentSelector, contentClone, contentActions, contentClassName, animated, animationEnterClassName, animationLeaveClassName, disabled }) => {
 	Tooltip.init(contentSelector, contentClone)
 
-	const tooltip = new Tooltip(node, position, disabled, contentActions, contentClassName, animated, , animationEnterClassName, animationLeaveClassName)
+	const tooltip = new Tooltip(node, position, disabled, contentActions, contentClassName, animated, animationEnterClassName, animationLeaveClassName)
 
 	return {
 		update: ({

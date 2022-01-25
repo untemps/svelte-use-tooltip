@@ -29,7 +29,7 @@
 					},
 					contentClassName: useCustomTooltipClass ? 'tooltip' : null,
 					disabled: isTooltipDisabled,
-					animated: animateTooltip
+					animated: animateTooltip,
 					animationEnterClassName: useCustomAnimationEnterClass ? 'tooltip-enter' : null,
 					animationLeaveClassName: useCustomAnimationLeaveClass ? 'tooltip-leave' : null
 				}} class="target">Hover me</div>
