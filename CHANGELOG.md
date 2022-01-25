@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/untemps/svelte-use-tooltip/compare/v1.1.0...v1.2.0) (2022-01-25)
+
+
+### Features
+
+* Animate tooltip ([#7](https://github.com/untemps/svelte-use-tooltip/issues/7)) ([b132de6](https://github.com/untemps/svelte-use-tooltip/commit/b132de6e306c7a16b5b104bb028b066c4227ac7a))
+
 # [1.1.0](https://github.com/untemps/svelte-use-tooltip/compare/v1.0.0...v1.1.0) (2022-01-25)
 
 
