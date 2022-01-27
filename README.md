@@ -41,9 +41,12 @@ yarn add @untemps/svelte-use-tooltip
                 closeOnCallback: true
             },
         },
-        contentClassName: 'tooltip',
-        disabled: false,
-        animated: true
+        containerClassName: 'tooltip',
+        position: 'right',
+        animated: true,
+        animationEnterClassName: 'tooltip-enter',
+		animationLeaveClassName: 'tooltip-leave',
+        disabled: false
     }
 } class="tooltip__target">
     Hover me
@@ -99,14 +102,18 @@ yarn add @untemps/svelte-use-tooltip
 
 ## API
 
-| Props                | Type    | Default | Description                                                                                                     |
-| -------------------- | ------- | ------- | --------------------------------------------------------------------------------------------------------------- |
-| `contentSelector`    | string  | null    | Selector of the content to display in the tooltip.                                                              |
-| `contentClone`       | boolean | null    | Flag to clone the content to display in the tooltip. If false, the content is removed from its previous parent. |
-| `contentActions`     | object  | null    | Configuration of the tooltip actions (see [Content Actions](#content-actions)).                                 |
-| `containerClassName` | string  | null    | Class name to apply to the tooltip container.                                                                   |
-| `disabled`           | boolean | false   | Flag to disable the tooltip content.                                                                            |
-| `animated`           | boolean | false   | Flag to animate tooltip transitions.                                                                            |
+| Props                      | Type    | Default | Description                                                                                                     |
+| -------------------------- | ------- | ------- | --------------------------------------------------------------------------------------------------------------- |
+| `content`                  | string  | null    | Text content to display in the tooltip.                                                                         |
+| `contentSelector`          | string  | null    | Selector of the content to display in the tooltip.                                                              |
+| `contentClone`             | boolean | null    | Flag to clone the content to display in the tooltip. If false, the content is removed from its previous parent. |
+| `contentActions`           | object  | null    | Configuration of the tooltip actions (see [Content Actions](#content-actions)).                                 |
+| `containerClassName`       | string  | null    | Class name to apply to the tooltip container.                                                                   |
+| `position`                 | string  | 'top'   | Position of the tooltip. Available values: 'top', 'bottom', 'left', 'right'                                     |
+| `animated`                 | boolean | false   | Flag to animate tooltip transitions.                                                                            |
+| `animationEnterClassName`  | string  | null    | Class name to apply to the tooltip enter transition.                                                            |
+| `animationLeaveClassName`  | string  | null    | Class name to apply to the tooltip leave transition.                                                            |
+| `disabled`                 | boolean | false   | Flag to disable the tooltip content.                                                                            |
 
 ### Content Actions
 
