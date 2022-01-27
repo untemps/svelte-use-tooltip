@@ -9,7 +9,7 @@
 	let useCustomAnimationEnterClass = false
 	let useCustomAnimationLeaveClass = false
 
-	const _onTooltipClick = (arg, event) => {
+	const _onTooltipClick = (arg) => {
 		console.log(arg)
 	}
 </script>
@@ -20,7 +20,7 @@
 			use:useTooltip={{
 				position: tooltipPosition,
 				content: textContent,
-				contentSelector: !textContent?.length ? '.tooltip__button' : null,
+				contentSelector: !textContent?.length ? '.tooltip__content' : null,
 				contentClone: true,
 				contentActions: {
 					'*': {
@@ -40,15 +40,20 @@
 		>
 			Hover me
 		</div>
-		<span class="tooltip__button">Hi! I'm a fancy tooltip!</span>
 		<form class="settings__form">
 			<h1>Settings</h1>
-            <fieldset>
-                <label>
-                    Text Content:
-                    <input type="text" bind:value={textContent} />
-                </label>
-            </fieldset>
+			<fieldset>
+				<label>
+					Default Tooltip Content:
+					<span class="tooltip__content">Hi! I'm a <i>fancy</i> <strong>tooltip</strong>!</span>
+				</label>
+			</fieldset>
+			<fieldset>
+				<label>
+					Tooltip Text Content:
+					<input type="text" bind:value={textContent} />
+				</label>
+			</fieldset>
 			<fieldset>
 				<label>
 					Use Custom Tooltip Class:
@@ -125,6 +130,11 @@
 		cursor: pointer;
 		background-color: black;
 		color: white;
+	}
+
+	.tooltip__content {
+		background-color: yellow;
+		color: black;
 	}
 
 	.settings__form {
