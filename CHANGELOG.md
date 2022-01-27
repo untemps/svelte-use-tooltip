@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/untemps/svelte-use-tooltip/compare/v1.2.0...v2.0.0) (2022-01-27)
+
+
+### Features
+
+* Add content prop ([#12](https://github.com/untemps/svelte-use-tooltip/issues/12)) ([ea03acd](https://github.com/untemps/svelte-use-tooltip/commit/ea03acd63a97da5863f101f64d9600bddbb0fc8e))
+
+
+### BREAKING CHANGES
+
+* `contentClassName` has been renamed `containerClassName` to be more consistent
+
 # [1.2.0](https://github.com/untemps/svelte-use-tooltip/compare/v1.1.0...v1.2.0) (2022-01-25)
 
 
