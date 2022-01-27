@@ -21,7 +21,7 @@ yarn add @untemps/svelte-use-tooltip
 
 ### Basic usage
 
-```sveltehtml
+```svelte
 <script>
     import { useTooltip } from '@untemps/svelte-use-tooltip'
 
@@ -116,7 +116,7 @@ Each element inside the content parent may configure its own action since it can
 
 One event by element is possible so far as elements are referenced by selector. The last one declared in the `contentActions` object has precedence over the previous ones.
 
-```sveltehtml
+```svelte
 <script>
     import { useTooltip } from '@untemps/svelte-use-tooltip'
 </script>
@@ -156,7 +156,7 @@ One event by element is possible so far as elements are referenced by selector. 
 
 The component can be served for development purpose on `http://localhost:5000/` running:
 
-```
+```bash
 yarn dev
 ```
 
