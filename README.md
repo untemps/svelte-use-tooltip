@@ -146,11 +146,11 @@ One event by element is possible so far as elements are referenced by selector. 
 ```
 
 | Props             | Type     | Default | Description                                                                                              |
-| ----------------- | -------- | ------- | -------------------------------------------------------------------------------------------------------- | --- |
+| ----------------- | -------- | ------- | -------------------------------------------------------------------------------------------------------- |
 | `eventType`       | string   | null    | Type of the event. All available [events](https://developer.mozilla.org/fr/docs/Web/Events) can be used. |
 | `callback`        | function | null    | Function to be used as event handler.                                                                    |
 | `callbackParams`  | array    | null    | List of arguments to pass to the event handler in.                                                       |
-| `closeOnCallback` | boolean  | false   | Flag to automatically close the tooltip when the event handler is triggered.                             |     |
+| `closeOnCallback` | boolean  | false   | Flag to automatically close the tooltip when the event handler is triggered.                             |
 
 ## Development
 
