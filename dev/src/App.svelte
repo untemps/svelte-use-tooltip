@@ -1,14 +1,15 @@
 <script>
 	import { useTooltip } from '../../src'
 
-	let tooltipPosition = 'top'
+	let textContent = null
 	let useCustomTooltipClass = false
+	let tooltipPosition = 'top'
 	let isTooltipDisabled = false
 	let animateTooltip = false
 	let useCustomAnimationEnterClass = false
 	let useCustomAnimationLeaveClass = false
 
-	const _onTooltipClick = (arg, event) => {
+	const _onTooltipClick = (arg) => {
 		console.log(arg)
 	}
 </script>
@@ -18,8 +19,9 @@
 		<div
 			use:useTooltip={{
 				position: tooltipPosition,
-				contentSelector: '.tooltip__button',
-				contentClone: false,
+				content: textContent,
+				contentSelector: !textContent?.length ? '.tooltip__content' : null,
+				contentClone: true,
 				contentActions: {
 					'*': {
 						eventType: 'click',
@@ -28,7 +30,7 @@
 						closeOnCallback: true,
 					},
 				},
-				contentClassName: useCustomTooltipClass ? 'tooltip' : null,
+				containerClassName: useCustomTooltipClass ? 'tooltip' : null,
 				disabled: isTooltipDisabled,
 				animated: animateTooltip,
 				animationEnterClassName: useCustomAnimationEnterClass ? 'tooltip-enter' : null,
@@ -38,9 +40,20 @@
 		>
 			Hover me
 		</div>
-		<span class="tooltip__button">Hi! I'm a fancy tooltip!</span>
 		<form class="settings__form">
 			<h1>Settings</h1>
+			<fieldset>
+				<label>
+					Default Tooltip Content:
+					<span class="tooltip__content">Hi! I'm a <i>fancy</i> <strong>tooltip</strong>!</span>
+				</label>
+			</fieldset>
+			<fieldset>
+				<label>
+					Tooltip Text Content:
+					<input type="text" bind:value={textContent} />
+				</label>
+			</fieldset>
 			<fieldset>
 				<label>
 					Use Custom Tooltip Class:
@@ -117,6 +130,11 @@
 		cursor: pointer;
 		background-color: black;
 		color: white;
+	}
+
+	.tooltip__content {
+		background-color: yellow;
+		color: black;
 	}
 
 	.settings__form {

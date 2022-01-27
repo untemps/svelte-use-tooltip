@@ -4,13 +4,7 @@
 	"author": "Vincent Le Badezet <v.lebadezet@untemps.net>",
 	"license": "MIT",
 	"description": "Svelte action to display a tooltip",
-	"keywords": [
-		"tooltip",
-		"svelte",
-		"svelte-action",
-		"action",
-		"javascript"
-	],
+	"keywords": ["tooltip", "svelte", "svelte-action", "action", "javascript"],
 	"private": false,
 	"publishConfig": {
 		"access": "public"
@@ -18,17 +12,15 @@
 	"main": "dist/index.js",
 	"module": "dist/index.es.js",
 	"svelte": "dist/index.js",
-	"files": [
-		"dist"
-	],
+	"files": ["dist"],
 	"devDependencies": {
 		"@babel/cli": "^7.12.10",
 		"@babel/core": "^7.12.10",
 		"@babel/plugin-proposal-class-properties": "^7.12.1",
 		"@babel/plugin-transform-runtime": "^7.12.10",
 		"@babel/preset-env": "^7.12.11",
-		"@commitlint/cli": "^14.1.0",
-		"@commitlint/config-conventional": "^14.1.0",
+		"@commitlint/cli": "^16.1.0",
+		"@commitlint/config-conventional": "^16.0.0",
 		"@rollup/plugin-babel": "^5.2.2",
 		"@rollup/plugin-commonjs": "^21.0.1",
 		"@rollup/plugin-node-resolve": "^13.0.6",
@@ -68,24 +60,11 @@
 		"moduleNameMapper": {
 			"\\.(css|less|scss)$": "identity-obj-proxy"
 		},
-		"moduleFileExtensions": [
-			"js",
-			"svelte"
-		],
-		"setupFilesAfterEnv": [
-			"<rootDir>/jest/jest.setup.js"
-		]
-	},
-	"husky": {
-		"hooks": {
-			"pre-commit": "yarn test:ci && yarn prettier",
-			"commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-		}
+		"moduleFileExtensions": ["js", "svelte"],
+		"setupFilesAfterEnv": ["<rootDir>/jest/jest.setup.js"]
 	},
 	"release": {
-		"branches": [
-			"main"
-		],
+		"branches": ["main"],
 		"plugins": [
 			[
 				"@semantic-release/commit-analyzer",

@@ -4,7 +4,8 @@
 
 import { fireEvent } from '@testing-library/svelte'
 
-import useTooltip, { Tooltip } from '../useTooltip'
+import useTooltip from '../useTooltip'
+import Tooltip from '../Tooltip'
 
 describe('useTooltip', () => {
 	let target,
@@ -70,6 +71,13 @@ describe('useTooltip', () => {
 				await fireEvent.animationEnd(template.parentNode)
 				expect(template).not.toBeInTheDocument()
 			})
+
+			it('Disables tooltip', async () => {
+				action = useTooltip(target, { ...options, disabled: true })
+				await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
+				await fireEvent.mouseEnter(target)
+				expect(template).not.toBeVisible()
+			})
 		})
 
 		describe('update', () => {
@@ -88,6 +96,28 @@ describe('useTooltip', () => {
 				await fireEvent.mouseEnter(target)
 				expect(newTemplate).toBeVisible()
 			})
+
+			it('Disables tooltip', async () => {
+				action = useTooltip(target, options)
+				action.update({
+					...options,
+					disabled: true,
+				})
+				await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
+				await fireEvent.mouseEnter(target)
+				expect(template).not.toBeVisible()
+			})
+
+			it('Enables tooltip', async () => {
+				action = useTooltip(target, { ...options, disabled: true })
+				action.update({
+					...options,
+					disabled: false,
+				})
+				await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
+				await fireEvent.mouseEnter(target)
+				expect(template).toBeVisible()
+			})
 		})
 	})
 
@@ -98,6 +128,25 @@ describe('useTooltip', () => {
 			await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
 			await fireEvent.mouseEnter(target)
 			expect(template).not.toBeVisible()
+		})
+	})
+
+	describe('useTooltip content', () => {
+		it('Displays text content', async () => {
+			const content = 'Foo'
+			action = useTooltip(target, { ...options, contentSelector: null, content })
+			await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
+			await fireEvent.mouseEnter(target)
+			expect(target).toHaveTextContent(content)
+		})
+
+		it('Displays content element over text', async () => {
+			const content = 'Foo'
+			action = useTooltip(target, { ...options, content })
+			await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
+			await fireEvent.mouseEnter(target)
+			expect(target).not.toHaveTextContent(content)
+			expect(template).toBeInTheDocument()
 		})
 	})
 
@@ -164,7 +213,7 @@ describe('useTooltip', () => {
 		})
 	})
 
-	describe('useTooltip props: contentClassName', () => {
+	describe('useTooltip props: containerClassName', () => {
 		it('Sets tooltip default class', async () => {
 			action = useTooltip(target, options)
 			await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
@@ -172,16 +221,23 @@ describe('useTooltip', () => {
 			expect(template.parentNode).toHaveClass('__tooltip')
 		})
 
-		it('Sets new tooltip class after update', async () => {
+		it('Updates tooltip class', async () => {
 			action = useTooltip(target, options)
 			await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
 			await fireEvent.mouseEnter(target)
 			expect(template.parentNode).toHaveClass('__tooltip')
 			action.update({
 				...options,
-				contentClassName: 'foo',
+				containerClassName: '__custom-tooltip',
 			})
-			expect(template.parentNode).toHaveClass('foo')
+			expect(template.parentNode).toHaveClass('__custom-tooltip')
+		})
+
+		it('Sets tooltip custom class', async () => {
+			action = useTooltip(target, { ...options, containerClassName: '__custom-tooltip' })
+			await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
+			await fireEvent.mouseEnter(target)
+			expect(template.parentNode).toHaveClass('__custom-tooltip')
 		})
 	})
 
@@ -199,6 +255,67 @@ describe('useTooltip', () => {
 			await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
 			await fireEvent.mouseEnter(target)
 			expect(template).not.toBeVisible()
+		})
+	})
+
+	describe('useTooltip props: position', () => {
+		it('Updates tooltip position: from left to right', async () => {
+			action = useTooltip(target, { ...options, position: 'left' })
+			await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
+			await fireEvent.mouseEnter(target)
+
+			const left = template.parentNode.style.left
+			const top = template.parentNode.style.top
+
+			action.update({
+				...options,
+				position: 'right',
+			})
+			await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
+			await fireEvent.mouseEnter(target)
+
+			expect(template.parentNode.style.left).not.toBe(left)
+			expect(template.parentNode.style.top).toBe(top)
+		})
+
+		it('Updates tooltip position: from top to bottom', async () => {
+			action = useTooltip(target, options)
+			await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
+			await fireEvent.mouseEnter(target)
+
+			const left = template.parentNode.style.left
+			const top = template.parentNode.style.top
+			const bottom = template.parentNode.style.bottom
+
+			action.update({
+				...options,
+				position: 'bottom',
+			})
+			await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
+			await fireEvent.mouseEnter(target)
+
+			expect(template.parentNode.style.left).toBe(left)
+			expect(template.parentNode.style.top).not.toBe(top)
+			expect(template.parentNode.style.bottom).not.toBe(bottom)
+		})
+
+		it('Updates tooltip position: from top to left', async () => {
+			action = useTooltip(target, options)
+			await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
+			await fireEvent.mouseEnter(target)
+
+			const left = template.parentNode.style.left
+			const top = template.parentNode.style.top
+
+			action.update({
+				...options,
+				position: 'left',
+			})
+			await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
+			await fireEvent.mouseEnter(target)
+
+			expect(template.parentNode.style.left).not.toBe(left)
+			expect(template.parentNode.style.top).not.toBe(top)
 		})
 	})
 })
