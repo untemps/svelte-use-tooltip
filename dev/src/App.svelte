@@ -1,13 +1,15 @@
 <script>
 	import { useTooltip } from '../../src'
 
-	let textContent = null
+	let tooltipTextContent = null
 	let useCustomTooltipClass = false
 	let tooltipPosition = 'top'
 	let isTooltipDisabled = false
 	let animateTooltip = false
 	let useCustomAnimationEnterClass = false
 	let useCustomAnimationLeaveClass = false
+	let tooltipEnterDelay = 200
+	let tooltipLeaveDelay = 200
 
 	const _onTooltipClick = (arg) => {
 		console.log(arg)
@@ -19,8 +21,8 @@
 		<div
 			use:useTooltip={{
 				position: tooltipPosition,
-				content: textContent,
-				contentSelector: !textContent?.length ? '.tooltip__content' : null,
+				content: tooltipTextContent,
+				contentSelector: !tooltipTextContent?.length ? '.tooltip__content' : null,
 				contentClone: true,
 				contentActions: {
 					'*': {
@@ -31,10 +33,12 @@
 					},
 				},
 				containerClassName: useCustomTooltipClass ? 'tooltip' : null,
-				disabled: isTooltipDisabled,
 				animated: animateTooltip,
 				animationEnterClassName: useCustomAnimationEnterClass ? 'tooltip-enter' : null,
 				animationLeaveClassName: useCustomAnimationLeaveClass ? 'tooltip-leave' : null,
+				enterDelay: tooltipEnterDelay,
+				leaveDelay: tooltipLeaveDelay,
+				disabled: isTooltipDisabled
 			}}
 			class="target"
 		>
@@ -51,7 +55,7 @@
 			<fieldset>
 				<label>
 					Tooltip Text Content:
-					<input type="text" bind:value={textContent} />
+					<input type="text" bind:value={tooltipTextContent} />
 				</label>
 			</fieldset>
 			<fieldset>
@@ -79,14 +83,26 @@
 			</fieldset>
 			<fieldset>
 				<label>
-					Use Custom Animation Enter Class:
+					Use Custom Tooltip Animation Enter Class:
 					<input type="checkbox" bind:checked={useCustomAnimationEnterClass} />
 				</label>
 			</fieldset>
 			<fieldset>
 				<label>
-					Use Custom Animation Leave Class:
+					Use Custom Tooltip Animation Leave Class:
 					<input type="checkbox" bind:checked={useCustomAnimationLeaveClass} />
+				</label>
+			</fieldset>
+			<fieldset>
+				<label>
+					Tooltip Enter Delay (ms):
+					<input type="number" step={100} min={0} bind:value={tooltipEnterDelay} />
+				</label>
+			</fieldset>
+			<fieldset>
+				<label>
+					Tooltip Leave Delay (ms):
+					<input type="number" step={100} min={0} bind:value={tooltipLeaveDelay} />
 				</label>
 			</fieldset>
 			<fieldset>

@@ -9,6 +9,9 @@ class Tooltip {
 
 	#observer = null
 	#events = []
+	#enterDelay = 0
+	#leaveDelay = 0
+	#delay = null
 
 	#tooltip = null
 
@@ -44,18 +47,22 @@ class Tooltip {
 		animated,
 		animationEnterClassName,
 		animationLeaveClassName,
+		enterDelay,
+		leaveDelay,
 		disabled
 	) {
 		this.#target = target
 		this.#content = content
 		this.#contentSelector = contentSelector
+		this.#contentClone = contentClone || false
 		this.#contentActions = contentActions
-		this.#contentClone = contentClone
 		this.#containerClassName = containerClassName
-		this.#position = position
-		this.#animated = animated
+		this.#position = position || 'top'
+		this.#animated = animated || false
 		this.#animationEnterClassName = animationEnterClassName || '__tooltip-enter'
 		this.#animationLeaveClassName = animationLeaveClassName || '__tooltip-leave'
+		this.#enterDelay = enterDelay || 0
+		this.#leaveDelay = leaveDelay || 0
 
 		this.#observer = new DOMObserver()
 
@@ -79,6 +86,8 @@ class Tooltip {
 		animated,
 		animationEnterClassName,
 		animationLeaveClassName,
+		enterDelay,
+		leaveDelay,
 		disabled
 	) {
 		const hasContentChanged = contentSelector !== this.#contentSelector || content !== this.#content
@@ -88,17 +97,18 @@ class Tooltip {
 
 		this.#content = content
 		this.#contentSelector = contentSelector
-		this.#contentClone = contentClone
+		this.#contentClone = contentClone || false
 		this.#contentActions = contentActions
 		this.#containerClassName = containerClassName
-		this.#position = position
-		this.#animated = animated
+		this.#position = position || 'top'
+		this.#animated = animated || false
 		this.#animationEnterClassName = animationEnterClassName || '__tooltip-enter'
 		this.#animationLeaveClassName = animationLeaveClassName || '__tooltip-leave'
+		this.#enterDelay = enterDelay || 0
+		this.#leaveDelay = leaveDelay || 0
 
 		if (hasContentChanged) {
 			this.#removeTooltipFromTarget()
-
 			this.#createTooltip()
 		}
 
@@ -117,6 +127,8 @@ class Tooltip {
 		this.#removeTooltipFromTarget()
 
 		this.#disableTarget()
+
+		this.#clearDelay()
 
 		this.#observer?.clear()
 		this.#observer = null
@@ -229,6 +241,22 @@ class Tooltip {
 		this.#events = []
 	}
 
+	#waitForDelay(delay) {
+		this.#clearDelay()
+		return new Promise(
+			(resolve) =>
+				(this.#delay = setTimeout(() => {
+					this.#clearDelay()
+					resolve()
+				}, delay))
+		)
+	}
+
+	#clearDelay() {
+		clearTimeout(this.#delay)
+		this.#delay = null
+	}
+
 	#transitionTooltip(direction) {
 		return new Promise((resolve) => {
 			let classToAdd, classToRemove
@@ -260,10 +288,12 @@ class Tooltip {
 	}
 
 	async #onTargetEnter() {
+		await this.#waitForDelay(this.#enterDelay)
 		await this.#appendTooltipToTarget()
 	}
 
 	async #onTargetLeave() {
+		await this.#waitForDelay(this.#leaveDelay)
 		await this.#removeTooltipFromTarget()
 	}
 }

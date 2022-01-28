@@ -14,6 +14,8 @@ const useTooltip = (
 		animated,
 		animationEnterClassName,
 		animationLeaveClassName,
+		enterDelay,
+		leaveDelay,
 		disabled,
 	}
 ) => {
@@ -28,6 +30,8 @@ const useTooltip = (
 		animated,
 		animationEnterClassName,
 		animationLeaveClassName,
+		enterDelay,
+		leaveDelay,
 		disabled
 	)
 
@@ -42,8 +46,10 @@ const useTooltip = (
 			animated: newAnimated,
 			animationEnterClassName: newAnimationEnterClassName,
 			animationLeaveClassName: newAnimationLeaveClassName,
+			enterDelay: newEnterDelay,
+			leaveDelay: newLeaveDelay,
 			disabled: newDisabled,
-		}) => {
+		}) =>
 			tooltip.update(
 				newContent,
 				newContentSelector,
@@ -54,12 +60,11 @@ const useTooltip = (
 				newAnimated,
 				newAnimationEnterClassName,
 				newAnimationLeaveClassName,
+				newEnterDelay,
+				newLeaveDelay,
 				newDisabled
-			)
-		},
-		destroy: () => {
-			tooltip.destroy()
-		},
+			),
+		destroy: () => tooltip.destroy(),
 	}
 }
 
