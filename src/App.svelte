@@ -1,5 +1,5 @@
 <script>
-	import { useTooltip } from '../../src'
+	import { useTooltip } from '@untemps/svelte-use-tooltip'
 
 	let tooltipTextContent = null
 	let useCustomTooltipClass = false

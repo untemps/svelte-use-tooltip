@@ -1,183 +1,109 @@
-<p align="center">
-    <img src="assets/svelte-use-tooltip.png" alt="svelte-use-tooltip" height="100"/>
-</p>
-<p align="center">
-    Svelte action to display a tooltip
-</p>
+*Psst — looking for a more complete solution? Check out [SvelteKit](https://kit.svelte.dev), the official framework for building web applications of all sizes, with a beautiful development experience and flexible filesystem-based routing.*
+
+*Looking for a shareable component template instead? You can [use SvelteKit for that as well](https://kit.svelte.dev/docs#packaging) or the older [sveltejs/component-template](https://github.com/sveltejs/component-template)*
 
 ---
 
-[![npm](https://img.shields.io/npm/v/@untemps/svelte-use-tooltip?style=for-the-badge)](https://www.npmjs.com/package/@untemps/svelte-use-tooltip)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/untemps/svelte-use-tooltip/deploy?style=for-the-badge)](https://github.com/untemps/svelte-use-tooltip/actions)
-[![Codecov](https://img.shields.io/codecov/c/github/untemps/svelte-use-tooltip?style=for-the-badge)](https://codecov.io/gh/untemps/svelte-use-tooltip)
+# svelte app
 
-## Installation
+This is a project template for [Svelte](https://svelte.dev) apps. It lives at https://github.com/sveltejs/template.
 
-```bash
-yarn add @untemps/svelte-use-tooltip
-```
-
-## Usage
-
-### Basic usage
-
-```svelte
-<script>
-    import { useTooltip } from '@untemps/svelte-use-tooltip'
-
-    const _onTooltipClick = (arg, event) => {
-        console.log(arg, event)
-    }
-</script>
-
-<div use:useTooltip={{
-        contentSelector: '.tooltip__content',
-        contentClone: false,
-        contentActions: {
-            '*': {
-                eventType: 'click',
-                callback: _onTooltipClick,
-                callbackParams: ['ok'],
-                closeOnCallback: true
-            },
-        },
-        containerClassName: 'tooltip',
-        position: 'right',
-        animated: true,
-        animationEnterClassName: 'tooltip-enter',
-        animationLeaveClassName: 'tooltip-leave',
-        enterDelay: 200,
-        leaveDelay: 400,
-        disabled: false
-    }
-} class="tooltip__target">
-    Hover me
-</div>
-<span class="tooltip__content">Hi!</span>
-
-<style>
-    .tooltip__target {
-        width: 10rem;
-        height: 3rem;
-        background-color: white;
-        color: black;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 0 5px 0 rgba(0,0,0,0.5);
-    }
-
-    .tooltip__target:hover {
-        cursor: pointer;
-        background-color: black;
-        color: white;
-    }
-
-    .tooltip__content {
-        border: solid 1px white;
-        background: none;
-    }
-
-    :global(.tooltip) {
-        position: absolute;
-        z-index: 9999;
-        max-width: 120px;
-        background-color: #ee7008;
-        color: #fff;
-        text-align: center;
-        border-radius: 6px;
-        padding: 0.5rem;
-    }
-
-    :global(.tooltip::after) {
-        content: '';
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        margin-left: -5px;
-        border-width: 5px;
-        border-style: solid;
-        border-color: #ee7008 transparent transparent transparent;
-    }
-</style>
-```
-
-## API
-
-| Props                     | Type    | Default | Description                                                                                                     |
-|---------------------------|---------|---------|-----------------------------------------------------------------------------------------------------------------|
-| `content`                 | string  | null    | Text content to display in the tooltip.                                                                         |
-| `contentSelector`         | string  | null    | Selector of the content to display in the tooltip.                                                              |
-| `contentClone`            | boolean | null    | Flag to clone the content to display in the tooltip. If false, the content is removed from its previous parent. |
-| `contentActions`          | object  | null    | Configuration of the tooltip actions (see [Content Actions](#content-actions)).                                 |
-| `containerClassName`      | string  | null    | Class name to apply to the tooltip container.                                                                   |
-| `position`                | string  | 'top'   | Position of the tooltip. Available values: 'top', 'bottom', 'left', 'right'                                     |
-| `animated`                | boolean | false   | Flag to animate tooltip transitions.                                                                            |
-| `animationEnterClassName` | string  | null    | Class name to apply to the tooltip enter transition.                                                            |
-| `animationLeaveClassName` | string  | null    | Class name to apply to the tooltip leave transition.                                                            |
-| `enterDelay`              | number  | 0       | Delay before showing the tooltip.                                                                               |
-| `leaveDelay`              | number  | 0       | Delay before hiding the tooltip.                                                                                |
-| `disabled`                | boolean | false   | Flag to disable the tooltip content.                                                                            |
-
-### Content Actions
-
-The `contentActions` prop allow handling interactions within the tooltip content.
-
-Each element inside the content parent may configure its own action since it can be queried using the key-selector.
-
-One event by element is possible so far as elements are referenced by selector. The last one declared in the `contentActions` object has precedence over the previous ones.
-
-```svelte
-<script>
-    import { useTooltip } from '@untemps/svelte-use-tooltip'
-</script>
-
-<div use:useTooltip={{
-    contentSelector: '#content',
-    contentClone: false,
-    contentActions: {
-        '#button1': {
-            eventType: 'mouseenter',
-            callback: (arg) => console.log(arg),
-            callbackParams: ['Haha you\'re hovering the button 1'],
-            closeOnCallback: true
-        },
-        '#button2': {
-            eventType: 'click',
-            callback: (arg1, arg2) => console.log(arg1, arg2),
-            callbackParams: ['Haha you\'ve clicked the', 'button 2'],
-            closeOnCallback: false
-        },
-    }
-}}>Hover me</div>
-<span id="content">
-    <button id="button1">Action 1</button>
-    <button id="button2">Action 2</button>
-</span>
-```
-
-| Props             | Type     | Default | Description                                                                                              |
-| ----------------- | -------- | ------- | -------------------------------------------------------------------------------------------------------- |
-| `eventType`       | string   | null    | Type of the event. All available [events](https://developer.mozilla.org/fr/docs/Web/Events) can be used. |
-| `callback`        | function | null    | Function to be used as event handler.                                                                    |
-| `callbackParams`  | array    | null    | List of arguments to pass to the event handler in.                                                       |
-| `closeOnCallback` | boolean  | false   | Flag to automatically close the tooltip when the event handler is triggered.                             |
-
-## Development
-
-The component can be served for development purpose on `http://localhost:5000/` running:
+To create a new project based on this template using [degit](https://github.com/Rich-Harris/degit):
 
 ```bash
-yarn dev
+npx degit sveltejs/template svelte-app
+cd svelte-app
 ```
 
-## Contributing
+*Note that you will need to have [Node.js](https://nodejs.org) installed.*
 
-Contributions are warmly welcomed:
 
--   Fork the repository
--   Create a feature branch
--   Develop the feature AND write the tests (or write the tests AND develop the feature)
--   Commit your changes
-    using [Angular Git Commit Guidelines](https://github.com/angular/angular.js/blob/master/DEVELOPERS.md#-git-commit-guidelines)
--   Submit a Pull Request
+## Get started
+
+Install the dependencies...
+
+```bash
+cd svelte-app
+npm install
+```
+
+...then start [Rollup](https://rollupjs.org):
+
+```bash
+npm run dev
+```
+
+Navigate to [localhost:5000](http://localhost:5000). You should see your app running. Edit a component file in `src`, save it, and reload the page to see your changes.
+
+By default, the server will only respond to requests from localhost. To allow connections from other computers, edit the `sirv` commands in package.json to include the option `--host 0.0.0.0`.
+
+If you're using [Visual Studio Code](https://code.visualstudio.com/) we recommend installing the official extension [Svelte for VS Code](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode). If you are using other editors you may need to install a plugin in order to get syntax highlighting and intellisense.
+
+## Building and running in production mode
+
+To create an optimised version of the app:
+
+```bash
+npm run build
+```
+
+You can run the newly built app with `npm run start`. This uses [sirv](https://github.com/lukeed/sirv), which is included in your package.json's `dependencies` so that the app will work when you deploy to platforms like [Heroku](https://heroku.com).
+
+
+## Single-page app mode
+
+By default, sirv will only respond to requests that match files in `public`. This is to maximise compatibility with static fileservers, allowing you to deploy your app anywhere.
+
+If you're building a single-page app (SPA) with multiple routes, sirv needs to be able to respond to requests for *any* path. You can make it so by editing the `"start"` command in package.json:
+
+```js
+"start": "sirv public --single"
+```
+
+## Using TypeScript
+
+This template comes with a script to set up a TypeScript development environment, you can run it immediately after cloning the template with:
+
+```bash
+node scripts/setupTypeScript.js
+```
+
+Or remove the script via:
+
+```bash
+rm scripts/setupTypeScript.js
+```
+
+If you want to use `baseUrl` or `path` aliases within your `tsconfig`, you need to set up `@rollup/plugin-alias` to tell Rollup to resolve the aliases. For more info, see [this StackOverflow question](https://stackoverflow.com/questions/63427935/setup-tsconfig-path-in-svelte).
+
+## Deploying to the web
+
+### With [Vercel](https://vercel.com)
+
+Install `vercel` if you haven't already:
+
+```bash
+npm install -g vercel
+```
+
+Then, from within your project folder:
+
+```bash
+cd public
+vercel deploy --name my-project
+```
+
+### With [surge](https://surge.sh/)
+
+Install `surge` if you haven't already:
+
+```bash
+npm install -g surge
+```
+
+Then, from within your project folder:
+
+```bash
+npm run build
+surge public my-project.surge.sh
+```
