@@ -139,17 +139,22 @@
     }
 
     .container {
-        max-width: 640px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        row-gap: 1rem;
+        row-gap: 3rem;
     }
 
     .container__settings-open {
         position: absolute;
         bottom: 1rem;
+    }
+
+    @media screen and (min-width: 576px) {
+        .container__settings-open {
+            display: none;
+        }
     }
 
     .settings__container {
@@ -162,10 +167,24 @@
         visibility: var(--settingsVisibility);
     }
 
+    @media screen and (min-width: 576px) {
+        .settings__container {
+            position: relative;
+            height: auto;
+            visibility: visible;
+        }
+    }
+
     .settings__settings-close {
         position: absolute;
         top: 1rem;
         right: 1rem;
+    }
+
+    @media screen and (min-width: 576px) {
+        .settings__settings-close {
+            display: none;
+        }
     }
 
     .settings__form {
