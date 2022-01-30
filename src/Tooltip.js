@@ -115,11 +115,11 @@ class Tooltip {
 			this.#createTooltip()
 		}
 
-		if (hasContainerClassNameChanged) {
+		if (hasContainerClassNameChanged || hasContentChanged) {
 			this.#tooltip.classList.add(this.#containerClassName || '__tooltip')
 		}
 
-		if (hasPositionChanged) {
+		if (hasPositionChanged || hasContainerClassNameChanged || hasContentChanged) {
 			this.#tooltip.classList.remove(`__tooltip-${oldPosition}`)
 			this.#tooltip.classList.add(`__tooltip-${this.#position}`)
 		}
