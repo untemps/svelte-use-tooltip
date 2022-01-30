@@ -1,3 +1,10 @@
+## [2.1.2](https://github.com/untemps/svelte-use-tooltip/compare/v2.1.1...v2.1.2) (2022-01-30)
+
+
+### Bug Fixes
+
+* Fix classNames reassignment when containerClassName is updated ([#19](https://github.com/untemps/svelte-use-tooltip/issues/19)) ([7f672d0](https://github.com/untemps/svelte-use-tooltip/commit/7f672d0f296ae2618054f425fccf0aabebd54da7))
+
 ## [2.1.1](https://github.com/untemps/svelte-use-tooltip/compare/v2.1.0...v2.1.1) (2022-01-30)
 
 
