@@ -11,6 +11,12 @@
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/untemps/svelte-use-tooltip/deploy?style=for-the-badge)](https://github.com/untemps/svelte-use-tooltip/actions)
 [![Codecov](https://img.shields.io/codecov/c/github/untemps/svelte-use-tooltip?style=for-the-badge)](https://codecov.io/gh/untemps/svelte-use-tooltip)
 
+## Demo
+
+<p align="center">
+    :red_circle:&nbsp;&nbsp;<big><a href="https://svelte-use-tooltip.vercel.app" target="_blank" rel="noopener">LIVE DEMO</a></big>&nbsp;:red_circle:
+</p>
+
 ## Installation
 
 ```bash
