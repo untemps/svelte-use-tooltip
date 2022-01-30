@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/untemps/svelte-use-tooltip/compare/v2.0.0...v2.1.0) (2022-01-30)
+
+
+### Features
+
+* Add enterDelay and leaveDelay props ([#14](https://github.com/untemps/svelte-use-tooltip/issues/14)) ([b660877](https://github.com/untemps/svelte-use-tooltip/commit/b660877b0d59b7f3a3f4a142feb6e6eeadf7b817)), closes [#10](https://github.com/untemps/svelte-use-tooltip/issues/10) [#10](https://github.com/untemps/svelte-use-tooltip/issues/10)
+
 # [2.0.0](https://github.com/untemps/svelte-use-tooltip/compare/v1.2.0...v2.0.0) (2022-01-27)
 
 
