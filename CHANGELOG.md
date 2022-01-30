@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/untemps/svelte-use-tooltip/compare/v2.1.0...v2.1.1) (2022-01-30)
+
+
+### Bug Fixes
+
+* Fix CSS classes reassignment when content is updated ([#16](https://github.com/untemps/svelte-use-tooltip/issues/16)) ([1468f78](https://github.com/untemps/svelte-use-tooltip/commit/1468f788928e68b02d45ef95e525762bf9e826b0))
+
 # [2.1.0](https://github.com/untemps/svelte-use-tooltip/compare/v2.0.0...v2.1.0) (2022-01-30)
 
 
