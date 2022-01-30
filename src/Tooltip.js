@@ -70,6 +70,7 @@ class Tooltip {
 		this.#target.setAttribute('style', 'position: relative')
 
 		this.#createTooltip()
+		this.#tooltip.classList.add(this.#containerClassName || '__tooltip', `__tooltip-${this.#position}`)
 
 		disabled ? this.#disableTarget() : this.#enableTarget()
 
@@ -92,6 +93,8 @@ class Tooltip {
 	) {
 		const hasContentChanged = contentSelector !== this.#contentSelector || content !== this.#content
 		const hasContainerClassNameChanged = containerClassName !== this.#containerClassName
+		const oldPosition = this.#position
+		const hasPositionChanged = position !== this.#position
 		const hasToDisableTarget = disabled && this.#boundEnterHandler
 		const hasToEnableTarget = !disabled && !this.#boundEnterHandler
 
@@ -113,7 +116,12 @@ class Tooltip {
 		}
 
 		if (hasContainerClassNameChanged) {
-			this.#tooltip.className = this.#containerClassName || `__tooltip __tooltip-${this.#position}`
+			this.#tooltip.classList.add(this.#containerClassName || '__tooltip')
+		}
+
+		if (hasPositionChanged) {
+			this.#tooltip.classList.remove(`__tooltip-${oldPosition}`)
+			this.#tooltip.classList.add(`__tooltip-${this.#position}`)
 		}
 
 		if (hasToDisableTarget) {
@@ -152,7 +160,6 @@ class Tooltip {
 
 	#createTooltip() {
 		this.#tooltip = document.createElement('div')
-		this.#tooltip.className = this.#containerClassName || `__tooltip __tooltip-${this.#position}`
 
 		if (this.#contentSelector) {
 			this.#observer

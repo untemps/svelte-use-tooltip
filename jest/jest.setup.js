@@ -3,11 +3,12 @@ import '@testing-library/jest-dom/extend-expect'
 
 expect.extend({ toBeInTheDocument, toHaveAttribute, toHaveStyle })
 
-global._createElement = (id = 'foo', className = 'bar', ariaLabel = 'gag') => {
+global._createElement = (id = 'foo', attrs) => {
 	const el = document.createElement('div')
 	el.setAttribute('id', id)
-	el.setAttribute('class', className)
-	el.setAttribute('aria-label', ariaLabel)
+	for (let key in attrs) {
+		el.setAttribute(key, attrs[key])
+	}
 	document.body.appendChild(el)
 	return el
 }

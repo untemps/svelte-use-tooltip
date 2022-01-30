@@ -36,7 +36,7 @@ describe('useTooltip', () => {
 		})
 
 	beforeEach(() => {
-		target = _createElement('target')
+		target = _createElement('target', { class: 'bar' })
 		template = _createElement('template')
 		options = {
 			contentSelector: '#template',
@@ -248,6 +248,7 @@ describe('useTooltip', () => {
 			expect(template.parentNode.style.right).toHaveLength(0)
 			expect(template.parentNode.style.top).not.toHaveLength(0)
 			expect(template.parentNode.style.bottom).toHaveLength(0)
+			expect(template.parentNode).toHaveClass('__tooltip-left')
 		})
 
 		it('Positions tooltip on the left after update', async () => {
@@ -260,6 +261,8 @@ describe('useTooltip', () => {
 			expect(template.parentNode.style.right).toHaveLength(0)
 			expect(template.parentNode.style.top).not.toHaveLength(0)
 			expect(template.parentNode.style.bottom).toHaveLength(0)
+			expect(template.parentNode).not.toHaveClass('__tooltip-top')
+			expect(template.parentNode).toHaveClass('__tooltip-left')
 		})
 
 		it('Positions tooltip on the right', async () => {
@@ -272,6 +275,7 @@ describe('useTooltip', () => {
 			expect(template.parentNode.style.right).not.toHaveLength(0)
 			expect(template.parentNode.style.top).not.toHaveLength(0)
 			expect(template.parentNode.style.bottom).toHaveLength(0)
+			expect(template.parentNode).toHaveClass('__tooltip-right')
 		})
 
 		it('Positions tooltip on the right after update', async () => {
@@ -284,6 +288,8 @@ describe('useTooltip', () => {
 			expect(template.parentNode.style.right).not.toHaveLength(0)
 			expect(template.parentNode.style.top).not.toHaveLength(0)
 			expect(template.parentNode.style.bottom).toHaveLength(0)
+			expect(template.parentNode).not.toHaveClass('__tooltip-top')
+			expect(template.parentNode).toHaveClass('__tooltip-right')
 		})
 
 		it('Positions tooltip at the top', async () => {
@@ -293,6 +299,7 @@ describe('useTooltip', () => {
 			expect(template.parentNode.style.right).toHaveLength(0)
 			expect(template.parentNode.style.top).not.toHaveLength(0)
 			expect(template.parentNode.style.bottom).toHaveLength(0)
+			expect(template.parentNode).toHaveClass('__tooltip-top')
 		})
 
 		it('Positions tooltip at the top after update', async () => {
@@ -308,6 +315,8 @@ describe('useTooltip', () => {
 			expect(template.parentNode.style.right).toHaveLength(0)
 			expect(template.parentNode.style.top).not.toHaveLength(0)
 			expect(template.parentNode.style.bottom).toHaveLength(0)
+			expect(template.parentNode).not.toHaveClass('__tooltip-left')
+			expect(template.parentNode).toHaveClass('__tooltip-top')
 		})
 
 		it('Positions tooltip at the bottom', async () => {
@@ -320,6 +329,7 @@ describe('useTooltip', () => {
 			expect(template.parentNode.style.right).toHaveLength(0)
 			expect(template.parentNode.style.top).toHaveLength(0)
 			expect(template.parentNode.style.bottom).not.toHaveLength(0)
+			expect(template.parentNode).toHaveClass('__tooltip-bottom')
 		})
 
 		it('Positions tooltip at the bottom after update', async () => {
@@ -332,6 +342,8 @@ describe('useTooltip', () => {
 			expect(template.parentNode.style.right).toHaveLength(0)
 			expect(template.parentNode.style.top).toHaveLength(0)
 			expect(template.parentNode.style.bottom).not.toHaveLength(0)
+			expect(template.parentNode).not.toHaveClass('__tooltip-top')
+			expect(template.parentNode).toHaveClass('__tooltip-bottom')
 		})
 	})
 
