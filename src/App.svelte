@@ -1,5 +1,7 @@
 <script>
-	import { useTooltip } from '@untemps/svelte-use-tooltip'
+	import {useTooltip} from '@untemps/svelte-use-tooltip'
+
+    let settingsVisibility = 'hidden'
 
 	let tooltipTextContent = null
 	let useCustomTooltipClass = false
@@ -14,12 +16,20 @@
 	const _onTooltipClick = (arg) => {
 		console.log(arg)
 	}
+
+	const _onSettingsOpenClick = () => {
+		settingsVisibility = 'visible'
+    }
+
+	const _onSettingsCloseClick = () => {
+		settingsVisibility = 'hidden'
+    }
 </script>
 
 <main>
-	<div class="container">
-		<div
-			use:useTooltip={{
+    <div class="container">
+        <div
+                use:useTooltip={{
 				position: tooltipPosition,
 				content: tooltipTextContent,
 				contentSelector: !tooltipTextContent?.length ? '.tooltip__content' : null,
@@ -40,192 +50,218 @@
 				leaveDelay: tooltipLeaveDelay,
 				disabled: isTooltipDisabled
 			}}
-			class="target"
-		>
-			Hover me
-		</div>
-		<form class="settings__form">
-			<h1>Settings</h1>
-			<fieldset>
-				<label>
-					Default Tooltip Content:
-					<span class="tooltip__content">Hi! I'm a <i>fancy</i> <strong>tooltip</strong>!</span>
-				</label>
-			</fieldset>
-			<fieldset>
-				<label>
-					Tooltip Text Content:
-					<input type="text" bind:value={tooltipTextContent} />
-				</label>
-			</fieldset>
-			<fieldset>
-				<label>
-					Use Custom Tooltip Class:
-					<input type="checkbox" bind:checked={useCustomTooltipClass} />
-				</label>
-			</fieldset>
-			<fieldset>
-				<label>
-					Tooltip Position:
-					<select bind:value={tooltipPosition}>
-						<option value="left">Left</option>
-						<option value="right">Right</option>
-						<option value="top">Top</option>
-						<option value="bottom">Bottom</option>
-					</select>
-				</label>
-			</fieldset>
-			<fieldset>
-				<label>
-					Animate tooltip:
-					<input type="checkbox" bind:checked={animateTooltip} />
-				</label>
-			</fieldset>
-			<fieldset>
-				<label>
-					Use Custom Tooltip Animation Enter Class:
-					<input type="checkbox" bind:checked={useCustomAnimationEnterClass} />
-				</label>
-			</fieldset>
-			<fieldset>
-				<label>
-					Use Custom Tooltip Animation Leave Class:
-					<input type="checkbox" bind:checked={useCustomAnimationLeaveClass} />
-				</label>
-			</fieldset>
-			<fieldset>
-				<label>
-					Tooltip Enter Delay (ms):
-					<input type="number" step={100} min={0} bind:value={tooltipEnterDelay} />
-				</label>
-			</fieldset>
-			<fieldset>
-				<label>
-					Tooltip Leave Delay (ms):
-					<input type="number" step={100} min={0} bind:value={tooltipLeaveDelay} />
-				</label>
-			</fieldset>
-			<fieldset>
-				<label>
-					Disable Tooltip:
-					<input type="checkbox" bind:checked={isTooltipDisabled} />
-				</label>
-			</fieldset>
-		</form>
-	</div>
+                class="target"
+        >
+            Hover me
+        </div>
+        <button class="container__settings-open" on:click={_onSettingsOpenClick}>Settings</button>
+        <div class="settings__container" style="--settingsVisibility:{settingsVisibility}">
+            <button class="settings__settings-close" on:click={_onSettingsCloseClick}>Close</button>
+            <form class="settings__form">
+                <h1>Settings</h1>
+                <fieldset>
+                    <label for="tooltip__content">
+                        Default Tooltip Content:
+                        <span id="tooltip__content" class="tooltip__content">Hi! I'm a <i>fancy</i> <strong>tooltip</strong>!</span>
+                    </label>
+                </fieldset>
+                <fieldset>
+                    <label>
+                        Tooltip Text Content:
+                        <input type="text" bind:value={tooltipTextContent}/>
+                    </label>
+                </fieldset>
+                <fieldset>
+                    <label>
+                        Use Custom Tooltip Class:
+                        <input type="checkbox" bind:checked={useCustomTooltipClass}/>
+                    </label>
+                </fieldset>
+                <fieldset>
+                    <label>
+                        Tooltip Position:
+                        <select bind:value={tooltipPosition}>
+                            <option value="left">Left</option>
+                            <option value="right">Right</option>
+                            <option value="top">Top</option>
+                            <option value="bottom">Bottom</option>
+                        </select>
+                    </label>
+                </fieldset>
+                <fieldset>
+                    <label>
+                        Animate tooltip:
+                        <input type="checkbox" bind:checked={animateTooltip}/>
+                    </label>
+                </fieldset>
+                <fieldset>
+                    <label>
+                        Use Custom Tooltip Animation Enter Class:
+                        <input type="checkbox" bind:checked={useCustomAnimationEnterClass}/>
+                    </label>
+                </fieldset>
+                <fieldset>
+                    <label>
+                        Use Custom Tooltip Animation Leave Class:
+                        <input type="checkbox" bind:checked={useCustomAnimationLeaveClass}/>
+                    </label>
+                </fieldset>
+                <fieldset>
+                    <label>
+                        Tooltip Enter Delay (ms):
+                        <input type="number" step={100} min={0} bind:value={tooltipEnterDelay}/>
+                    </label>
+                </fieldset>
+                <fieldset>
+                    <label>
+                        Tooltip Leave Delay (ms):
+                        <input type="number" step={100} min={0} bind:value={tooltipLeaveDelay}/>
+                    </label>
+                </fieldset>
+                <fieldset>
+                    <label>
+                        Disable Tooltip:
+                        <input type="checkbox" bind:checked={isTooltipDisabled}/>
+                    </label>
+                </fieldset>
+            </form>
+        </div>
+    </div>
 </main>
 
 <style>
-	main {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		height: 100%;
-		padding: 1rem;
-	}
+    main {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        height: 100%;
+        padding: 1rem;
+    }
 
-	.container {
-		max-width: 640px;
-		display: flex;
-		flex-direction: column;
-		row-gap: 1rem;
-	}
+    .container {
+        max-width: 640px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        row-gap: 1rem;
+    }
 
-	.target {
-		width: 10rem;
-		height: 3rem;
-		background-color: white;
-		color: black;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
-	}
+    .container__settings-open {
+        position: absolute;
+        bottom: 1rem;
+    }
 
-	.target:hover {
-		cursor: pointer;
-		background-color: black;
-		color: white;
-	}
+    .settings__container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        overflow: hidden auto;
+        height: 100%;
+        background-color: #eee;
+        visibility: var(--settingsVisibility);
+    }
 
-	.tooltip__content {
-		background-color: yellow;
-		color: black;
-	}
+    .settings__settings-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+    }
 
-	.settings__form {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		padding: 1rem;
-		background-color: #eee;
-	}
+    .settings__form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+        padding: 1rem;}
 
-	.settings__form fieldset {
-		width: 100%;
-		border: none;
-	}
+    .settings__form fieldset {
+        width: 100%;
+        border: none;
+    }
 
-	.settings__form label {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		column-gap: 1rem;
-	}
+    .settings__form label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        column-gap: 1rem;
+    }
 
-	.settings__form input {
-		margin: 0;
-	}
+    .settings__form input {
+        margin: 0;
+    }
 
-	.settings__form input[type='checkbox'] {
-		padding: 0;
-	}
+    .settings__form input[type='checkbox'] {
+        padding: 0;
+    }
 
-	:global(.tooltip) {
-		position: absolute;
-		z-index: 9999;
-		max-width: 120px;
-		background-color: #ee7008;
-		color: #fff;
-		text-align: center;
-		border-radius: 6px;
-		padding: 0.5rem;
-	}
+    .target {
+        width: 10rem;
+        height: 3rem;
+        background-color: white;
+        color: black;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
+    }
 
-	:global(.tooltip::after) {
-		content: '';
-		position: absolute;
-		top: 100%;
-		left: 50%;
-		margin-left: -5px;
-		border-width: 5px;
-		border-style: solid;
-		border-color: #ee7008 transparent transparent transparent;
-	}
+    .target:hover {
+        cursor: pointer;
+        background-color: black;
+        color: white;
+    }
 
-	:global(.tooltip-enter) {
-		animation: fadeIn 0.2s linear forwards;
-	}
+    .tooltip__content {
+        background-color: yellow;
+        color: black;
+    }
 
-	:global(.tooltip-leave) {
-		animation: fadeOut 0.2s linear forwards;
-	}
+    :global(.tooltip) {
+        position: absolute;
+        z-index: 9999;
+        max-width: 120px;
+        background-color: #ee7008;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 0.5rem;
+    }
 
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-			transform: translateX(50px);
-		}
-		to {
-			opacity: 1;
-			transform: translateX(0);
-		}
-	}
-	@keyframes fadeOut {
-		to {
-			opacity: 0;
-			transform: translateX(-50px);
-		}
-	}
+    :global(.tooltip::after) {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #ee7008 transparent transparent transparent;
+    }
+
+    :global(.tooltip-enter) {
+        animation: fadeIn 0.2s linear forwards;
+    }
+
+    :global(.tooltip-leave) {
+        animation: fadeOut 0.2s linear forwards;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateX(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes fadeOut {
+        to {
+            opacity: 0;
+            transform: translateX(-50px);
+        }
+    }
 </style>
