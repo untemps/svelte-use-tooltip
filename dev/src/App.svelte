@@ -32,7 +32,7 @@
 						closeOnCallback: true,
 					},
 				},
-				containerClassName: useCustomTooltipClass ? 'tooltip' : null,
+				containerClassName: useCustomTooltipClass ? `tooltip tooltip-${tooltipPosition}` : null,
 				animated: animateTooltip,
 				animationEnterClassName: useCustomAnimationEnterClass ? 'tooltip-enter' : null,
 				animationLeaveClassName: useCustomAnimationLeaveClass ? 'tooltip-leave' : null,
@@ -194,23 +194,36 @@
 	}
 
 	:global(.tooltip::after) {
-		content: '';
-		position: absolute;
-		top: 100%;
-		left: 50%;
-		margin-left: -5px;
-		border-width: 5px;
-		border-style: solid;
-		border-color: #ee7008 transparent transparent transparent;
+        content: '';
+        position: absolute;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
 	}
 
-	:global(.tooltip-enter) {
-		animation: fadeIn 0.2s linear forwards;
-	}
+    :global(.tooltip-top::after) {
+        bottom: -10px;
+        left: 50%;
+        border-color: #ee7008 transparent transparent transparent;
+    }
 
-	:global(.tooltip-leave) {
-		animation: fadeOut 0.2s linear forwards;
-	}
+    :global(.tooltip-bottom::after) {
+        top: -10px;
+        left: 50%;
+        border-color: transparent transparent #ee7008 transparent;
+    }
+
+    :global(.tooltip-left::after) {
+        top: calc(50% - 5px);
+        right: -10px;
+        border-color: transparent transparent transparent #ee7008;
+    }
+
+    :global(.tooltip-right::after) {
+        top: calc(50% - 5px);
+        left: -5px;
+        border-color: transparent #ee7008 transparent transparent;
+    }
 
 	@keyframes fadeIn {
 		from {

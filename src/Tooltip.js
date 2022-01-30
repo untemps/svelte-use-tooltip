@@ -93,7 +93,6 @@ class Tooltip {
 	) {
 		const hasContentChanged = contentSelector !== this.#contentSelector || content !== this.#content
 		const hasContainerClassNameChanged = containerClassName !== this.#containerClassName
-		const oldPosition = this.#position
 		const hasPositionChanged = position !== this.#position
 		const hasToDisableTarget = disabled && this.#boundEnterHandler
 		const hasToEnableTarget = !disabled && !this.#boundEnterHandler
@@ -115,13 +114,8 @@ class Tooltip {
 			this.#createTooltip()
 		}
 
-		if (hasContainerClassNameChanged || hasContentChanged) {
-			this.#tooltip.classList.add(this.#containerClassName || '__tooltip')
-		}
-
-		if (hasPositionChanged || hasContainerClassNameChanged || hasContentChanged) {
-			this.#tooltip.classList.remove(`__tooltip-${oldPosition}`)
-			this.#tooltip.classList.add(`__tooltip-${this.#position}`)
+		if (hasContainerClassNameChanged || hasContentChanged || hasPositionChanged) {
+			this.#tooltip.setAttribute('class', this.#containerClassName || `__tooltip __tooltip-${this.#position}`)
 		}
 
 		if (hasToDisableTarget) {
