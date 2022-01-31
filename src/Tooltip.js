@@ -94,6 +94,7 @@ class Tooltip {
 		const hasContentChanged = contentSelector !== this.#contentSelector || content !== this.#content
 		const hasContainerClassNameChanged = containerClassName !== this.#containerClassName
 		const hasPositionChanged = position !== this.#position
+		const hasOffsetChanged = position !== this.#offset
 		const hasToDisableTarget = disabled && this.#boundEnterHandler
 		const hasToEnableTarget = !disabled && !this.#boundEnterHandler
 
@@ -110,12 +111,12 @@ class Tooltip {
 		this.#leaveDelay = leaveDelay || 0
 		this.#offset = Math.max(offset || 10, 5)
 
-		if (hasContentChanged || hasPositionChanged) {
+		if (hasContentChanged || hasPositionChanged || hasOffsetChanged) {
 			this.#removeTooltipFromTarget()
 			this.#createTooltip()
 		}
 
-		if (hasContainerClassNameChanged || hasContentChanged || hasPositionChanged) {
+		if (hasContainerClassNameChanged || hasContentChanged || hasPositionChanged || hasOffsetChanged) {
 			this.#tooltip.setAttribute('class', this.#containerClassName || `__tooltip __tooltip-${this.#position}`)
 		}
 
@@ -177,25 +178,25 @@ class Tooltip {
 		area.setAttribute('class', '__tooltip-area')
 		switch (this.#position) {
 			case 'left': {
-				area.setAttribute('style', `width: calc(100% + ${Tooltip.GAP}px)`)
+				area.setAttribute('style', `width: calc(100% + ${this.#offset}px)`)
 				break
 			}
 			case 'right': {
 				area.setAttribute(
 					'style',
-					`width: calc(100% + ${Tooltip.GAP}px); margin-left: calc(-0.5rem - ${Tooltip.GAP}px)`
+					`width: calc(100% + ${this.#offset}px); margin-left: calc(-0.5rem - ${this.#offset}px)`
 				)
 				break
 			}
 			case 'bottom': {
 				area.setAttribute(
 					'style',
-					`height: calc(100% + ${Tooltip.GAP}px); margin-top: calc(-0.5rem - ${Tooltip.GAP}px)`
+					`height: calc(100% + ${this.#offset}px); margin-top: calc(-0.5rem - ${this.#offset}px)`
 				)
 				break
 			}
 			default: {
-				area.setAttribute('style', `height: calc(100% + ${Tooltip.GAP}px)`)
+				area.setAttribute('style', `height: calc(100% + ${this.#offset}px)`)
 			}
 		}
 		this.#tooltip.appendChild(area)
