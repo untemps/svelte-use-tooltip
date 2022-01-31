@@ -121,8 +121,9 @@ yarn add @untemps/svelte-use-tooltip
 | `animated`                | boolean | false   | Flag to animate tooltip transitions.                                                                            |
 | `animationEnterClassName` | string  | null    | Class name to apply to the tooltip enter transition.                                                            |
 | `animationLeaveClassName` | string  | null    | Class name to apply to the tooltip leave transition.                                                            |
-| `enterDelay`              | number  | 0       | Delay before showing the tooltip.                                                                               |
-| `leaveDelay`              | number  | 0       | Delay before hiding the tooltip.                                                                                |
+| `enterDelay`              | number  | 0       | Delay before showing the tooltip in milliseconds.                                                               |
+| `leaveDelay`              | number  | 0       | Delay before hiding the tooltip in milliseconds.                                                                                |
+| `offset`                  | number  | 10      | Distance between the tooltip and the target in pixels.                                                          |
 | `disabled`                | boolean | false   | Flag to disable the tooltip content.                                                                            |
 
 ### Content Actions

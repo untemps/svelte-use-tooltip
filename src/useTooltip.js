@@ -16,6 +16,7 @@ const useTooltip = (
 		animationLeaveClassName,
 		enterDelay,
 		leaveDelay,
+		offset,
 		disabled,
 	}
 ) => {
@@ -32,6 +33,7 @@ const useTooltip = (
 		animationLeaveClassName,
 		enterDelay,
 		leaveDelay,
+		offset,
 		disabled
 	)
 
@@ -48,6 +50,7 @@ const useTooltip = (
 			animationLeaveClassName: newAnimationLeaveClassName,
 			enterDelay: newEnterDelay,
 			leaveDelay: newLeaveDelay,
+			offset: newOffset,
 			disabled: newDisabled,
 		}) =>
 			tooltip.update(
@@ -62,6 +65,7 @@ const useTooltip = (
 				newAnimationLeaveClassName,
 				newEnterDelay,
 				newLeaveDelay,
+				newOffset,
 				newDisabled
 			),
 		destroy: () => tooltip.destroy(),
