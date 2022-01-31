@@ -69,7 +69,7 @@ class Tooltip {
 		this.#target.setAttribute('style', 'position: relative')
 
 		this.#createTooltip()
-		this.#tooltip.classList.add(this.#containerClassName || '__tooltip', `__tooltip-${this.#position}`)
+		this.#tooltip.setAttribute('class', this.#containerClassName || `__tooltip __tooltip-${this.#position}`)
 
 		disabled ? this.#disableTarget() : this.#enableTarget()
 
@@ -110,7 +110,7 @@ class Tooltip {
 		this.#leaveDelay = leaveDelay || 0
 		this.#offset = Math.max(offset || 10, 5)
 
-		if (hasContentChanged) {
+		if (hasContentChanged || hasPositionChanged) {
 			this.#removeTooltipFromTarget()
 			this.#createTooltip()
 		}
@@ -167,6 +167,38 @@ class Tooltip {
 			const child = document.createTextNode(this.#content)
 			this.#tooltip.appendChild(child)
 		}
+
+		this.#createAndAddTooltipArea()
+	}
+
+	#createAndAddTooltipArea() {
+		const area = document.createElement('div')
+		area.setAttribute('aria-hidden', 'true')
+		area.setAttribute('class', '__tooltip-area')
+		switch (this.#position) {
+			case 'left': {
+				area.setAttribute('style', `width: calc(100% + ${Tooltip.GAP}px)`)
+				break
+			}
+			case 'right': {
+				area.setAttribute(
+					'style',
+					`width: calc(100% + ${Tooltip.GAP}px); margin-left: calc(-0.5rem - ${Tooltip.GAP}px)`
+				)
+				break
+			}
+			case 'bottom': {
+				area.setAttribute(
+					'style',
+					`height: calc(100% + ${Tooltip.GAP}px); margin-top: calc(-0.5rem - ${Tooltip.GAP}px)`
+				)
+				break
+			}
+			default: {
+				area.setAttribute('style', `height: calc(100% + ${Tooltip.GAP}px)`)
+			}
+		}
+		this.#tooltip.appendChild(area)
 	}
 
 	#positionTooltip() {
