@@ -1,3 +1,10 @@
+# [2.3.0](https://github.com/untemps/svelte-use-tooltip/compare/v2.2.0...v2.3.0) (2022-01-31)
+
+
+### Features
+
+* Extend hovering area ([#21](https://github.com/untemps/svelte-use-tooltip/issues/21)) ([c70463d](https://github.com/untemps/svelte-use-tooltip/commit/c70463db44cacd63de7bf283d590826cfec4df24))
+
 # [2.2.0](https://github.com/untemps/svelte-use-tooltip/compare/v2.1.2...v2.2.0) (2022-01-31)
 
 
