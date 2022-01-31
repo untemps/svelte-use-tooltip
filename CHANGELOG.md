@@ -1,3 +1,10 @@
+# [2.2.0](https://github.com/untemps/svelte-use-tooltip/compare/v2.1.2...v2.2.0) (2022-01-31)
+
+
+### Features
+
+* Add offset prop ([#20](https://github.com/untemps/svelte-use-tooltip/issues/20)) ([340c859](https://github.com/untemps/svelte-use-tooltip/commit/340c85902ca1c616fe20706784219dd9f315659c))
+
 ## [2.1.2](https://github.com/untemps/svelte-use-tooltip/compare/v2.1.1...v2.1.2) (2022-01-30)
 
 
