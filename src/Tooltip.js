@@ -1,10 +1,6 @@
 import { DOMObserver } from '@untemps/dom-observer'
 
 class Tooltip {
-	static get GAP() {
-		return 10
-	}
-
 	static #instances = []
 
 	#observer = null
@@ -28,6 +24,7 @@ class Tooltip {
 	#animated = false
 	#animationEnterClassName = null
 	#animationLeaveClassName = null
+	#offset = 10
 
 	static destroy() {
 		Tooltip.#instances.forEach((instance) => {
@@ -49,6 +46,7 @@ class Tooltip {
 		animationLeaveClassName,
 		enterDelay,
 		leaveDelay,
+		offset,
 		disabled
 	) {
 		this.#target = target
@@ -63,6 +61,7 @@ class Tooltip {
 		this.#animationLeaveClassName = animationLeaveClassName || '__tooltip-leave'
 		this.#enterDelay = enterDelay || 0
 		this.#leaveDelay = leaveDelay || 0
+		this.#offset = Math.max(offset || 10, 5)
 
 		this.#observer = new DOMObserver()
 
@@ -89,6 +88,7 @@ class Tooltip {
 		animationLeaveClassName,
 		enterDelay,
 		leaveDelay,
+		offset,
 		disabled
 	) {
 		const hasContentChanged = contentSelector !== this.#contentSelector || content !== this.#content
@@ -108,6 +108,7 @@ class Tooltip {
 		this.#animationLeaveClassName = animationLeaveClassName || '__tooltip-leave'
 		this.#enterDelay = enterDelay || 0
 		this.#leaveDelay = leaveDelay || 0
+		this.#offset = Math.max(offset || 10, 5)
 
 		if (hasContentChanged) {
 			this.#removeTooltipFromTarget()
@@ -174,28 +175,28 @@ class Tooltip {
 		switch (this.#position) {
 			case 'left': {
 				this.#tooltip.style.top = `${-(tooltipHeight - targetHeight) >> 1}px`
-				this.#tooltip.style.left = `${-tooltipWidth - Tooltip.GAP}px`
+				this.#tooltip.style.left = `${-tooltipWidth - this.#offset}px`
 				this.#tooltip.style.bottom = null
 				this.#tooltip.style.right = null
 				break
 			}
 			case 'right': {
 				this.#tooltip.style.top = `${-(tooltipHeight - targetHeight) >> 1}px`
-				this.#tooltip.style.right = `${-tooltipWidth - Tooltip.GAP}px`
+				this.#tooltip.style.right = `${-tooltipWidth - this.#offset}px`
 				this.#tooltip.style.bottom = null
 				this.#tooltip.style.left = null
 				break
 			}
 			case 'bottom': {
 				this.#tooltip.style.left = `${-(tooltipWidth - targetWidth) >> 1}px`
-				this.#tooltip.style.bottom = `${-tooltipHeight - Tooltip.GAP}px`
+				this.#tooltip.style.bottom = `${-tooltipHeight - this.#offset}px`
 				this.#tooltip.style.right = null
 				this.#tooltip.style.top = null
 				break
 			}
 			default: {
 				this.#tooltip.style.left = `${-(tooltipWidth - targetWidth) >> 1}px`
-				this.#tooltip.style.top = `${-tooltipHeight - Tooltip.GAP}px`
+				this.#tooltip.style.top = `${-tooltipHeight - this.#offset}px`
 				this.#tooltip.style.right = null
 				this.#tooltip.style.bottom = null
 			}
