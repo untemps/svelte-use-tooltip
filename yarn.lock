@@ -97,10 +97,10 @@
   resolved "https://registry.yarnpkg.com/@untemps/dom-observer/-/dom-observer-2.0.0.tgz#5b86b091f62905a6f18b0280bbf9067f2949716f"
   integrity sha512-oZBj7j9hYSbuveNFvyPLamRfNh15KvGJC5pLGGpWVcO61EzISMESL0wudwP0UZETEu+0WfaJ16rGXtEZHsq+xw==
 
-"@untemps/svelte-use-tooltip@^2.1.2":
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/@untemps/svelte-use-tooltip/-/svelte-use-tooltip-2.1.2.tgz#07820f02f97c7cfa5b45d485635847bde9151e84"
-  integrity sha512-1/zjnkCyDuMVReFyxpvPPpjcb8pKnccB/HTMaQjiAo34Vqs0AZLBQMYOYnep4aL825NZhfmd0dG28kG+eHxZzw==
+"@untemps/svelte-use-tooltip@^2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@untemps/svelte-use-tooltip/-/svelte-use-tooltip-2.3.0.tgz#1e520471ff6587cb6c84f2d460d975f99c79cfe0"
+  integrity sha512-PeiG3lBPQ+g+z7RCvffrIxGVFyMqhDDyrSqqiJpUGyiStUMNT8X7ZENQrVZk/lnag5rj8PH+u6gUOSUQ42NDNQ==
   dependencies:
     "@untemps/dom-observer" "^2.0.0"
     svelte "3.39.0"

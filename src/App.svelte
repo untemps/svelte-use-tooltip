@@ -12,6 +12,7 @@
 	let useCustomAnimationLeaveClass = false
 	let tooltipEnterDelay = 200
 	let tooltipLeaveDelay = 200
+	let tooltipOffset = 10
 
 	const _onTooltipClick = (arg) => {
 		console.log(arg)
@@ -48,6 +49,7 @@
 				animationLeaveClassName: useCustomAnimationLeaveClass ? 'tooltip-leave' : null,
 				enterDelay: tooltipEnterDelay,
 				leaveDelay: tooltipLeaveDelay,
+				offset: tooltipOffset,
 				disabled: isTooltipDisabled
 			}}
                 class="target"
@@ -116,6 +118,12 @@
                     <label>
                         Tooltip Leave Delay (ms):
                         <input type="number" step={100} min={0} bind:value={tooltipLeaveDelay}/>
+                    </label>
+                </fieldset>
+                <fieldset>
+                    <label>
+                        Tooltip Offset (px):
+                        <input type="number" step={1} min={5} bind:value={tooltipOffset}/>
                     </label>
                 </fieldset>
                 <fieldset>
@@ -207,6 +215,7 @@
     }
 
     .settings__form input {
+        width: 6rem;
         margin: 0;
     }
 
@@ -254,21 +263,25 @@
         border-width: 5px;
         border-style: solid;
     }
+
     :global(.tooltip-top::after) {
         bottom: -10px;
         left: 50%;
         border-color: #ee7008 transparent transparent transparent;
     }
+
     :global(.tooltip-bottom::after) {
         top: -10px;
         left: 50%;
         border-color: transparent transparent #ee7008 transparent;
     }
+
     :global(.tooltip-left::after) {
         top: calc(50% - 5px);
         right: -10px;
         border-color: transparent transparent transparent #ee7008;
     }
+
     :global(.tooltip-right::after) {
         top: calc(50% - 5px);
         left: -5px;
