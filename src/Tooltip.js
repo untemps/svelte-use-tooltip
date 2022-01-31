@@ -69,7 +69,7 @@ class Tooltip {
 		this.#target.setAttribute('style', 'position: relative')
 
 		this.#createTooltip()
-		this.#tooltip.classList.add(this.#containerClassName || '__tooltip', `__tooltip-${this.#position}`)
+		this.#tooltip.setAttribute('class', this.#containerClassName || `__tooltip __tooltip-${this.#position}`)
 
 		disabled ? this.#disableTarget() : this.#enableTarget()
 
@@ -94,6 +94,7 @@ class Tooltip {
 		const hasContentChanged = contentSelector !== this.#contentSelector || content !== this.#content
 		const hasContainerClassNameChanged = containerClassName !== this.#containerClassName
 		const hasPositionChanged = position !== this.#position
+		const hasOffsetChanged = position !== this.#offset
 		const hasToDisableTarget = disabled && this.#boundEnterHandler
 		const hasToEnableTarget = !disabled && !this.#boundEnterHandler
 
@@ -110,12 +111,12 @@ class Tooltip {
 		this.#leaveDelay = leaveDelay || 0
 		this.#offset = Math.max(offset || 10, 5)
 
-		if (hasContentChanged) {
+		if (hasContentChanged || hasPositionChanged || hasOffsetChanged) {
 			this.#removeTooltipFromTarget()
 			this.#createTooltip()
 		}
 
-		if (hasContainerClassNameChanged || hasContentChanged || hasPositionChanged) {
+		if (hasContainerClassNameChanged || hasContentChanged || hasPositionChanged || hasOffsetChanged) {
 			this.#tooltip.setAttribute('class', this.#containerClassName || `__tooltip __tooltip-${this.#position}`)
 		}
 
@@ -167,6 +168,38 @@ class Tooltip {
 			const child = document.createTextNode(this.#content)
 			this.#tooltip.appendChild(child)
 		}
+
+		this.#createAndAddTooltipArea()
+	}
+
+	#createAndAddTooltipArea() {
+		const area = document.createElement('div')
+		area.setAttribute('aria-hidden', 'true')
+		area.setAttribute('class', '__tooltip-area')
+		switch (this.#position) {
+			case 'left': {
+				area.setAttribute('style', `width: calc(100% + ${this.#offset}px)`)
+				break
+			}
+			case 'right': {
+				area.setAttribute(
+					'style',
+					`width: calc(100% + ${this.#offset}px); margin-left: calc(-0.5rem - ${this.#offset}px)`
+				)
+				break
+			}
+			case 'bottom': {
+				area.setAttribute(
+					'style',
+					`height: calc(100% + ${this.#offset}px); margin-top: calc(-0.5rem - ${this.#offset}px)`
+				)
+				break
+			}
+			default: {
+				area.setAttribute('style', `height: calc(100% + ${this.#offset}px)`)
+			}
+		}
+		this.#tooltip.appendChild(area)
 	}
 
 	#positionTooltip() {
