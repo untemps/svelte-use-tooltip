@@ -1,3 +1,10 @@
+## [2.3.1](https://github.com/untemps/svelte-use-tooltip/compare/v2.3.0...v2.3.1) (2022-02-02)
+
+
+### Bug Fixes
+
+* Fix interactions with tooltip content, [#17](https://github.com/untemps/svelte-use-tooltip/issues/17) ([9137cd2](https://github.com/untemps/svelte-use-tooltip/commit/9137cd292d9147bcf3624463ae039fd1112da364))
+
 # [2.3.0](https://github.com/untemps/svelte-use-tooltip/compare/v2.2.0...v2.3.0) (2022-01-31)
 
 
