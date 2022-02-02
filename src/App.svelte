@@ -14,8 +14,9 @@
 	let tooltipLeaveDelay = 200
 	let tooltipOffset = 10
 
-	const _onTooltipClick = (arg) => {
-		console.log(arg)
+	const _onTooltipClick = (arg, e) => {
+		e.preventDefault()
+		alert('You\'ve clicked a interactive element within the tooltip')
 	}
 
 	const _onSettingsOpenClick = () => {
@@ -33,14 +34,14 @@
                 use:useTooltip={{
 				position: tooltipPosition,
 				content: tooltipTextContent,
-				contentSelector: !tooltipTextContent?.length ? '.tooltip__content' : null,
+				contentSelector: !tooltipTextContent?.length ? '#tooltip-content' : null,
 				contentClone: true,
 				contentActions: {
-					'*': {
+					'.tooltip__button': {
 						eventType: 'click',
 						callback: _onTooltipClick,
 						callbackParams: ['ok'],
-						closeOnCallback: true,
+						closeOnCallback: false,
 					},
 				},
 				containerClassName: useCustomTooltipClass ? `tooltip tooltip-${tooltipPosition}` : null,
@@ -62,9 +63,12 @@
             <form class="settings__form">
                 <h1>Settings</h1>
                 <fieldset>
-                    <label for="tooltip__content">
+                    <label for="tooltip-content">
                         Default Tooltip Content:
-                        <span id="tooltip__content" class="tooltip__content">Hi! I'm a <i>fancy</i> <strong>tooltip</strong>!</span>
+                        <span id="tooltip-content" class="tooltip__content">
+                            <span class="tooltip__text">Hi! I'm a <i>fancy</i> <strong>tooltip</strong>!</span>
+                            <button type="button" class="tooltip__button">Click me</button>
+                        </span>
                     </label>
                 </fieldset>
                 <fieldset>
@@ -241,8 +245,18 @@
     }
 
     .tooltip__content {
+        display: flex;
+        column-gap: .5rem;
+        align-items: center;
+    }
+
+    .tooltip__text {
         background-color: yellow;
         color: black;
+    }
+
+    .tooltip__button {
+        margin: 0;
     }
 
     :global(.tooltip) {
