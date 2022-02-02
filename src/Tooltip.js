@@ -13,6 +13,7 @@ class Tooltip {
 
 	#boundEnterHandler = null
 	#boundLeaveHandler = null
+	#boundKeyDownHandler = null
 
 	#target = null
 	#content = null
@@ -65,11 +66,11 @@ class Tooltip {
 
 		this.#observer = new DOMObserver()
 
+		this.#createTooltip()
+
 		this.#target.title = ''
 		this.#target.setAttribute('style', 'position: relative')
-
-		this.#createTooltip()
-		this.#tooltip.setAttribute('class', this.#containerClassName || `__tooltip __tooltip-${this.#position}`)
+		this.#target.setAttribute('aria-describedby', 'tooltip')
 
 		disabled ? this.#disableTarget() : this.#enableTarget()
 
@@ -141,21 +142,29 @@ class Tooltip {
 	#enableTarget() {
 		this.#boundEnterHandler = this.#onTargetEnter.bind(this)
 		this.#boundLeaveHandler = this.#onTargetLeave.bind(this)
+		this.#boundKeyDownHandler = this.#onTargetKeyDown.bind(this)
 
 		this.#target.addEventListener('mouseenter', this.#boundEnterHandler)
-		this.#target.addEventListener('mouseleave', this.#boundLeaveHandler)
+		this.#target.addEventListener('focusin', this.#boundEnterHandler)
 	}
 
 	#disableTarget() {
 		this.#target.removeEventListener('mouseenter', this.#boundEnterHandler)
 		this.#target.removeEventListener('mouseleave', this.#boundLeaveHandler)
+		this.#target.removeEventListener('focusin', this.#boundEnterHandler)
+		this.#target.removeEventListener('focusout', this.#boundLeaveHandler)
+		this.#target.addEventListener('keydown', this.#boundKeyDownHandler)
 
 		this.#boundEnterHandler = null
 		this.#boundLeaveHandler = null
+		this.#boundKeyDownHandler = null
 	}
 
 	#createTooltip() {
 		this.#tooltip = document.createElement('div')
+		this.#tooltip.setAttribute('id', 'tooltip')
+		this.#tooltip.setAttribute('class', this.#containerClassName || `__tooltip __tooltip-${this.#position}`)
+		this.#tooltip.setAttribute('role', 'tooltip')
 
 		if (this.#contentSelector) {
 			this.#observer
@@ -325,11 +334,25 @@ class Tooltip {
 	async #onTargetEnter() {
 		await this.#waitForDelay(this.#enterDelay)
 		await this.#appendTooltipToTarget()
+
+		this.#target.addEventListener('mouseleave', this.#boundLeaveHandler)
+		this.#target.addEventListener('focusout', this.#boundLeaveHandler)
+		this.#target.addEventListener('keydown', this.#boundKeyDownHandler)
 	}
 
 	async #onTargetLeave() {
 		await this.#waitForDelay(this.#leaveDelay)
 		await this.#removeTooltipFromTarget()
+
+		this.#target.removeEventListener('mouseleave', this.#boundLeaveHandler)
+		this.#target.removeEventListener('focusout', this.#boundLeaveHandler)
+		this.#target.removeEventListener('keydown', this.#boundKeyDownHandler)
+	}
+
+	async #onTargetKeyDown(e) {
+		if (e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27) {
+			await this.#onTargetLeave()
+		}
 	}
 }
 
