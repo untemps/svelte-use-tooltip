@@ -128,7 +128,7 @@ yarn add @untemps/svelte-use-tooltip
 
 ### Content Actions
 
-The `contentActions` prop allow handling interactions within the tooltip content.
+The `contentActions` prop allows to handle interactions within the tooltip content.
 
 Each element inside the content parent may configure its own action since it can be queried using the key-selector.
 
@@ -147,13 +147,13 @@ One event by element is possible so far as elements are referenced by selector. 
             eventType: 'mouseenter',
             callback: (arg) => console.log(arg),
             callbackParams: ['Haha you\'re hovering the button 1'],
-            closeOnCallback: true
+            closeOnCallback: false
         },
         '#button2': {
             eventType: 'click',
             callback: (arg1, arg2) => console.log(arg1, arg2),
             callbackParams: ['Haha you\'ve clicked the', 'button 2'],
-            closeOnCallback: false
+            closeOnCallback: true
         },
     }
 }}>Hover me</div>
@@ -169,6 +169,30 @@ One event by element is possible so far as elements are referenced by selector. 
 | `callback`        | function | null    | Function to be used as event handler.                                                                    |
 | `callbackParams`  | array    | null    | List of arguments to pass to the event handler in.                                                       |
 | `closeOnCallback` | boolean  | false   | Flag to automatically close the tooltip when the event handler is triggered.                             |
+
+#### `*` selector
+
+If you need the whole tooltip content to be interactive, you can use the special `*` key:
+
+```svelte
+<script>
+    import { useTooltip } from '@untemps/svelte-use-tooltip'
+</script>
+
+<div use:useTooltip={{
+    content: 'Foo',
+    contentActions: {
+        '*': {
+            eventType: 'click',
+            callback: (arg) => console.log(arg),
+            callbackParams: ['Haha you clicked the tooltip'],
+            closeOnCallback: true
+        }
+    }
+}}>Hover me</div>
+```
+
+If you combine the `*` selector with other events, its callback will be triggered along with the other ones.
 
 ## Development
 
