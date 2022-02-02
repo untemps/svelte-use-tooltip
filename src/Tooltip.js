@@ -162,6 +162,7 @@ class Tooltip {
 				.wait(this.#contentSelector, null, { events: [DOMObserver.EXIST, DOMObserver.ADD] })
 				.then(({ node }) => {
 					const child = this.#contentClone ? node.cloneNode(true) : node
+					child.setAttribute('style', 'position: relative')
 					this.#tooltip.appendChild(child)
 				})
 		} else if (this.#content) {
@@ -173,7 +174,7 @@ class Tooltip {
 	}
 
 	#createAndAddTooltipArea() {
-		const area = document.createElement('div')
+		const area = document.createElement('span')
 		area.setAttribute('aria-hidden', 'true')
 		area.setAttribute('class', '__tooltip-area')
 		switch (this.#position) {
@@ -252,7 +253,7 @@ class Tooltip {
 					const trigger = key === '*' ? this.#tooltip : this.#tooltip.querySelector(key)
 					if (trigger) {
 						const listener = (event) => {
-							callback?.apply(null, [...callbackParams, event])
+							callback?.apply(null, [...(callbackParams || []), event])
 							if (closeOnCallback) {
 								this.#removeTooltipFromTarget()
 							}
