@@ -145,7 +145,10 @@ class Tooltip {
 		this.#boundKeyDownHandler = this.#onTargetKeyDown.bind(this)
 
 		this.#target.addEventListener('mouseenter', this.#boundEnterHandler)
+		this.#target.addEventListener('mouseleave', this.#boundLeaveHandler)
 		this.#target.addEventListener('focusin', this.#boundEnterHandler)
+		this.#target.addEventListener('focusout', this.#boundLeaveHandler)
+		window.addEventListener('keydown', this.#boundKeyDownHandler)
 	}
 
 	#disableTarget() {
@@ -153,7 +156,7 @@ class Tooltip {
 		this.#target.removeEventListener('mouseleave', this.#boundLeaveHandler)
 		this.#target.removeEventListener('focusin', this.#boundEnterHandler)
 		this.#target.removeEventListener('focusout', this.#boundLeaveHandler)
-		this.#target.addEventListener('keydown', this.#boundKeyDownHandler)
+		window.removeEventListener('keydown', this.#boundKeyDownHandler)
 
 		this.#boundEnterHandler = null
 		this.#boundLeaveHandler = null
@@ -334,19 +337,11 @@ class Tooltip {
 	async #onTargetEnter() {
 		await this.#waitForDelay(this.#enterDelay)
 		await this.#appendTooltipToTarget()
-
-		this.#target.addEventListener('mouseleave', this.#boundLeaveHandler)
-		this.#target.addEventListener('focusout', this.#boundLeaveHandler)
-		this.#target.addEventListener('keydown', this.#boundKeyDownHandler)
 	}
 
 	async #onTargetLeave() {
 		await this.#waitForDelay(this.#leaveDelay)
 		await this.#removeTooltipFromTarget()
-
-		this.#target.removeEventListener('mouseleave', this.#boundLeaveHandler)
-		this.#target.removeEventListener('focusout', this.#boundLeaveHandler)
-		this.#target.removeEventListener('keydown', this.#boundKeyDownHandler)
 	}
 
 	async #onTargetKeyDown(e) {
