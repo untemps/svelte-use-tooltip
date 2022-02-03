@@ -1,3 +1,10 @@
+## [2.3.2](https://github.com/untemps/svelte-use-tooltip/compare/v2.3.1...v2.3.2) (2022-02-03)
+
+
+### Bug Fixes
+
+* Fix hovering area position ([#26](https://github.com/untemps/svelte-use-tooltip/issues/26)) ([d289a1f](https://github.com/untemps/svelte-use-tooltip/commit/d289a1f294440aeffbd4d2e68df8dd4cbd445f6a))
+
 ## [2.3.1](https://github.com/untemps/svelte-use-tooltip/compare/v2.3.0...v2.3.1) (2022-02-02)
 
 
