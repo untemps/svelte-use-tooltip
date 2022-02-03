@@ -13,7 +13,7 @@ class Tooltip {
 
 	#boundEnterHandler = null
 	#boundLeaveHandler = null
-	#boundKeyDownHandler = null
+	#boundWindowEventHandler = null
 
 	#target = null
 	#content = null
@@ -72,7 +72,7 @@ class Tooltip {
 		this.#target.setAttribute('style', 'position: relative')
 		this.#target.setAttribute('aria-describedby', 'tooltip')
 
-		disabled ? this.#disableTarget() : this.#enableTarget()
+		disabled ? this.#disable() : this.#enable()
 
 		Tooltip.#instances.push(this)
 	}
@@ -122,14 +122,14 @@ class Tooltip {
 		}
 
 		if (hasToDisableTarget) {
-			this.#disableTarget()
+			this.#disable()
 		} else if (hasToEnableTarget) {
-			this.#enableTarget()
+			this.#enable()
 		}
 	}
 
-	destroy() {
-		this.#removeTooltipFromTarget()
+	async destroy() {
+		await this.#removeTooltipFromTarget()
 
 		this.#disableTarget()
 
@@ -139,16 +139,32 @@ class Tooltip {
 		this.#observer = null
 	}
 
+	#enable() {
+		this.#enableTarget()
+		this.#enableWindow()
+	}
+
 	#enableTarget() {
 		this.#boundEnterHandler = this.#onTargetEnter.bind(this)
 		this.#boundLeaveHandler = this.#onTargetLeave.bind(this)
-		this.#boundKeyDownHandler = this.#onTargetKeyDown.bind(this)
 
 		this.#target.addEventListener('mouseenter', this.#boundEnterHandler)
 		this.#target.addEventListener('mouseleave', this.#boundLeaveHandler)
 		this.#target.addEventListener('focusin', this.#boundEnterHandler)
 		this.#target.addEventListener('focusout', this.#boundLeaveHandler)
-		window.addEventListener('keydown', this.#boundKeyDownHandler)
+	}
+
+	#enableWindow() {
+		this.#boundWindowEventHandler = this.#onWindowChange.bind(this)
+
+		window.addEventListener('keydown', this.#boundWindowEventHandler)
+		window.addEventListener('resize', this.#boundWindowEventHandler)
+		window.addEventListener('scroll', this.#boundWindowEventHandler)
+	}
+
+	#disable() {
+		this.#disableTarget()
+		this.#disableWindow()
 	}
 
 	#disableTarget() {
@@ -156,11 +172,17 @@ class Tooltip {
 		this.#target.removeEventListener('mouseleave', this.#boundLeaveHandler)
 		this.#target.removeEventListener('focusin', this.#boundEnterHandler)
 		this.#target.removeEventListener('focusout', this.#boundLeaveHandler)
-		window.removeEventListener('keydown', this.#boundKeyDownHandler)
 
 		this.#boundEnterHandler = null
 		this.#boundLeaveHandler = null
-		this.#boundKeyDownHandler = null
+	}
+
+	#disableWindow() {
+		window.removeEventListener('keydown', this.#boundWindowEventHandler)
+		window.removeEventListener('resize', this.#boundWindowEventHandler)
+		window.removeEventListener('scroll', this.#boundWindowEventHandler)
+
+		this.#boundWindowEventHandler = null
 	}
 
 	#createTooltip() {
@@ -345,9 +367,16 @@ class Tooltip {
 		await this.#removeTooltipFromTarget()
 	}
 
-	async #onTargetKeyDown(e) {
-		if (e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27) {
-			await this.#onTargetLeave()
+	async #onWindowChange(e) {
+		if (
+			this.#tooltip &&
+			this.#tooltip.parentNode &&
+			(e.type !== 'keydown' ||
+				(e.type === 'keydown' && e.key === 'Escape') ||
+				e.key === 'Esc' ||
+				e.keyCode === 27)
+		) {
+			await this.#removeTooltipFromTarget()
 		}
 	}
 }
