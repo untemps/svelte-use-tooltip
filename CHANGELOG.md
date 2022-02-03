@@ -1,3 +1,10 @@
+# [2.4.0](https://github.com/untemps/svelte-use-tooltip/compare/v2.3.2...v2.4.0) (2022-02-03)
+
+
+### Features
+
+* Add missing a11y features ([#27](https://github.com/untemps/svelte-use-tooltip/issues/27)) ([3bcb198](https://github.com/untemps/svelte-use-tooltip/commit/3bcb198bcf5ecd54ea61ef8f911904dd7f300435)), closes [#11](https://github.com/untemps/svelte-use-tooltip/issues/11) [#11](https://github.com/untemps/svelte-use-tooltip/issues/11)
+
 ## [2.3.2](https://github.com/untemps/svelte-use-tooltip/compare/v2.3.1...v2.3.2) (2022-02-03)
 
 
