@@ -13,6 +13,7 @@ class Tooltip {
 
 	#boundEnterHandler = null
 	#boundLeaveHandler = null
+	#boundKeyDownHandler = null
 
 	#target = null
 	#content = null
@@ -65,11 +66,11 @@ class Tooltip {
 
 		this.#observer = new DOMObserver()
 
+		this.#createTooltip()
+
 		this.#target.title = ''
 		this.#target.setAttribute('style', 'position: relative')
-
-		this.#createTooltip()
-		this.#tooltip.setAttribute('class', this.#containerClassName || `__tooltip __tooltip-${this.#position}`)
+		this.#target.setAttribute('aria-describedby', 'tooltip')
 
 		disabled ? this.#disableTarget() : this.#enableTarget()
 
@@ -141,21 +142,32 @@ class Tooltip {
 	#enableTarget() {
 		this.#boundEnterHandler = this.#onTargetEnter.bind(this)
 		this.#boundLeaveHandler = this.#onTargetLeave.bind(this)
+		this.#boundKeyDownHandler = this.#onTargetKeyDown.bind(this)
 
 		this.#target.addEventListener('mouseenter', this.#boundEnterHandler)
 		this.#target.addEventListener('mouseleave', this.#boundLeaveHandler)
+		this.#target.addEventListener('focusin', this.#boundEnterHandler)
+		this.#target.addEventListener('focusout', this.#boundLeaveHandler)
+		window.addEventListener('keydown', this.#boundKeyDownHandler)
 	}
 
 	#disableTarget() {
 		this.#target.removeEventListener('mouseenter', this.#boundEnterHandler)
 		this.#target.removeEventListener('mouseleave', this.#boundLeaveHandler)
+		this.#target.removeEventListener('focusin', this.#boundEnterHandler)
+		this.#target.removeEventListener('focusout', this.#boundLeaveHandler)
+		window.removeEventListener('keydown', this.#boundKeyDownHandler)
 
 		this.#boundEnterHandler = null
 		this.#boundLeaveHandler = null
+		this.#boundKeyDownHandler = null
 	}
 
 	#createTooltip() {
 		this.#tooltip = document.createElement('div')
+		this.#tooltip.setAttribute('id', 'tooltip')
+		this.#tooltip.setAttribute('class', this.#containerClassName || `__tooltip __tooltip-${this.#position}`)
+		this.#tooltip.setAttribute('role', 'tooltip')
 
 		if (this.#contentSelector) {
 			this.#observer
@@ -331,6 +343,12 @@ class Tooltip {
 	async #onTargetLeave() {
 		await this.#waitForDelay(this.#leaveDelay)
 		await this.#removeTooltipFromTarget()
+	}
+
+	async #onTargetKeyDown(e) {
+		if (e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27) {
+			await this.#onTargetLeave()
+		}
 	}
 }
 

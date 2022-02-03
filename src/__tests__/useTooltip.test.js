@@ -17,14 +17,14 @@ describe('useTooltip', () => {
 		new Promise(async (resolve) => {
 			await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
 			await fireEvent.mouseEnter(target)
-			await _sleep(10)
+			await _sleep(1)
 			resolve()
 		})
 
 	const _leave = async () =>
 		new Promise(async (resolve) => {
 			await fireEvent.mouseLeave(target)
-			await _sleep(10)
+			await _sleep(1)
 			resolve()
 		})
 
@@ -32,6 +32,34 @@ describe('useTooltip', () => {
 		new Promise(async (resolve) => {
 			await _enter()
 			await _leave()
+			resolve()
+		})
+
+	const _focus = async () =>
+		new Promise(async (resolve) => {
+			await fireEvent.focusIn(target)
+			await _sleep(1)
+			resolve()
+		})
+
+	const _blur = async () =>
+		new Promise(async (resolve) => {
+			await fireEvent.focusOut(target)
+			await _sleep(1)
+			resolve()
+		})
+
+	const _focusAndBlur = async () =>
+		new Promise(async (resolve) => {
+			await _focus()
+			await _blur()
+			resolve()
+		})
+
+	const _keyDown = async (key) =>
+		new Promise(async (resolve) => {
+			await fireEvent.keyDown(target, key || { key: 'Escape', code: 'Escape', charCode: 27 })
+			await _sleep(1)
 			resolve()
 		})
 
@@ -78,6 +106,13 @@ describe('useTooltip', () => {
 				await _enterAndLeave()
 				expect(template).not.toBeInTheDocument()
 			})
+
+			it('Hides tooltip on escape key down', async () => {
+				action = useTooltip(target, options)
+				await _enter()
+				await _keyDown()
+				expect(template).not.toBeInTheDocument()
+			})
 		})
 
 		describe('update', () => {
@@ -95,6 +130,27 @@ describe('useTooltip', () => {
 				expect(newTemplate).toBeInTheDocument()
 			})
 		})
+
+		describe('focus', () => {
+			it('Shows tooltip on focus in', async () => {
+				action = useTooltip(target, options)
+				await _focus()
+				expect(template).toBeInTheDocument()
+			})
+
+			it('Hides tooltip on focus out', async () => {
+				action = useTooltip(target, options)
+				await _focusAndBlur()
+				expect(template).not.toBeInTheDocument()
+			})
+
+			it('Hides tooltip on escape key down', async () => {
+				action = useTooltip(target, options)
+				await _focus()
+				await _keyDown()
+				expect(template).not.toBeInTheDocument()
+			})
+		})
 	})
 
 	describe('useTooltip lifecycle', () => {
@@ -109,17 +165,41 @@ describe('useTooltip', () => {
 	describe('useTooltip props: content', () => {
 		it('Displays text content', async () => {
 			const content = 'Foo'
-			action = useTooltip(target, { ...options, contentSelector: null, content })
+			action = useTooltip(target, {
+				...options,
+				contentSelector: null,
+				content,
+			})
 			await _enter()
 			expect(target).toHaveTextContent(content)
 		})
 
 		it('Displays content element over text', async () => {
 			const content = 'Foo'
-			action = useTooltip(target, { ...options, content })
+			action = useTooltip(target, {
+				...options,
+				content,
+			})
 			await _enter()
 			expect(target).not.toHaveTextContent(content)
 			expect(template).toBeInTheDocument()
+		})
+	})
+
+	describe('useTooltip props: contentClone', () => {
+		it('Does not clone content element', async () => {
+			action = useTooltip(target, options)
+			await _sleep(1)
+			expect(template).not.toBeVisible()
+		})
+
+		it('Clones content element', async () => {
+			action = useTooltip(target, {
+				...options,
+				contentClone: true,
+			})
+			await _sleep(1)
+			expect(template).toBeVisible()
 		})
 	})
 
