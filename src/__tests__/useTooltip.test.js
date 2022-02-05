@@ -58,13 +58,27 @@ describe('useTooltip', () => {
 
 	const _keyDown = async (key) =>
 		new Promise(async (resolve) => {
-			await fireEvent.keyDown(target, key || { key: 'Escape', code: 'Escape', charCode: 27 })
+			await fireEvent.keyDown(target, key || { key: 'Escape', code: 'Escape', keyCode: 27 })
+			await _sleep(1)
+			resolve()
+		})
+
+	const _scroll = async () =>
+		new Promise(async (resolve) => {
+			await fireEvent.scroll(window)
+			await _sleep(1)
+			resolve()
+		})
+
+	const _resize = async () =>
+		new Promise(async (resolve) => {
+			await fireEvent(window, new Event('resize'))
 			await _sleep(1)
 			resolve()
 		})
 
 	beforeEach(() => {
-		target = _createElement('target', { class: 'bar' })
+		target = _createElement('target', null, { class: 'bar' })
 		template = _createElement('template')
 		options = {
 			contentSelector: '#template',
@@ -110,7 +124,24 @@ describe('useTooltip', () => {
 			it('Hides tooltip on escape key down', async () => {
 				action = useTooltip(target, options)
 				await _enter()
+				expect(template).toBeInTheDocument()
 				await _keyDown()
+				expect(template).not.toBeInTheDocument()
+			})
+
+			it('Hides tooltip on scroll', async () => {
+				action = useTooltip(target, options)
+				await _enter()
+				expect(template).toBeInTheDocument()
+				await _scroll()
+				expect(template).not.toBeInTheDocument()
+			})
+
+			it('Hides tooltip on resize', async () => {
+				action = useTooltip(target, options)
+				await _enter()
+				expect(template).toBeInTheDocument()
+				await _resize()
 				expect(template).not.toBeInTheDocument()
 			})
 		})
@@ -211,6 +242,28 @@ describe('useTooltip', () => {
 			await fireEvent.click(template)
 			expect(contentAction.callback).toHaveBeenCalledWith(contentAction.callbackParams[0], expect.any(Event))
 			expect(template).toBeInTheDocument()
+		})
+
+		it('Triggers callback on element click within tooltip', async () => {
+			const newTemplate = _createElement('new-template')
+			const clickableElement = _createElement('clickable-element', newTemplate)
+			const contentActions = {
+				'#clickable-element': {
+					eventType: 'click',
+					callback: jest.fn(),
+					callbackParams: ['foo'],
+				},
+			}
+			action = useTooltip(target, {
+				...options,
+				contentSelector: '#new-template',
+				contentActions,
+			})
+			const contentAction = contentActions['#clickable-element']
+			await _enter()
+			await fireEvent.click(clickableElement)
+			expect(contentAction.callback).toHaveBeenCalledWith(contentAction.callbackParams[0], expect.any(Event))
+			expect(newTemplate).toBeInTheDocument()
 		})
 
 		it('Closes tooltip after triggering callback', async () => {
