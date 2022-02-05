@@ -262,7 +262,7 @@
     :global(.tooltip) {
         position: absolute;
         z-index: 9999;
-        max-width: 120px;
+        max-width: 140px;
         background-color: #ee7008;
         color: #fff;
         text-align: center;
