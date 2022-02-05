@@ -38,7 +38,6 @@ yarn add @untemps/svelte-use-tooltip
 
 <div use:useTooltip={{
         contentSelector: '.tooltip__content',
-        contentClone: false,
         contentActions: {
             '*': {
                 eventType: 'click',
@@ -114,7 +113,6 @@ yarn add @untemps/svelte-use-tooltip
 |---------------------------|---------|-------------------|-----------------------------------------------------------------------------------------------------------------|
 | `content`                 | string  | null              | Text content to display in the tooltip.                                                                         |
 | `contentSelector`         | string  | null              | Selector of the content to display in the tooltip.                                                              |
-| `contentClone`            | boolean | false             | Flag to clone the content to display in the tooltip. If false, the content is removed from its previous parent. |
 | `contentActions`          | object  | null              | Configuration of the tooltip actions (see [Content Actions](#content-actions)).                                 |
 | `containerClassName`      | string  | '__tooltip'       | Class name to apply to the tooltip container.                                                                   |
 | `position`                | string  | 'top'             | Position of the tooltip. Available values: 'top', 'bottom', 'left', 'right'                                     |
@@ -125,6 +123,18 @@ yarn add @untemps/svelte-use-tooltip
 | `leaveDelay`              | number  | 0                 | Delay before hiding the tooltip in milliseconds.                                                                                |
 | `offset`                  | number  | 10                | Distance between the tooltip and the target in pixels.                                                          |
 | `disabled`                | boolean | false             | Flag to disable the tooltip content.                                                                            |
+
+### Content and Content Selector
+
+The tooltip content can be specified either by the `content` prop or the `contentSelector` prop.
+
+`content` must be a text string that will be displayed as is in the tooltip.
+
+It's useful for most of the use cases of a tooltip however sometimes you need to display some more complex content, with interactive elements or formatted text.  
+
+To do so, you may use the `contentSelector` prop that allows to specify the selector of an element from the DOM.
+
+The best option is to use a [template](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template) HTML element although you may also use a plain element. In this case, **it will remain in the DOM and will be clones in the tooltip**.
 
 ### Content Actions
 
@@ -141,7 +151,6 @@ One event by element is possible so far as elements are referenced by selector. 
 
 <div use:useTooltip={{
     contentSelector: '#content',
-    contentClone: false,
     contentActions: {
         '#button1': {
             eventType: 'mouseenter',

@@ -13,13 +13,12 @@ class Tooltip {
 
 	#boundEnterHandler = null
 	#boundLeaveHandler = null
-	#boundWindowChangeHandler = null
+	#boundKeyDownHandler = null
 
 	#target = null
 	#content = null
 	#contentSelector = null
 	#contentActions = null
-	#contentClone = false
 	#containerClassName = null
 	#position = null
 	#animated = false
@@ -38,7 +37,6 @@ class Tooltip {
 		target,
 		content,
 		contentSelector,
-		contentClone,
 		contentActions,
 		containerClassName,
 		position,
@@ -53,7 +51,6 @@ class Tooltip {
 		this.#target = target
 		this.#content = content
 		this.#contentSelector = contentSelector
-		this.#contentClone = contentClone || false
 		this.#contentActions = contentActions
 		this.#containerClassName = containerClassName
 		this.#position = position || 'top'
@@ -72,7 +69,7 @@ class Tooltip {
 		this.#target.setAttribute('style', 'position: relative')
 		this.#target.setAttribute('aria-describedby', 'tooltip')
 
-		disabled ? this.#disable() : this.#enable()
+		disabled ? this.#disableTarget() : this.#enableTarget()
 
 		Tooltip.#instances.push(this)
 	}
@@ -80,7 +77,6 @@ class Tooltip {
 	update(
 		content,
 		contentSelector,
-		contentClone,
 		contentActions,
 		containerClassName,
 		position,
@@ -101,7 +97,6 @@ class Tooltip {
 
 		this.#content = content
 		this.#contentSelector = contentSelector
-		this.#contentClone = contentClone || false
 		this.#contentActions = contentActions
 		this.#containerClassName = containerClassName
 		this.#position = position || 'top'
@@ -122,14 +117,14 @@ class Tooltip {
 		}
 
 		if (hasToDisableTarget) {
-			this.#disable()
+			this.#disableTarget()
 		} else if (hasToEnableTarget) {
-			this.#enable()
+			this.#enableTarget()
 		}
 	}
 
-	async destroy() {
-		await this.#removeTooltipFromTarget()
+	destroy() {
+		this.#removeTooltipFromTarget()
 
 		this.#disableTarget()
 
@@ -139,32 +134,16 @@ class Tooltip {
 		this.#observer = null
 	}
 
-	#enable() {
-		this.#enableTarget()
-		this.#enableWindow()
-	}
-
 	#enableTarget() {
 		this.#boundEnterHandler = this.#onTargetEnter.bind(this)
 		this.#boundLeaveHandler = this.#onTargetLeave.bind(this)
+		this.#boundKeyDownHandler = this.#onTargetKeyDown.bind(this)
 
 		this.#target.addEventListener('mouseenter', this.#boundEnterHandler)
 		this.#target.addEventListener('mouseleave', this.#boundLeaveHandler)
 		this.#target.addEventListener('focusin', this.#boundEnterHandler)
 		this.#target.addEventListener('focusout', this.#boundLeaveHandler)
-	}
-
-	#enableWindow() {
-		this.#boundWindowChangeHandler = this.#onWindowChange.bind(this)
-
-		window.addEventListener('keydown', this.#boundWindowChangeHandler)
-		window.addEventListener('resize', this.#boundWindowChangeHandler)
-		window.addEventListener('scroll', this.#boundWindowChangeHandler)
-	}
-
-	#disable() {
-		this.#disableTarget()
-		this.#disableWindow()
+		window.addEventListener('keydown', this.#boundKeyDownHandler)
 	}
 
 	#disableTarget() {
@@ -172,17 +151,11 @@ class Tooltip {
 		this.#target.removeEventListener('mouseleave', this.#boundLeaveHandler)
 		this.#target.removeEventListener('focusin', this.#boundEnterHandler)
 		this.#target.removeEventListener('focusout', this.#boundLeaveHandler)
+		window.removeEventListener('keydown', this.#boundKeyDownHandler)
 
 		this.#boundEnterHandler = null
 		this.#boundLeaveHandler = null
-	}
-
-	#disableWindow() {
-		window.removeEventListener('keydown', this.#boundWindowChangeHandler)
-		window.removeEventListener('resize', this.#boundWindowChangeHandler)
-		window.removeEventListener('scroll', this.#boundWindowChangeHandler)
-
-		this.#boundWindowChangeHandler = null
+		this.#boundKeyDownHandler = null
 	}
 
 	#createTooltip() {
@@ -195,9 +168,9 @@ class Tooltip {
 			this.#observer
 				.wait(this.#contentSelector, null, { events: [DOMObserver.EXIST, DOMObserver.ADD] })
 				.then(({ node }) => {
-					const child = this.#contentClone ? node.cloneNode(true) : node
+					const child = node.content ? node.content.firstElementChild : node
 					child.setAttribute('style', 'position: relative')
-					this.#tooltip.appendChild(child)
+					this.#tooltip.appendChild(child.cloneNode(true))
 				})
 		} else if (this.#content) {
 			const child = document.createTextNode(this.#content)
@@ -367,16 +340,9 @@ class Tooltip {
 		await this.#removeTooltipFromTarget()
 	}
 
-	async #onWindowChange(e) {
-		if (
-			this.#tooltip &&
-			this.#tooltip.parentNode &&
-			(e.type !== 'keydown' ||
-				(e.type === 'keydown' && e.key === 'Escape') ||
-				e.key === 'Esc' ||
-				e.keyCode === 27)
-		) {
-			await this.#removeTooltipFromTarget()
+	async #onTargetKeyDown(e) {
+		if (e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27) {
+			await this.#onTargetLeave()
 		}
 	}
 }

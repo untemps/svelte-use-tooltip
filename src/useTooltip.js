@@ -7,7 +7,6 @@ const useTooltip = (
 	{
 		content,
 		contentSelector,
-		contentClone,
 		contentActions,
 		containerClassName,
 		position,
@@ -24,7 +23,6 @@ const useTooltip = (
 		node,
 		content,
 		contentSelector,
-		contentClone,
 		contentActions,
 		containerClassName,
 		position,
@@ -41,7 +39,6 @@ const useTooltip = (
 		update: ({
 			content: newContent,
 			contentSelector: newContentSelector,
-			contentClone: newContentClone,
 			contentActions: newContentActions,
 			containerClassName: newContainerClassName,
 			position: newPosition,
@@ -56,7 +53,6 @@ const useTooltip = (
 			tooltip.update(
 				newContent,
 				newContentSelector,
-				newContentClone,
 				newContentActions,
 				newContainerClassName,
 				newPosition,
