@@ -13,7 +13,7 @@ class Tooltip {
 
 	#boundEnterHandler = null
 	#boundLeaveHandler = null
-	#boundWindowEventHandler = null
+	#boundWindowChangeHandler = null
 
 	#target = null
 	#content = null
@@ -155,11 +155,11 @@ class Tooltip {
 	}
 
 	#enableWindow() {
-		this.#boundWindowEventHandler = this.#onWindowChange.bind(this)
+		this.#boundWindowChangeHandler = this.#onWindowChange.bind(this)
 
-		window.addEventListener('keydown', this.#boundWindowEventHandler)
-		window.addEventListener('resize', this.#boundWindowEventHandler)
-		window.addEventListener('scroll', this.#boundWindowEventHandler)
+		window.addEventListener('keydown', this.#boundWindowChangeHandler)
+		window.addEventListener('resize', this.#boundWindowChangeHandler)
+		window.addEventListener('scroll', this.#boundWindowChangeHandler)
 	}
 
 	#disable() {
@@ -178,11 +178,11 @@ class Tooltip {
 	}
 
 	#disableWindow() {
-		window.removeEventListener('keydown', this.#boundWindowEventHandler)
-		window.removeEventListener('resize', this.#boundWindowEventHandler)
-		window.removeEventListener('scroll', this.#boundWindowEventHandler)
+		window.removeEventListener('keydown', this.#boundWindowChangeHandler)
+		window.removeEventListener('resize', this.#boundWindowChangeHandler)
+		window.removeEventListener('scroll', this.#boundWindowChangeHandler)
 
-		this.#boundWindowEventHandler = null
+		this.#boundWindowChangeHandler = null
 	}
 
 	#createTooltip() {
