@@ -1,3 +1,10 @@
+# [2.5.0](https://github.com/untemps/svelte-use-tooltip/compare/v2.4.0...v2.5.0) (2022-02-05)
+
+
+### Features
+
+* Hide tooltip on window resize and scroll events ([#28](https://github.com/untemps/svelte-use-tooltip/issues/28)) ([4255353](https://github.com/untemps/svelte-use-tooltip/commit/42553531497251fa002e9b4c0e0a320ee782b7dd))
+
 # [2.4.0](https://github.com/untemps/svelte-use-tooltip/compare/v2.3.2...v2.4.0) (2022-02-03)
 
 
