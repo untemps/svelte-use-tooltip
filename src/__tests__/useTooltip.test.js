@@ -7,79 +7,26 @@ import { fireEvent } from '@testing-library/svelte'
 import useTooltip from '../useTooltip'
 import Tooltip from '../Tooltip'
 
+const initTarget = (id) => {
+	return _createAndAddElement('div', { id, class: 'bar' })
+}
+
+const initTemplate = (id) => {
+	const template = _createAndAddElement('template', { id })
+	const content = _createAndAddElement('div', { id: 'content', class: 'foo' })
+	template.content.appendChild(content)
+	return template
+}
+
 describe('useTooltip', () => {
 	let target,
 		template,
 		options,
 		action = null
 
-	const _enter = async () =>
-		new Promise(async (resolve) => {
-			await fireEvent.mouseOver(target) // fireEvent.mouseEnter only works if mouseOver is triggered before
-			await fireEvent.mouseEnter(target)
-			await _sleep(1)
-			resolve()
-		})
-
-	const _leave = async () =>
-		new Promise(async (resolve) => {
-			await fireEvent.mouseLeave(target)
-			await _sleep(1)
-			resolve()
-		})
-
-	const _enterAndLeave = async () =>
-		new Promise(async (resolve) => {
-			await _enter()
-			await _leave()
-			resolve()
-		})
-
-	const _focus = async () =>
-		new Promise(async (resolve) => {
-			await fireEvent.focusIn(target)
-			await _sleep(1)
-			resolve()
-		})
-
-	const _blur = async () =>
-		new Promise(async (resolve) => {
-			await fireEvent.focusOut(target)
-			await _sleep(1)
-			resolve()
-		})
-
-	const _focusAndBlur = async () =>
-		new Promise(async (resolve) => {
-			await _focus()
-			await _blur()
-			resolve()
-		})
-
-	const _keyDown = async (key) =>
-		new Promise(async (resolve) => {
-			await fireEvent.keyDown(target, key || { key: 'Escape', code: 'Escape', keyCode: 27 })
-			await _sleep(1)
-			resolve()
-		})
-
-	const _scroll = async () =>
-		new Promise(async (resolve) => {
-			await fireEvent.scroll(window)
-			await _sleep(1)
-			resolve()
-		})
-
-	const _resize = async () =>
-		new Promise(async (resolve) => {
-			await fireEvent(window, new Event('resize'))
-			await _sleep(1)
-			resolve()
-		})
-
 	beforeEach(() => {
-		target = _createElement('target', null, { class: 'bar' })
-		template = _createElement('template')
+		target = initTarget('target')
+		template = initTemplate('template')
 		options = {
 			contentSelector: '#template',
 			contentActions: {
@@ -89,7 +36,6 @@ describe('useTooltip', () => {
 					callbackParams: ['foo'],
 				},
 			},
-			disabled: false,
 		}
 	})
 
@@ -97,8 +43,8 @@ describe('useTooltip', () => {
 		action.destroy()
 		action = null
 
-		_removeElement('#target')
-		_removeElement('#template')
+		_destroyElement('#target')
+		_destroyElement('#template')
 
 		target = null
 		template = null
@@ -111,53 +57,36 @@ describe('useTooltip', () => {
 		describe('init', () => {
 			it('Shows tooltip on mouse enter', async () => {
 				action = useTooltip(target, options)
-				await _enter()
-				expect(template).toBeInTheDocument()
+				await _enter(target)
+				expect(_getElement('#content')).toBeInTheDocument()
 			})
 
 			it('Hides tooltip on mouse leave', async () => {
 				action = useTooltip(target, options)
-				await _enterAndLeave()
-				expect(template).not.toBeInTheDocument()
+				await _enterAndLeave(target)
+				expect(_getElement('#content')).not.toBeInTheDocument()
 			})
 
 			it('Hides tooltip on escape key down', async () => {
 				action = useTooltip(target, options)
-				await _enter()
-				expect(template).toBeInTheDocument()
-				await _keyDown()
-				expect(template).not.toBeInTheDocument()
-			})
-
-			it('Hides tooltip on scroll', async () => {
-				action = useTooltip(target, options)
-				await _enter()
-				expect(template).toBeInTheDocument()
-				await _scroll()
-				expect(template).not.toBeInTheDocument()
-			})
-
-			it('Hides tooltip on resize', async () => {
-				action = useTooltip(target, options)
-				await _enter()
-				expect(template).toBeInTheDocument()
-				await _resize()
-				expect(template).not.toBeInTheDocument()
+				await _enter(target)
+				await _keyDown(target)
+				expect(_getElement('#content')).not.toBeInTheDocument()
 			})
 		})
 
 		describe('update', () => {
 			afterEach(() => {
-				_removeElement('#new-template')
+				_destroyElement('#new-template')
 			})
 
 			it('Shows tooltip on mouse enter', async () => {
 				action = useTooltip(target, options)
-				const newTemplate = _createElement('new-template')
+				const newTemplate = _createAndAddElement('div', { id: 'new-template' })
 				action.update({
 					contentSelector: '#new-template',
 				})
-				await _enter()
+				await _enter(target)
 				expect(newTemplate).toBeInTheDocument()
 			})
 		})
@@ -165,21 +94,21 @@ describe('useTooltip', () => {
 		describe('focus', () => {
 			it('Shows tooltip on focus in', async () => {
 				action = useTooltip(target, options)
-				await _focus()
-				expect(template).toBeInTheDocument()
+				await _focus(target)
+				expect(_getElement('#content')).toBeInTheDocument()
 			})
 
 			it('Hides tooltip on focus out', async () => {
 				action = useTooltip(target, options)
-				await _focusAndBlur()
-				expect(template).not.toBeInTheDocument()
+				await _focusAndBlur(target)
+				expect(_getElement('#content')).not.toBeInTheDocument()
 			})
 
 			it('Hides tooltip on escape key down', async () => {
 				action = useTooltip(target, options)
-				await _focus()
-				await _keyDown()
-				expect(template).not.toBeInTheDocument()
+				await _focus(target)
+				await _keyDown(target)
+				expect(_getElement('#content')).not.toBeInTheDocument()
 			})
 		})
 	})
@@ -187,9 +116,9 @@ describe('useTooltip', () => {
 	describe('useTooltip lifecycle', () => {
 		it('Destroys tooltip', async () => {
 			action = useTooltip(target, options)
-			action.destroy()
-			await _enter()
-			expect(template).not.toBeVisible()
+			action.destroy(target)
+			await _enter(target)
+			expect(_getElement('#content')).not.toBeInTheDocument()
 		})
 	})
 
@@ -201,7 +130,7 @@ describe('useTooltip', () => {
 				contentSelector: null,
 				content,
 			})
-			await _enter()
+			await _enter(target)
 			expect(target).toHaveTextContent(content)
 		})
 
@@ -211,26 +140,9 @@ describe('useTooltip', () => {
 				...options,
 				content,
 			})
-			await _enter()
+			await _enter(target)
 			expect(target).not.toHaveTextContent(content)
-			expect(template).toBeInTheDocument()
-		})
-	})
-
-	describe('useTooltip props: contentClone', () => {
-		it('Does not clone content element', async () => {
-			action = useTooltip(target, options)
-			await _sleep(1)
-			expect(template).not.toBeVisible()
-		})
-
-		it('Clones content element', async () => {
-			action = useTooltip(target, {
-				...options,
-				contentClone: true,
-			})
-			await _sleep(1)
-			expect(template).toBeVisible()
+			expect(_getElement('#content')).toBeInTheDocument()
 		})
 	})
 
@@ -238,56 +150,37 @@ describe('useTooltip', () => {
 		it('Triggers callback on tooltip click', async () => {
 			action = useTooltip(target, options)
 			const contentAction = options.contentActions['*']
-			await _enter()
-			await fireEvent.click(template)
+			await _enter(target)
+			const content = _getElement('#content')
+			await fireEvent.click(content)
 			expect(contentAction.callback).toHaveBeenCalledWith(contentAction.callbackParams[0], expect.any(Event))
-			expect(template).toBeInTheDocument()
-		})
-
-		it('Triggers callback on element click within tooltip', async () => {
-			const newTemplate = _createElement('new-template')
-			const clickableElement = _createElement('clickable-element', newTemplate)
-			const contentActions = {
-				'#clickable-element': {
-					eventType: 'click',
-					callback: jest.fn(),
-					callbackParams: ['foo'],
-				},
-			}
-			action = useTooltip(target, {
-				...options,
-				contentSelector: '#new-template',
-				contentActions,
-			})
-			const contentAction = contentActions['#clickable-element']
-			await _enter()
-			await fireEvent.click(clickableElement)
-			expect(contentAction.callback).toHaveBeenCalledWith(contentAction.callbackParams[0], expect.any(Event))
-			expect(newTemplate).toBeInTheDocument()
+			expect(content).toBeInTheDocument()
 		})
 
 		it('Closes tooltip after triggering callback', async () => {
 			action = useTooltip(target, options)
 			options.contentActions['*'].closeOnCallback = true
 			const contentAction = options.contentActions['*']
-			await _enter()
-			await fireEvent.click(template)
+			await _enter(target)
+			const content = _getElement('#content')
+			await fireEvent.click(content)
 			expect(contentAction.callback).toHaveBeenCalledWith(contentAction.callbackParams[0], expect.any(Event))
-			expect(template).not.toBeInTheDocument()
-			await fireEvent.animationEnd(template.parentNode)
-			expect(template).not.toBeInTheDocument()
+			expect(content).not.toBeInTheDocument()
+			await fireEvent.animationEnd(content.parentNode)
+			expect(content).not.toBeInTheDocument()
 		})
 
 		it('Closes tooltip after triggering callback when animated', async () => {
 			action = useTooltip(target, { ...options, animated: true })
 			options.contentActions['*'].closeOnCallback = true
 			const contentAction = options.contentActions['*']
-			await _enter()
-			await fireEvent.click(template)
+			await _enter(target)
+			const content = _getElement('#content')
+			await fireEvent.click(content)
 			expect(contentAction.callback).toHaveBeenCalledWith(contentAction.callbackParams[0], expect.any(Event))
-			expect(template).toBeInTheDocument()
-			await fireEvent.animationEnd(template.parentNode)
-			expect(template).not.toBeInTheDocument()
+			expect(content).toBeInTheDocument()
+			await fireEvent.animationEnd(content.parentNode)
+			expect(content).not.toBeInTheDocument()
 		})
 
 		it('Triggers new callback on tooltip click after update', async () => {
@@ -305,8 +198,8 @@ describe('useTooltip', () => {
 			}
 			const contentAction = newOptions.contentActions['*']
 			action.update(newOptions)
-			await _enter()
-			await fireEvent.click(template)
+			await _enter(target)
+			await fireEvent.click(_getElement('#content'))
 			expect(contentAction.callback).toHaveBeenCalledWith(
 				contentAction.callbackParams[0],
 				contentAction.callbackParams[1],
@@ -318,8 +211,8 @@ describe('useTooltip', () => {
 	describe('useTooltip props: containerClassName', () => {
 		it('Sets tooltip default class', async () => {
 			action = useTooltip(target, options)
-			await _enter()
-			expect(template.parentNode).toHaveClass('__tooltip')
+			await _enter(target)
+			expect(_getElement('#content').parentNode).toHaveClass('__tooltip')
 		})
 
 		it('Updates tooltip class', async () => {
@@ -327,14 +220,14 @@ describe('useTooltip', () => {
 			action.update({
 				containerClassName: '__custom-tooltip',
 			})
-			await _enter()
-			expect(template.parentNode).toHaveClass('__custom-tooltip')
+			await _enter(target)
+			expect(_getElement('#content').parentNode).toHaveClass('__custom-tooltip')
 		})
 
 		it('Sets tooltip custom class', async () => {
 			action = useTooltip(target, { ...options, containerClassName: '__custom-tooltip' })
-			await _enter()
-			expect(template.parentNode).toHaveClass('__custom-tooltip')
+			await _enter(target)
+			expect(_getElement('#content').parentNode).toHaveClass('__custom-tooltip')
 		})
 	})
 
@@ -344,8 +237,8 @@ describe('useTooltip', () => {
 				...options,
 				disabled: true,
 			})
-			await _enter()
-			expect(template).not.toBeVisible()
+			await _enter(target)
+			expect(_getElement('#content')).not.toBeInTheDocument()
 		})
 
 		it('Disables tooltip after update', async () => {
@@ -353,8 +246,8 @@ describe('useTooltip', () => {
 			action.update({
 				disabled: true,
 			})
-			await _enter()
-			expect(template).not.toBeVisible()
+			await _enter(target)
+			expect(_getElement('#content')).not.toBeInTheDocument()
 		})
 
 		it('Enables tooltip after update', async () => {
@@ -365,8 +258,8 @@ describe('useTooltip', () => {
 			action.update({
 				disabled: false,
 			})
-			await _enter()
-			expect(template).toBeVisible()
+			await _enter(target)
+			expect(_getElement('#content')).toBeInTheDocument()
 		})
 	})
 
@@ -376,12 +269,13 @@ describe('useTooltip', () => {
 				...options,
 				position: 'left',
 			})
-			await _enter()
-			expect(template.parentNode.style.left).not.toHaveLength(0)
-			expect(template.parentNode.style.right).toHaveLength(0)
-			expect(template.parentNode.style.top).not.toHaveLength(0)
-			expect(template.parentNode.style.bottom).toHaveLength(0)
-			expect(template.parentNode).toHaveClass('__tooltip-left')
+			await _enter(target)
+			const content = _getElement('#content')
+			expect(content.parentNode.style.left).not.toHaveLength(0)
+			expect(content.parentNode.style.right).toHaveLength(0)
+			expect(content.parentNode.style.top).not.toHaveLength(0)
+			expect(content.parentNode.style.bottom).toHaveLength(0)
+			expect(content.parentNode).toHaveClass('__tooltip-left')
 		})
 
 		it('Positions tooltip on the left after update', async () => {
@@ -389,13 +283,14 @@ describe('useTooltip', () => {
 			action.update({
 				position: 'left',
 			})
-			await _enter()
-			expect(template.parentNode.style.left).not.toHaveLength(0)
-			expect(template.parentNode.style.right).toHaveLength(0)
-			expect(template.parentNode.style.top).not.toHaveLength(0)
-			expect(template.parentNode.style.bottom).toHaveLength(0)
-			expect(template.parentNode).not.toHaveClass('__tooltip-top')
-			expect(template.parentNode).toHaveClass('__tooltip-left')
+			await _enter(target)
+			const content = _getElement('#content')
+			expect(content.parentNode.style.left).not.toHaveLength(0)
+			expect(content.parentNode.style.right).toHaveLength(0)
+			expect(content.parentNode.style.top).not.toHaveLength(0)
+			expect(content.parentNode.style.bottom).toHaveLength(0)
+			expect(content.parentNode).not.toHaveClass('__tooltip-top')
+			expect(content.parentNode).toHaveClass('__tooltip-left')
 		})
 
 		it('Positions tooltip on the right', async () => {
@@ -403,12 +298,13 @@ describe('useTooltip', () => {
 				...options,
 				position: 'right',
 			})
-			await _enter()
-			expect(template.parentNode.style.left).toHaveLength(0)
-			expect(template.parentNode.style.right).not.toHaveLength(0)
-			expect(template.parentNode.style.top).not.toHaveLength(0)
-			expect(template.parentNode.style.bottom).toHaveLength(0)
-			expect(template.parentNode).toHaveClass('__tooltip-right')
+			await _enter(target)
+			const content = _getElement('#content')
+			expect(content.parentNode.style.left).toHaveLength(0)
+			expect(content.parentNode.style.right).not.toHaveLength(0)
+			expect(content.parentNode.style.top).not.toHaveLength(0)
+			expect(content.parentNode.style.bottom).toHaveLength(0)
+			expect(content.parentNode).toHaveClass('__tooltip-right')
 		})
 
 		it('Positions tooltip on the right after update', async () => {
@@ -416,23 +312,25 @@ describe('useTooltip', () => {
 			action.update({
 				position: 'right',
 			})
-			await _enter()
-			expect(template.parentNode.style.left).toHaveLength(0)
-			expect(template.parentNode.style.right).not.toHaveLength(0)
-			expect(template.parentNode.style.top).not.toHaveLength(0)
-			expect(template.parentNode.style.bottom).toHaveLength(0)
-			expect(template.parentNode).not.toHaveClass('__tooltip-top')
-			expect(template.parentNode).toHaveClass('__tooltip-right')
+			await _enter(target)
+			const content = _getElement('#content')
+			expect(content.parentNode.style.left).toHaveLength(0)
+			expect(content.parentNode.style.right).not.toHaveLength(0)
+			expect(content.parentNode.style.top).not.toHaveLength(0)
+			expect(content.parentNode.style.bottom).toHaveLength(0)
+			expect(content.parentNode).not.toHaveClass('__tooltip-top')
+			expect(content.parentNode).toHaveClass('__tooltip-right')
 		})
 
 		it('Positions tooltip at the top', async () => {
 			action = useTooltip(target, options)
-			await _enter()
-			expect(template.parentNode.style.left).not.toHaveLength(0)
-			expect(template.parentNode.style.right).toHaveLength(0)
-			expect(template.parentNode.style.top).not.toHaveLength(0)
-			expect(template.parentNode.style.bottom).toHaveLength(0)
-			expect(template.parentNode).toHaveClass('__tooltip-top')
+			await _enter(target)
+			const content = _getElement('#content')
+			expect(content.parentNode.style.left).not.toHaveLength(0)
+			expect(content.parentNode.style.right).toHaveLength(0)
+			expect(content.parentNode.style.top).not.toHaveLength(0)
+			expect(content.parentNode.style.bottom).toHaveLength(0)
+			expect(content.parentNode).toHaveClass('__tooltip-top')
 		})
 
 		it('Positions tooltip at the top after update', async () => {
@@ -443,13 +341,14 @@ describe('useTooltip', () => {
 			action.update({
 				position: 'top',
 			})
-			await _enter()
-			expect(template.parentNode.style.left).not.toHaveLength(0)
-			expect(template.parentNode.style.right).toHaveLength(0)
-			expect(template.parentNode.style.top).not.toHaveLength(0)
-			expect(template.parentNode.style.bottom).toHaveLength(0)
-			expect(template.parentNode).not.toHaveClass('__tooltip-left')
-			expect(template.parentNode).toHaveClass('__tooltip-top')
+			await _enter(target)
+			const content = _getElement('#content')
+			expect(content.parentNode.style.left).not.toHaveLength(0)
+			expect(content.parentNode.style.right).toHaveLength(0)
+			expect(content.parentNode.style.top).not.toHaveLength(0)
+			expect(content.parentNode.style.bottom).toHaveLength(0)
+			expect(content.parentNode).not.toHaveClass('__tooltip-left')
+			expect(content.parentNode).toHaveClass('__tooltip-top')
 		})
 
 		it('Positions tooltip at the bottom', async () => {
@@ -457,12 +356,13 @@ describe('useTooltip', () => {
 				...options,
 				position: 'bottom',
 			})
-			await _enter()
-			expect(template.parentNode.style.left).not.toHaveLength(0)
-			expect(template.parentNode.style.right).toHaveLength(0)
-			expect(template.parentNode.style.top).toHaveLength(0)
-			expect(template.parentNode.style.bottom).not.toHaveLength(0)
-			expect(template.parentNode).toHaveClass('__tooltip-bottom')
+			await _enter(target)
+			const content = _getElement('#content')
+			expect(content.parentNode.style.left).not.toHaveLength(0)
+			expect(content.parentNode.style.right).toHaveLength(0)
+			expect(content.parentNode.style.top).toHaveLength(0)
+			expect(content.parentNode.style.bottom).not.toHaveLength(0)
+			expect(content.parentNode).toHaveClass('__tooltip-bottom')
 		})
 
 		it('Positions tooltip at the bottom after update', async () => {
@@ -470,13 +370,14 @@ describe('useTooltip', () => {
 			action.update({
 				position: 'bottom',
 			})
-			await _enter()
-			expect(template.parentNode.style.left).not.toHaveLength(0)
-			expect(template.parentNode.style.right).toHaveLength(0)
-			expect(template.parentNode.style.top).toHaveLength(0)
-			expect(template.parentNode.style.bottom).not.toHaveLength(0)
-			expect(template.parentNode).not.toHaveClass('__tooltip-top')
-			expect(template.parentNode).toHaveClass('__tooltip-bottom')
+			await _enter(target)
+			const content = _getElement('#content')
+			expect(content.parentNode.style.left).not.toHaveLength(0)
+			expect(content.parentNode.style.right).toHaveLength(0)
+			expect(content.parentNode.style.top).toHaveLength(0)
+			expect(content.parentNode.style.bottom).not.toHaveLength(0)
+			expect(content.parentNode).not.toHaveClass('__tooltip-top')
+			expect(content.parentNode).toHaveClass('__tooltip-bottom')
 		})
 	})
 
@@ -486,10 +387,12 @@ describe('useTooltip', () => {
 				...options,
 				enterDelay: 50,
 			})
-			await _enter()
-			expect(template).not.toBeInTheDocument()
+			await _enter(target)
+			let content = _getElement('#content')
+			expect(content).toBeNull()
 			await _sleep(100)
-			expect(template).toBeInTheDocument()
+			content = _getElement('#content')
+			expect(content).toBeInTheDocument()
 		})
 
 		it('Delays tooltip disappearance after update', async () => {
@@ -497,11 +400,13 @@ describe('useTooltip', () => {
 			action.update({
 				enterDelay: 150,
 			})
-			await _enter()
+			await _enter(target)
 			await _sleep(100)
-			expect(template).not.toBeInTheDocument()
+			let content = _getElement('#content')
+			expect(content).toBeNull()
 			await _sleep(100)
-			expect(template).toBeInTheDocument()
+			content = _getElement('#content')
+			expect(content).toBeInTheDocument()
 		})
 	})
 
@@ -511,10 +416,11 @@ describe('useTooltip', () => {
 				...options,
 				leaveDelay: 50,
 			})
-			await _enterAndLeave()
-			expect(template).toBeInTheDocument()
+			await _enterAndLeave(target)
+			const content = _getElement('#content')
+			expect(content).toBeInTheDocument()
 			await _sleep(100)
-			expect(template).not.toBeInTheDocument()
+			expect(content).not.toBeInTheDocument()
 		})
 
 		it('Delays tooltip disappearance after update', async () => {
@@ -522,11 +428,12 @@ describe('useTooltip', () => {
 			action.update({
 				leaveDelay: 150,
 			})
-			await _enterAndLeave()
+			await _enterAndLeave(target)
 			await _sleep(100)
-			expect(template).toBeInTheDocument()
+			const content = _getElement('#content')
+			expect(content).toBeInTheDocument()
 			await _sleep(100)
-			expect(template).not.toBeInTheDocument()
+			expect(content).not.toBeInTheDocument()
 		})
 	})
 
@@ -536,11 +443,12 @@ describe('useTooltip', () => {
 				...options,
 				animated: true,
 			})
-			await _enterAndLeave()
-			expect(template).toBeInTheDocument()
-			await fireEvent.animationEnd(template.parentNode)
+			await _enterAndLeave(target)
+			const content = _getElement('#content')
+			expect(content).toBeInTheDocument()
+			await fireEvent.animationEnd(content.parentNode)
 			await _sleep(10)
-			expect(template).not.toBeInTheDocument()
+			expect(content).not.toBeInTheDocument()
 		})
 
 		it('Animates tooltip disappearance after update', async () => {
@@ -548,11 +456,12 @@ describe('useTooltip', () => {
 			action.update({
 				animated: true,
 			})
-			await _enterAndLeave()
-			expect(template).toBeInTheDocument()
-			await fireEvent.animationEnd(template.parentNode)
+			await _enterAndLeave(target)
+			const content = _getElement('#content')
+			expect(content).toBeInTheDocument()
+			await fireEvent.animationEnd(content.parentNode)
 			await _sleep(10)
-			expect(template).not.toBeInTheDocument()
+			expect(content).not.toBeInTheDocument()
 		})
 	})
 })

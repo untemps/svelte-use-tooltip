@@ -23,8 +23,7 @@
 			use:useTooltip={{
 				position: tooltipPosition,
 				content: tooltipTextContent,
-				contentSelector: !tooltipTextContent?.length ? '.tooltip__content' : null,
-				contentClone: true,
+				contentSelector: !tooltipTextContent?.length ? '#tooltip-template' : null,
 				contentActions: {
 					'*': {
 						eventType: 'click',
@@ -40,20 +39,17 @@
 				enterDelay: tooltipEnterDelay,
 				leaveDelay: tooltipLeaveDelay,
 				offset: tooltipOffset,
-				disabled: isTooltipDisabled
+				disabled: isTooltipDisabled,
 			}}
 			class="target"
 		>
 			Hover me
 		</div>
+		<template id="tooltip-template">
+			<span class="tooltip__content">Hi! I'm a <i>fancy</i> <strong>tooltip</strong>!</span>
+		</template>
 		<form class="settings__form">
 			<h1>Settings</h1>
-			<fieldset>
-				<label>
-					Default Tooltip Content:
-					<span class="tooltip__content">Hi! I'm a <i>fancy</i> <strong>tooltip</strong>!</span>
-				</label>
-			</fieldset>
 			<fieldset>
 				<label>
 					Tooltip Text Content:
@@ -204,36 +200,36 @@
 	}
 
 	:global(.tooltip::after) {
-        content: '';
-        position: absolute;
-        margin-left: -5px;
-        border-width: 5px;
-        border-style: solid;
+		content: '';
+		position: absolute;
+		margin-left: -5px;
+		border-width: 5px;
+		border-style: solid;
 	}
 
-    :global(.tooltip-top::after) {
-        bottom: -10px;
-        left: 50%;
-        border-color: #ee7008 transparent transparent transparent;
-    }
+	:global(.tooltip-top::after) {
+		bottom: -10px;
+		left: 50%;
+		border-color: #ee7008 transparent transparent transparent;
+	}
 
-    :global(.tooltip-bottom::after) {
-        top: -10px;
-        left: 50%;
-        border-color: transparent transparent #ee7008 transparent;
-    }
+	:global(.tooltip-bottom::after) {
+		top: -10px;
+		left: 50%;
+		border-color: transparent transparent #ee7008 transparent;
+	}
 
-    :global(.tooltip-left::after) {
-        top: calc(50% - 5px);
-        right: -10px;
-        border-color: transparent transparent transparent #ee7008;
-    }
+	:global(.tooltip-left::after) {
+		top: calc(50% - 5px);
+		right: -10px;
+		border-color: transparent transparent transparent #ee7008;
+	}
 
-    :global(.tooltip-right::after) {
-        top: calc(50% - 5px);
-        left: -5px;
-        border-color: transparent #ee7008 transparent transparent;
-    }
+	:global(.tooltip-right::after) {
+		top: calc(50% - 5px);
+		left: -5px;
+		border-color: transparent #ee7008 transparent transparent;
+	}
 
 	@keyframes fadeIn {
 		from {

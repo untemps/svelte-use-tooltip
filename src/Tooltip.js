@@ -19,7 +19,6 @@ class Tooltip {
 	#content = null
 	#contentSelector = null
 	#contentActions = null
-	#contentClone = false
 	#containerClassName = null
 	#position = null
 	#animated = false
@@ -38,7 +37,6 @@ class Tooltip {
 		target,
 		content,
 		contentSelector,
-		contentClone,
 		contentActions,
 		containerClassName,
 		position,
@@ -53,7 +51,6 @@ class Tooltip {
 		this.#target = target
 		this.#content = content
 		this.#contentSelector = contentSelector
-		this.#contentClone = contentClone || false
 		this.#contentActions = contentActions
 		this.#containerClassName = containerClassName
 		this.#position = position || 'top'
@@ -80,7 +77,6 @@ class Tooltip {
 	update(
 		content,
 		contentSelector,
-		contentClone,
 		contentActions,
 		containerClassName,
 		position,
@@ -101,7 +97,6 @@ class Tooltip {
 
 		this.#content = content
 		this.#contentSelector = contentSelector
-		this.#contentClone = contentClone || false
 		this.#contentActions = contentActions
 		this.#containerClassName = containerClassName
 		this.#position = position || 'top'
@@ -195,9 +190,9 @@ class Tooltip {
 			this.#observer
 				.wait(this.#contentSelector, null, { events: [DOMObserver.EXIST, DOMObserver.ADD] })
 				.then(({ node }) => {
-					const child = this.#contentClone ? node.cloneNode(true) : node
+					const child = node.content ? node.content.firstElementChild : node
 					child.setAttribute('style', 'position: relative')
-					this.#tooltip.appendChild(child)
+					this.#tooltip.appendChild(child.cloneNode(true))
 				})
 		} else if (this.#content) {
 			const child = document.createTextNode(this.#content)
