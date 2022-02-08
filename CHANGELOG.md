@@ -1,3 +1,10 @@
+# [2.6.0](https://github.com/untemps/svelte-use-tooltip/compare/v2.5.0...v2.6.0) (2022-02-08)
+
+
+### Features
+
+* Allow to set a template element as tooltip content ([#30](https://github.com/untemps/svelte-use-tooltip/issues/30)) ([5f3e582](https://github.com/untemps/svelte-use-tooltip/commit/5f3e582011657f7abfbcc9bd717424382fed373d))
+
 # [2.5.0](https://github.com/untemps/svelte-use-tooltip/compare/v2.4.0...v2.5.0) (2022-02-05)
 
 
