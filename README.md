@@ -29,39 +29,43 @@ yarn add @untemps/svelte-use-tooltip
 
 ```svelte
 <script>
-    import { useTooltip } from '@untemps/svelte-use-tooltip'
+	import { useTooltip } from '@untemps/svelte-use-tooltip'
 
-    const _onTooltipClick = (arg, event) => {
-        console.log(arg, event)
-    }
+	const _onTooltipClick = (arg, event) => {
+		console.log(arg, event)
+	}
 </script>
 
-<div use:useTooltip={{
-        contentSelector: '.tooltip__content',
+<div
+        use:useTooltip={{
+        position: 'right',
+        contentSelector: '#tooltip-template',
         contentActions: {
             '*': {
                 eventType: 'click',
                 callback: _onTooltipClick,
                 callbackParams: ['ok'],
-                closeOnCallback: true
+                closeOnCallback: true,
             },
         },
-        containerClassName: 'tooltip',
-        position: 'right',
+        containerClassName: `tooltip tooltip-right`,
         animated: true,
         animationEnterClassName: 'tooltip-enter',
-        animationLeaveClassName: 'tooltip-leave',
-        enterDelay: 200,
-        leaveDelay: 400,
-        disabled: false
-    }
-} class="tooltip__target">
+        animationLeaveClassName: null,
+        enterDelay: 100,
+        leaveDelay: 100,
+        offset: 20
+	}}
+        class="target"
+>
     Hover me
 </div>
-<span class="tooltip__content">Hi!</span>
+<template id="tooltip-template">
+    <span class="tooltip__content">Hi! I'm a <i>fancy</i> <strong>tooltip</strong>!</span>
+</template>
 
 <style>
-    .tooltip__target {
+    .target {
         width: 10rem;
         height: 3rem;
         background-color: white;
@@ -69,18 +73,18 @@ yarn add @untemps/svelte-use-tooltip
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 0 5px 0 rgba(0,0,0,0.5);
+        box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
     }
 
-    .tooltip__target:hover {
+    .target:hover {
         cursor: pointer;
         background-color: black;
         color: white;
     }
 
     .tooltip__content {
-        border: solid 1px white;
-        background: none;
+        background-color: yellow;
+        color: black;
     }
 
     :global(.tooltip) {
@@ -97,12 +101,36 @@ yarn add @untemps/svelte-use-tooltip
     :global(.tooltip::after) {
         content: '';
         position: absolute;
-        top: 100%;
-        left: 50%;
         margin-left: -5px;
         border-width: 5px;
         border-style: solid;
-        border-color: #ee7008 transparent transparent transparent;
+    }
+
+    :global(.tooltip-right::after) {
+        top: calc(50% - 5px);
+        left: -5px;
+        border-color: transparent #ee7008 transparent transparent;
+    }
+
+    :global(.tooltip-enter) {
+        animation: fadeIn 0.2s linear forwards;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateX(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    @keyframes fadeOut {
+        to {
+            opacity: 0;
+            transform: translateX(-50px);
+        }
     }
 </style>
 ```
