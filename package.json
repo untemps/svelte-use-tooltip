@@ -1,10 +1,16 @@
 {
 	"name": "@untemps/svelte-use-tooltip",
-	"version": "2.6.0",
+	"version": "2.6.1-beta.1",
 	"author": "Vincent Le Badezet <v.lebadezet@untemps.net>",
 	"license": "MIT",
 	"description": "Svelte action to display a tooltip",
-	"keywords": ["tooltip", "svelte", "svelte-action", "action", "javascript"],
+	"keywords": [
+		"tooltip",
+		"svelte",
+		"svelte-action",
+		"action",
+		"javascript"
+	],
 	"private": false,
 	"publishConfig": {
 		"access": "public"
@@ -12,7 +18,9 @@
 	"main": "dist/index.js",
 	"module": "dist/index.es.js",
 	"svelte": "dist/index.es.js",
-	"files": ["dist"],
+	"files": [
+		"dist"
+	],
 	"devDependencies": {
 		"@babel/cli": "^7.12.10",
 		"@babel/core": "^7.12.10",
@@ -60,8 +68,13 @@
 		"moduleNameMapper": {
 			"\\.(css|less|scss)$": "identity-obj-proxy"
 		},
-		"moduleFileExtensions": ["js", "svelte"],
-		"setupFilesAfterEnv": ["<rootDir>/jest/jest.setup.js"]
+		"moduleFileExtensions": [
+			"js",
+			"svelte"
+		],
+		"setupFilesAfterEnv": [
+			"<rootDir>/jest/jest.setup.js"
+		]
 	},
 	"release": {
 		"branches": [

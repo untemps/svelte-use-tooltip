@@ -1,3 +1,5 @@
+## [2.6.1-beta.1](https://github.com/untemps/svelte-use-tooltip/compare/v2.6.0...v2.6.1-beta.1) (2022-02-10)
+
 # [2.6.0](https://github.com/untemps/svelte-use-tooltip/compare/v2.5.0...v2.6.0) (2022-02-08)
 
 
