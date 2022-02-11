@@ -1,6 +1,6 @@
 {
 	"name": "@untemps/svelte-use-tooltip",
-	"version": "2.6.0",
+	"version": "2.6.1-beta.1",
 	"author": "Vincent Le Badezet <v.lebadezet@untemps.net>",
 	"license": "MIT",
 	"description": "Svelte action to display a tooltip",
@@ -17,7 +17,7 @@
 	},
 	"main": "dist/index.js",
 	"module": "dist/index.es.js",
-	"svelte": "dist/index.js",
+	"svelte": "dist/index.es.js",
 	"files": [
 		"dist"
 	],
@@ -78,7 +78,11 @@
 	},
 	"release": {
 		"branches": [
-			"main"
+			"main",
+			{
+				"name": "beta",
+				"prerelease": true
+			}
 		],
 		"plugins": [
 			[
