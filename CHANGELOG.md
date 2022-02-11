@@ -1,3 +1,10 @@
+# [2.7.0](https://github.com/untemps/svelte-use-tooltip/compare/v2.6.0...v2.7.0) (2022-02-11)
+
+
+### Features
+
+* Remove tooltip max-width ([#35](https://github.com/untemps/svelte-use-tooltip/issues/35)) ([da4b041](https://github.com/untemps/svelte-use-tooltip/commit/da4b0414cdcaad08f080d3f45c55f744e07a9dc6))
+
 ## [2.6.1-beta.1](https://github.com/untemps/svelte-use-tooltip/compare/v2.6.0...v2.6.1-beta.1) (2022-02-10)
 
 # [2.6.0](https://github.com/untemps/svelte-use-tooltip/compare/v2.5.0...v2.6.0) (2022-02-08)
