@@ -3,10 +3,10 @@
  */
 
 import { fireEvent } from '@testing-library/svelte'
-import createElement from '@untemps/utils/dom/createElement'
-import getElement from '@untemps/utils/dom/getElement'
-import removeElement from '@untemps/utils/dom/removeElement'
-import standby from '@untemps/utils/async/standby'
+import { createElement } from '@untemps/utils/dom/createElement'
+import { getElement } from '@untemps/utils/dom/getElement'
+import { removeElement } from '@untemps/utils/dom/removeElement'
+import { standby } from '@untemps/utils/async/standby'
 
 import useTooltip from '../useTooltip'
 import Tooltip from '../Tooltip'
