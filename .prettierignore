@@ -1,2 +1,5 @@
-dist/
+.husky/
+.idea/
+build/
+coverage/
 node_modules/
