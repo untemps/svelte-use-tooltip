@@ -271,14 +271,14 @@ class Tooltip {
 			await this.#transitionTooltip(1)
 		}
 
-		this.#target.appendChild(this.#tooltip)
-		this.#observer.wait(this.#tooltip, null, { events: [DOMObserver.EXIST, DOMObserver.ADD] }).then(() => {
+		this.#observer.wait(this.#tooltip, null, { events: [DOMObserver.ADD] }).then(({ node }) => {
 			this.#positionTooltip()
 		})
+		this.#target.appendChild(this.#tooltip)
 
 		if (this.#contentActions) {
 			Object.entries(this.#contentActions).forEach(
-				([key, { eventType, callback, callbackParams, closeOnCallback }]) => {
+				([key, { eventType, callback, callbackParams, closeOnCallback }], i) => {
 					const trigger = key === '*' ? this.#tooltip : this.#tooltip.querySelector(key)
 					if (trigger) {
 						const listener = (event) => {
@@ -289,6 +289,8 @@ class Tooltip {
 						}
 						trigger.addEventListener(eventType, listener)
 						this.#events.push({ trigger, eventType, listener })
+
+						if (i === 0) trigger.focus()
 					}
 				}
 			)
@@ -352,14 +354,18 @@ class Tooltip {
 		})
 	}
 
-	async #onTargetEnter() {
-		await this.#waitForDelay(this.#enterDelay)
-		await this.#appendTooltipToTarget()
+	async #onTargetEnter(e) {
+		if (this.#target === e.target) {
+			await this.#waitForDelay(this.#enterDelay)
+			await this.#appendTooltipToTarget()
+		}
 	}
 
-	async #onTargetLeave() {
-		await this.#waitForDelay(this.#leaveDelay)
-		await this.#removeTooltipFromTarget()
+	async #onTargetLeave(e) {
+		if (this.#target === e.target || !this.#target.contains(e.target)) {
+			await this.#waitForDelay(this.#leaveDelay)
+			await this.#removeTooltipFromTarget()
+		}
 	}
 
 	async #onWindowChange(e) {
