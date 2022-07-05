@@ -1,3 +1,10 @@
+## [2.7.1](https://github.com/untemps/svelte-use-tooltip/compare/v2.7.0...v2.7.1) (2022-07-05)
+
+
+### Bug Fixes
+
+* Fix tooltip focus management ([#41](https://github.com/untemps/svelte-use-tooltip/issues/41)) ([3f92ca5](https://github.com/untemps/svelte-use-tooltip/commit/3f92ca5356b5aa91f4bf8e8fbfc2193d0b384d81))
+
 # [2.7.0](https://github.com/untemps/svelte-use-tooltip/compare/v2.6.0...v2.7.0) (2022-02-11)
 
 
