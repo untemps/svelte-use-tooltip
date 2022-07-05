@@ -14,7 +14,7 @@
 ## Demo
 
 <p align="center">
-    :red_circle:&nbsp;&nbsp;<big><a href="https://svelte-use-tooltip.vercel.app" target="_blank" rel="noopener">LIVE DEMO</a></big>&nbsp;:red_circle:
+    :red_circle:&nbsp;<big><a href="https://svelte-use-tooltip.vercel.app" target="_blank" rel="noopener">LIVE DEMO</a></big>&nbsp;:red_circle:
 </p>
 
 ## Installation
