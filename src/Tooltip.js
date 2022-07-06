@@ -3,17 +3,7 @@ import { DOMObserver } from '@untemps/dom-observer'
 class Tooltip {
 	static #instances = []
 
-	#observer = null
-	#events = []
-	#enterDelay = 0
-	#leaveDelay = 0
-	#delay = null
-
 	#tooltip = null
-
-	#boundEnterHandler = null
-	#boundLeaveHandler = null
-	#boundWindowChangeHandler = null
 
 	#target = null
 	#content = null
@@ -24,7 +14,18 @@ class Tooltip {
 	#animated = false
 	#animationEnterClassName = null
 	#animationLeaveClassName = null
+	#enterDelay = 0
+	#leaveDelay = 0
 	#offset = 10
+
+	#observer = null
+	#events = []
+	#delay = null
+	#transitioning = false
+
+	#boundEnterHandler = null
+	#boundLeaveHandler = null
+	#boundWindowChangeHandler = null
 
 	static destroy() {
 		Tooltip.#instances.forEach((instance) => {
@@ -88,10 +89,13 @@ class Tooltip {
 		offset,
 		disabled
 	) {
-		const hasContentChanged = contentSelector !== this.#contentSelector || content !== this.#content
-		const hasContainerClassNameChanged = containerClassName !== this.#containerClassName
-		const hasPositionChanged = position !== this.#position
-		const hasOffsetChanged = position !== this.#offset
+		const hasContentChanged =
+			(contentSelector !== undefined && contentSelector !== this.#contentSelector) ||
+			(content !== undefined && content !== this.#content)
+		const hasContainerClassNameChanged =
+			containerClassName !== undefined && containerClassName !== this.#containerClassName
+		const hasPositionChanged = position !== undefined && position !== this.#position
+		const hasOffsetChanged = offset !== undefined && offset !== this.#offset
 		const hasToDisableTarget = disabled && this.#boundEnterHandler
 		const hasToEnableTarget = !disabled && !this.#boundEnterHandler
 
@@ -324,31 +328,32 @@ class Tooltip {
 
 	#transitionTooltip(direction) {
 		return new Promise((resolve) => {
-			let classToAdd, classToRemove
 			switch (direction) {
 				case 1: {
-					classToAdd = this.#animationEnterClassName
-					classToRemove = this.#animationLeaveClassName
+					this.#tooltip.classList.add(this.#animationEnterClassName)
+					this.#tooltip.classList.remove(this.#animationLeaveClassName)
+					this.#transitioning = false
+					resolve()
 					break
 				}
 				default: {
-					classToAdd = this.#animationLeaveClassName
-					classToRemove = this.#animationEnterClassName
+					const onTransitionEnd = () => {
+						this.#tooltip.removeEventListener('animationend', onTransitionEnd)
+						this.#tooltip.classList.remove(this.#animationLeaveClassName)
+						if (this.#transitioning) {
+							this.#transitioning = false
+							resolve()
+						}
+					}
+
+					if (!this.#transitioning) {
+						this.#tooltip.addEventListener('animationend', onTransitionEnd)
+						this.#tooltip.classList.add(this.#animationLeaveClassName)
+						this.#tooltip.classList.remove(this.#animationEnterClassName)
+						this.#transitioning = true
+					}
 				}
 			}
-			this.#tooltip.classList.add(classToAdd)
-			this.#tooltip.classList.remove(classToRemove)
-
-			if (direction === 1) {
-				resolve()
-			}
-
-			const onTransitionEnd = () => {
-				this.#tooltip.removeEventListener('animationend', onTransitionEnd)
-				this.#tooltip.classList.remove(classToAdd)
-				resolve()
-			}
-			this.#tooltip.addEventListener('animationend', onTransitionEnd)
 		})
 	}
 

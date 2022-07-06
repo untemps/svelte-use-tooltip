@@ -454,7 +454,6 @@ describe('useTooltip', () => {
 			const content = getElement('#content')
 			expect(content).toBeInTheDocument()
 			await fireEvent.animationEnd(content.parentNode)
-			await standby(10)
 			expect(content).not.toBeInTheDocument()
 		})
 
@@ -467,7 +466,6 @@ describe('useTooltip', () => {
 			const content = getElement('#content')
 			expect(content).toBeInTheDocument()
 			await fireEvent.animationEnd(content.parentNode)
-			await standby(10)
 			expect(content).not.toBeInTheDocument()
 		})
 	})
