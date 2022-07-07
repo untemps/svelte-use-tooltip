@@ -1,3 +1,10 @@
+## [2.7.2](https://github.com/untemps/svelte-use-tooltip/compare/v2.7.1...v2.7.2) (2022-07-07)
+
+
+### Bug Fixes
+
+* Fix tooltip animation management ([#42](https://github.com/untemps/svelte-use-tooltip/issues/42)) ([b6a6f58](https://github.com/untemps/svelte-use-tooltip/commit/b6a6f58728f845176396f5f8af1cdd087809ff0c))
+
 ## [2.7.1](https://github.com/untemps/svelte-use-tooltip/compare/v2.7.0...v2.7.1) (2022-07-05)
 
 
