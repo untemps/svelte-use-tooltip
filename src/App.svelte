@@ -54,8 +54,8 @@
         overflow: hidden auto;
         position: absolute;
         z-index: 9999;
-        width: 100vw;
         max-width: 480px;
+        margin: 0 1rem;
         display: flex;
         flex-direction: column;
         align-items: flex-end;
@@ -63,7 +63,7 @@
 
     @media screen and (max-height: 700px) {
         .settings__container {
-            max-height: 100vh;
+            max-height: calc(100vh - 40px);
         }
     }
 
@@ -91,6 +91,7 @@
 
     .settings__form input {
         margin: 0;
+        max-width: 100px;
     }
 
     .settings__form input[type='checkbox'] {
