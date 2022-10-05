@@ -97,13 +97,13 @@
   resolved "https://registry.yarnpkg.com/@untemps/dom-observer/-/dom-observer-2.0.0.tgz#5b86b091f62905a6f18b0280bbf9067f2949716f"
   integrity sha512-oZBj7j9hYSbuveNFvyPLamRfNh15KvGJC5pLGGpWVcO61EzISMESL0wudwP0UZETEu+0WfaJ16rGXtEZHsq+xw==
 
-"@untemps/svelte-use-tooltip@^2.7.2":
-  version "2.7.2"
-  resolved "https://registry.yarnpkg.com/@untemps/svelte-use-tooltip/-/svelte-use-tooltip-2.7.2.tgz#4c598c132e748b2515398687b546b4e648807257"
-  integrity sha512-u94X7gtFKrdFxtjqM/poBKKqf04D3jq0gh2RJg5FFUuPq0VKocoYkb5EhXaTOvNuv9ZGtfg1V7wZiFejL3qiAg==
+"@untemps/svelte-use-tooltip@^2.7.3":
+  version "2.7.3"
+  resolved "https://registry.yarnpkg.com/@untemps/svelte-use-tooltip/-/svelte-use-tooltip-2.7.3.tgz#e19653dff2ad317350bad4b8d10bdfc918b0ed2a"
+  integrity sha512-BgDZ0yua22od90qrW5bqv2yJKlLXifPhnsiz4BaQjLAPyHKBK9mefhRmPEnZQcJNNH4XrO6TGu9SF5rbTApIog==
   dependencies:
     "@untemps/dom-observer" "^2.0.0"
-    svelte "3.39.0"
+    svelte "3.49.0"
 
 ansi-styles@^3.2.1:
   version "3.2.1"
@@ -617,10 +617,10 @@ supports-color@^7.0.0:
   dependencies:
     has-flag "^4.0.0"
 
-svelte@3.39.0:
-  version "3.39.0"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.39.0.tgz#35d1f18ea9be9109ff7cb54c29a913eddd151453"
-  integrity sha512-dcJCongL0cRkZWe9q+fde0T4HX8PksBywz2+EGDVIrdYdJaxTzrJu0RVeuDtL8Mx2hs4yn3W8zKPScuzG63hTg==
+svelte@3.49.0:
+  version "3.49.0"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.49.0.tgz#5baee3c672306de1070c3b7888fc2204e36a4029"
+  integrity sha512-+lmjic1pApJWDfPCpUUTc1m8azDqYCG1JN9YEngrx/hUyIcFJo6VZhj0A1Ai0wqoHcEIuQy+e9tk+4uDgdtsFA==
 
 svelte@^3.0.0:
   version "3.44.0"

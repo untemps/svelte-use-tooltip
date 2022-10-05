@@ -19,7 +19,7 @@
     "svelte": "^3.0.0"
   },
   "dependencies": {
-    "@untemps/svelte-use-tooltip": "^2.7.2",
+    "@untemps/svelte-use-tooltip": "^2.7.3",
     "sirv-cli": "^1.0.0"
   }
 }
