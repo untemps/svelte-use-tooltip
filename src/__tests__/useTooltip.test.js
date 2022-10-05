@@ -124,6 +124,7 @@ describe('useTooltip', () => {
 		it('Destroys tooltip', async () => {
 			action = useTooltip(target, options)
 			action.destroy(target)
+			expect(target).toHaveStyle('position: null')
 			await _enter(target)
 			expect(getElement('#content')).not.toBeInTheDocument()
 		})
