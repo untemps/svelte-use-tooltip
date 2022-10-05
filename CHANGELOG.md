@@ -1,3 +1,10 @@
+## [2.7.3](https://github.com/untemps/svelte-use-tooltip/compare/v2.7.2...v2.7.3) (2022-10-05)
+
+
+### Bug Fixes
+
+* Reset target position on destroy ([#57](https://github.com/untemps/svelte-use-tooltip/issues/57)) ([5bdc051](https://github.com/untemps/svelte-use-tooltip/commit/5bdc051b24b6b574a9738f53e3cb7d5623471ed0))
+
 ## [2.7.2](https://github.com/untemps/svelte-use-tooltip/compare/v2.7.1...v2.7.2) (2022-07-07)
 
 
