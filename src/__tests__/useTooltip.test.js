@@ -61,6 +61,8 @@ describe('useTooltip', () => {
 			it('Shows tooltip on mouse enter', async () => {
 				action = useTooltip(target, options)
 				await _enter(target)
+				expect(target).toHaveStyle('position: relative')
+				expect(target).toHaveAttribute('aria-describedby')
 				expect(getElement('#content')).toBeInTheDocument()
 			})
 
@@ -124,7 +126,8 @@ describe('useTooltip', () => {
 		it('Destroys tooltip', async () => {
 			action = useTooltip(target, options)
 			action.destroy(target)
-			expect(target).toHaveStyle('position: null')
+			expect(target).not.toHaveStyle('position: relative')
+			expect(target).not.toHaveAttribute('aria-describedby')
 			await _enter(target)
 			expect(getElement('#content')).not.toBeInTheDocument()
 		})

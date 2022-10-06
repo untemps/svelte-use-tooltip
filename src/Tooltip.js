@@ -128,8 +128,8 @@ class Tooltip {
 	}
 
 	async destroy() {
-		this.#target.setAttribute('style', 'position: null')
-		this.#target.setAttribute('aria-describedby', null)
+		this.#target.style.removeProperty('position')
+		this.#target.removeAttribute('aria-describedby')
 
 		await this.#removeTooltipFromTarget()
 
