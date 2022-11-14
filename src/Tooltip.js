@@ -16,6 +16,8 @@ class Tooltip {
 	#animationLeaveClassName = null
 	#enterDelay = 0
 	#leaveDelay = 0
+	#onEnter = null
+	#onLeave = null
 	#offset = 10
 
 	#observer = null
@@ -46,6 +48,8 @@ class Tooltip {
 		animationLeaveClassName,
 		enterDelay,
 		leaveDelay,
+		onEnter,
+		onLeave,
 		offset,
 		disabled
 	) {
@@ -60,6 +64,8 @@ class Tooltip {
 		this.#animationLeaveClassName = animationLeaveClassName || '__tooltip-leave'
 		this.#enterDelay = enterDelay || 0
 		this.#leaveDelay = leaveDelay || 0
+		this.#onEnter = onEnter
+		this.#onLeave = onLeave
 		this.#offset = Math.max(offset || 10, 5)
 
 		this.#observer = new DOMObserver()
@@ -86,6 +92,8 @@ class Tooltip {
 		animationLeaveClassName,
 		enterDelay,
 		leaveDelay,
+		onEnter,
+		onLeave,
 		offset,
 		disabled
 	) {
@@ -109,6 +117,8 @@ class Tooltip {
 		this.#animationLeaveClassName = animationLeaveClassName || '__tooltip-leave'
 		this.#enterDelay = enterDelay || 0
 		this.#leaveDelay = leaveDelay || 0
+		this.#onEnter = onEnter
+		this.#onLeave = onLeave
 		this.#offset = Math.max(offset || 10, 5)
 
 		if (hasContentChanged || hasPositionChanged || hasOffsetChanged) {
@@ -366,6 +376,7 @@ class Tooltip {
 		if (this.#target === e.target) {
 			await this.#waitForDelay(this.#enterDelay)
 			await this.#appendTooltipToTarget()
+			this.#onEnter?.()
 		}
 	}
 
@@ -373,6 +384,7 @@ class Tooltip {
 		if (this.#target === e.target || !this.#target.contains(e.target)) {
 			await this.#waitForDelay(this.#leaveDelay)
 			await this.#removeTooltipFromTarget()
+			this.#onLeave?.()
 		}
 	}
 
