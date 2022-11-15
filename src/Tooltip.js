@@ -1,4 +1,5 @@
 import { DOMObserver } from '@untemps/dom-observer'
+import { standby } from '@untemps/utils/async/standby'
 
 class Tooltip {
 	static #instances = []
@@ -64,8 +65,8 @@ class Tooltip {
 		this.#animationLeaveClassName = animationLeaveClassName || '__tooltip-leave'
 		this.#enterDelay = enterDelay || 0
 		this.#leaveDelay = leaveDelay || 0
-		this.#onEnter = onEnter
-		this.#onLeave = onLeave
+		this.#onEnter = onEnter || null
+		this.#onLeave = onLeave || null
 		this.#offset = Math.max(offset || 10, 5)
 
 		this.#observer = new DOMObserver()
@@ -117,8 +118,8 @@ class Tooltip {
 		this.#animationLeaveClassName = animationLeaveClassName || '__tooltip-leave'
 		this.#enterDelay = enterDelay || 0
 		this.#leaveDelay = leaveDelay || 0
-		this.#onEnter = onEnter
-		this.#onLeave = onLeave
+		this.#onEnter = onEnter || null
+		this.#onLeave = onLeave || null
 		this.#offset = Math.max(offset || 10, 5)
 
 		if (hasContentChanged || hasPositionChanged || hasOffsetChanged) {
@@ -376,6 +377,7 @@ class Tooltip {
 		if (this.#target === e.target) {
 			await this.#waitForDelay(this.#enterDelay)
 			await this.#appendTooltipToTarget()
+			await standby(0)
 			this.#onEnter?.()
 		}
 	}
@@ -384,6 +386,7 @@ class Tooltip {
 		if (this.#target === e.target || !this.#target.contains(e.target)) {
 			await this.#waitForDelay(this.#leaveDelay)
 			await this.#removeTooltipFromTarget()
+			await standby(0)
 			this.#onLeave?.()
 		}
 	}

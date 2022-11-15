@@ -429,6 +429,7 @@ describe('useTooltip', () => {
 				onEnter,
 			})
 			await _enter(target)
+			await standby(0)
 			expect(onEnter).toHaveBeenCalled()
 		})
 
@@ -439,6 +440,7 @@ describe('useTooltip', () => {
 				onEnter,
 			})
 			await _enter(target)
+			await standby(0)
 			expect(onEnter).toHaveBeenCalled()
 		})
 	})
