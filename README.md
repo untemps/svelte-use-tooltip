@@ -150,8 +150,8 @@ yarn add @untemps/svelte-use-tooltip
 | `animationLeaveClassName` | string  | '__tooltip-leave' | Class name to apply to the tooltip leave transition.                            |
 | `enterDelay`              | number  | 0                 | Delay before showing the tooltip in milliseconds.                               |
 | `leaveDelay`              | number  | 0                 | Delay before hiding the tooltip in milliseconds.                                |
-| `onEnter`                 | func    | null              | Callback called when the tooltip appears.                                       |
-| `onLeave`                 | func    | null              | Callback called when the tooltip disappears.                                    |
+| `onEnter`                 | func    | null              | Callback triggered when the tooltip appears.                                    |
+| `onLeave`                 | func    | null              | Callback triggered when the tooltip disappears.                                    |
 | `offset`                  | number  | 10                | Distance between the tooltip and the target in pixels.                          |
 | `disabled`                | boolean | false             | Flag to disable the tooltip content.                                            |
 
