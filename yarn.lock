@@ -2365,10 +2365,10 @@
   resolved "https://registry.yarnpkg.com/@untemps/dom-observer/-/dom-observer-2.0.0.tgz#5b86b091f62905a6f18b0280bbf9067f2949716f"
   integrity sha512-oZBj7j9hYSbuveNFvyPLamRfNh15KvGJC5pLGGpWVcO61EzISMESL0wudwP0UZETEu+0WfaJ16rGXtEZHsq+xw==
 
-"@untemps/utils@^2.0.0-beta.1":
-  version "2.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@untemps/utils/-/utils-2.0.0-beta.1.tgz#c7369b7efb06d0b7283e81e09d42207240dd9f8a"
-  integrity sha512-XwZzhIRcjDA2em+fGNLjbSqnq8UD5GtqqeENtuQAn73ztcGZCX/5eAhL9BK63wgnalwOO3wN+y9SfN+IXYjt4Q==
+"@untemps/utils@^2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@untemps/utils/-/utils-2.4.0.tgz#56d47022f289d7c1578d587d33c922d494b921f1"
+  integrity sha512-SC8iU/J0HLXaDBd1NiXu4Tgal0WaeMIEDP4aaX/aotD8iwLi7vfihGwm970ATHZJphPheuPPZM9igsD4scr9og==
   dependencies:
     "@babel/runtime" "^7.17.8"
 

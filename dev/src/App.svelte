@@ -6,16 +6,30 @@
 
 	let showSettings = false
 
-	let tooltipTextContent = null
-	let useCustomTooltipClass = false
-	let tooltipPosition = 'top'
-	let isTooltipDisabled = false
-	let animateTooltip = false
+	let textContent = null
+	let useCustomClass = false
+	let position = 'top'
+	let isDisabled = false
+	let animate = false
 	let useCustomAnimationEnterClass = false
 	let useCustomAnimationLeaveClass = false
-	let tooltipEnterDelay = 200
-	let tooltipLeaveDelay = 200
-	let tooltipOffset = 10
+	let enterDelay = 200
+	let leaveDelay = 200
+	let triggerOnEnter = false
+	let triggerOnLeave = false
+	let offset = 10
+
+	const _onTooltipEnter = () => {
+		if(triggerOnEnter) {
+		    alert('You\'ve entered the target')
+		}
+	}
+
+	const _onTooltipLeave = () => {
+		if(triggerOnLeave) {
+			alert('You\'ve left the target')
+		}
+	}
 
 	const _onTooltipClick = (arg, e) => {
 		e.preventDefault()
@@ -204,20 +218,20 @@
             <form class="settings__form">
                 <fieldset>
                     <label>
-                        Tooltip Text Content:
-                        <input type="text" bind:value={tooltipTextContent}/>
+                        Text Content:
+                        <input type="text" bind:value={textContent}/>
                     </label>
                 </fieldset>
                 <fieldset>
                     <label>
-                        Use Custom Tooltip Class:
-                        <input type="checkbox" bind:checked={useCustomTooltipClass}/>
+                        Use Custom Class:
+                        <input type="checkbox" bind:checked={useCustomClass}/>
                     </label>
                 </fieldset>
                 <fieldset>
                     <label>
-                        Tooltip Position:
-                        <select bind:value={tooltipPosition}>
+                        Position:
+                        <select bind:value={position}>
                             <option value="left">Left</option>
                             <option value="right">Right</option>
                             <option value="top">Top</option>
@@ -227,44 +241,56 @@
                 </fieldset>
                 <fieldset>
                     <label>
-                        Animate tooltip:
-                        <input type="checkbox" bind:checked={animateTooltip}/>
+                        Animate:
+                        <input type="checkbox" bind:checked={animate}/>
                     </label>
                 </fieldset>
                 <fieldset>
                     <label>
-                        Use Custom Tooltip Animation Enter Class:
+                        Use Custom Animation Enter Class:
                         <input type="checkbox" bind:checked={useCustomAnimationEnterClass}/>
                     </label>
                 </fieldset>
                 <fieldset>
                     <label>
-                        Use Custom Tooltip Animation Leave Class:
+                        Use Custom Animation Leave Class:
                         <input type="checkbox" bind:checked={useCustomAnimationLeaveClass}/>
                     </label>
                 </fieldset>
                 <fieldset>
                     <label>
-                        Tooltip Enter Delay (ms):
-                        <input type="number" step={100} min={0} bind:value={tooltipEnterDelay}/>
+                        Enter Delay (ms):
+                        <input type="number" step={100} min={0} bind:value={enterDelay}/>
                     </label>
                 </fieldset>
                 <fieldset>
                     <label>
-                        Tooltip Leave Delay (ms):
-                        <input type="number" step={100} min={0} bind:value={tooltipLeaveDelay}/>
+                        Leave Delay (ms):
+                        <input type="number" step={100} min={0} bind:value={leaveDelay}/>
                     </label>
                 </fieldset>
                 <fieldset>
                     <label>
-                        Tooltip Offset (px):
-                        <input type="number" step={1} min={5} bind:value={tooltipOffset}/>
+                        Trigger callback on enter:
+                        <input type="checkbox" bind:checked={triggerOnEnter}/>
                     </label>
                 </fieldset>
                 <fieldset>
                     <label>
-                        Disable Tooltip:
-                        <input type="checkbox" bind:checked={isTooltipDisabled}/>
+                        Trigger callback on leave:
+                        <input type="checkbox" bind:checked={triggerOnLeave}/>
+                    </label>
+                </fieldset>
+                <fieldset>
+                    <label>
+                        Offset (px):
+                        <input type="number" step={1} min={5} bind:value={offset}/>
+                    </label>
+                </fieldset>
+                <fieldset>
+                    <label>
+                        Disable:
+                        <input type="checkbox" bind:checked={isDisabled}/>
                     </label>
                 </fieldset>
             </form>
@@ -276,9 +302,9 @@
         </button>
         <div
                 use:useTooltip={{
-				position: tooltipPosition,
-				content: tooltipTextContent,
-				contentSelector: !tooltipTextContent?.length ? '#tooltip__template' : null,
+				position: position,
+				content: textContent,
+				contentSelector: !textContent?.length ? '#tooltip__template' : null,
 				contentActions: {
 					'*': {
 						eventType: 'click',
@@ -287,14 +313,16 @@
 						closeOnCallback: true,
 					},
 				},
-				containerClassName: useCustomTooltipClass ? `tooltip tooltip-${tooltipPosition}` : null,
-				animated: animateTooltip,
+				containerClassName: useCustomClass ? `tooltip tooltip-${position}` : null,
+				animated: animate,
 				animationEnterClassName: useCustomAnimationEnterClass ? 'tooltip-enter' : null,
 				animationLeaveClassName: useCustomAnimationLeaveClass ? 'tooltip-leave' : null,
-				enterDelay: tooltipEnterDelay,
-				leaveDelay: tooltipLeaveDelay,
-				offset: tooltipOffset,
-				disabled: isTooltipDisabled,
+				enterDelay: enterDelay,
+				leaveDelay: leaveDelay,
+				onEnter: _onTooltipEnter,
+				onLeave: _onTooltipLeave,
+				offset: offset,
+				disabled: isDisabled,
 			}}
                 class="target"
         >

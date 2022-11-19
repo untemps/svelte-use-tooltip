@@ -138,20 +138,22 @@ yarn add @untemps/svelte-use-tooltip
 
 ## API
 
-| Props                     | Type    | Default           | Description                                                                                                     |
-|---------------------------|---------|-------------------|-----------------------------------------------------------------------------------------------------------------|
-| `content`                 | string  | null              | Text content to display in the tooltip.                                                                         |
-| `contentSelector`         | string  | null              | Selector of the content to display in the tooltip.                                                              |
-| `contentActions`          | object  | null              | Configuration of the tooltip actions (see [Content Actions](#content-actions)).                                 |
-| `containerClassName`      | string  | '__tooltip'       | Class name to apply to the tooltip container.                                                                   |
-| `position`                | string  | 'top'             | Position of the tooltip. Available values: 'top', 'bottom', 'left', 'right'                                     |
-| `animated`                | boolean | false             | Flag to animate tooltip transitions.                                                                            |
-| `animationEnterClassName` | string  | '__tooltip-enter' | Class name to apply to the tooltip enter transition.                                                            |
-| `animationLeaveClassName` | string  | '__tooltip-leave' | Class name to apply to the tooltip leave transition.                                                            |
-| `enterDelay`              | number  | 0                 | Delay before showing the tooltip in milliseconds.                                                               |
-| `leaveDelay`              | number  | 0                 | Delay before hiding the tooltip in milliseconds.                                                                                |
-| `offset`                  | number  | 10                | Distance between the tooltip and the target in pixels.                                                          |
-| `disabled`                | boolean | false             | Flag to disable the tooltip content.                                                                            |
+| Props                     | Type    | Default           | Description                                                                     |
+|---------------------------|---------|-------------------|---------------------------------------------------------------------------------|
+| `content`                 | string  | null              | Text content to display in the tooltip.                                         |
+| `contentSelector`         | string  | null              | Selector of the content to display in the tooltip.                              |
+| `contentActions`          | object  | null              | Configuration of the tooltip actions (see [Content Actions](#content-actions)). |
+| `containerClassName`      | string  | '__tooltip'       | Class name to apply to the tooltip container.                                   |
+| `position`                | string  | 'top'             | Position of the tooltip. Available values: 'top', 'bottom', 'left', 'right'     |
+| `animated`                | boolean | false             | Flag to animate tooltip transitions.                                            |
+| `animationEnterClassName` | string  | '__tooltip-enter' | Class name to apply to the tooltip enter transition.                            |
+| `animationLeaveClassName` | string  | '__tooltip-leave' | Class name to apply to the tooltip leave transition.                            |
+| `enterDelay`              | number  | 0                 | Delay before showing the tooltip in milliseconds.                               |
+| `leaveDelay`              | number  | 0                 | Delay before hiding the tooltip in milliseconds.                                |
+| `onEnter`                 | func    | null              | Callback triggered when the tooltip appears.                                    |
+| `onLeave`                 | func    | null              | Callback triggered when the tooltip disappears.                                    |
+| `offset`                  | number  | 10                | Distance between the tooltip and the target in pixels.                          |
+| `disabled`                | boolean | false             | Flag to disable the tooltip content.                                            |
 
 ### Content and Content Selector
 

@@ -15,6 +15,8 @@ const useTooltip = (
 		animationLeaveClassName,
 		enterDelay,
 		leaveDelay,
+		onEnter,
+		onLeave,
 		offset,
 		disabled,
 	}
@@ -31,6 +33,8 @@ const useTooltip = (
 		animationLeaveClassName,
 		enterDelay,
 		leaveDelay,
+		onEnter,
+		onLeave,
 		offset,
 		disabled
 	)
@@ -47,6 +51,8 @@ const useTooltip = (
 			animationLeaveClassName: newAnimationLeaveClassName,
 			enterDelay: newEnterDelay,
 			leaveDelay: newLeaveDelay,
+			onEnter: newOnEnter,
+			onLeave: newOnLeave,
 			offset: newOffset,
 			disabled: newDisabled,
 		}) =>
@@ -61,6 +67,8 @@ const useTooltip = (
 				newAnimationLeaveClassName,
 				newEnterDelay,
 				newLeaveDelay,
+				newOnEnter,
+				newOnLeave,
 				newOffset,
 				newDisabled
 			),

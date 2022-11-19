@@ -421,6 +421,30 @@ describe('useTooltip', () => {
 		})
 	})
 
+	describe('useTooltip props: onEnter', () => {
+		it('Triggers callback when entering tooltip', async () => {
+			const onEnter = jest.fn()
+			action = useTooltip(target, {
+				...options,
+				onEnter,
+			})
+			await _enter(target)
+			await standby(0)
+			expect(onEnter).toHaveBeenCalled()
+		})
+
+		it('Triggers callback when entering tooltip after update', async () => {
+			const onEnter = jest.fn()
+			action = useTooltip(target, options)
+			action.update({
+				onEnter,
+			})
+			await _enter(target)
+			await standby(0)
+			expect(onEnter).toHaveBeenCalled()
+		})
+	})
+
 	describe('useTooltip props: leaveDelay', () => {
 		it('Delays tooltip disappearance', async () => {
 			action = useTooltip(target, {
