@@ -1,3 +1,10 @@
+# [2.8.0](https://github.com/untemps/svelte-use-tooltip/compare/v2.7.4...v2.8.0) (2022-11-19)
+
+
+### Features
+
+* Trigger callbacks on tooltip enter and leave ([#61](https://github.com/untemps/svelte-use-tooltip/issues/61)) ([c4d9e2f](https://github.com/untemps/svelte-use-tooltip/commit/c4d9e2fd346ba7d6b2812c539e6c7a379f25c9f2))
+
 ## [2.7.4](https://github.com/untemps/svelte-use-tooltip/compare/v2.7.3...v2.7.4) (2022-10-07)
 
 
