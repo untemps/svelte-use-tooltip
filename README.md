@@ -5,12 +5,9 @@
     Svelte action to display a tooltip
 </h1>
 
----
-
 [![npm](https://img.shields.io/npm/v/@untemps/svelte-use-tooltip?style=for-the-badge)](https://www.npmjs.com/package/@untemps/svelte-use-tooltip)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/untemps/svelte-use-tooltip/deploy?style=for-the-badge)](https://github.com/untemps/svelte-use-tooltip/actions)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/untemps/svelte-use-tooltip/index.yml?style=for-the-badge)](https://github.com/untemps/svelte-use-tooltip/actions)
 [![Codecov](https://img.shields.io/codecov/c/github/untemps/svelte-use-tooltip?style=for-the-badge)](https://codecov.io/gh/untemps/svelte-use-tooltip)
-[![LGTM](https://img.shields.io/lgtm/grade/javascript/github/untemps/svelte-use-tooltip?style=for-the-badge)](https://lgtm.com/projects/g/untemps/svelte-use-tooltip/context:javascript)
 
 ## Demo
 
