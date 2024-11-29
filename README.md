@@ -12,13 +12,13 @@
 ## Demo
 
 <p align="center">
-    :red_circle:&nbsp;<big><a href="https://svelte-use-tooltip.vercel.app" target="_blank" rel="noopener">LIVE DEMO</a></big>&nbsp;:red_circle:
+    :red_circle:&nbsp; <big><a href="https://svelte-use-tooltip.vercel.app" target="_blank" rel="noopener">LIVE DEMO</a></big> &nbsp;:red_circle:
 </p>
 
 ## Installation
 
 ```bash
-yarn add @untemps/svelte-use-tooltip
+npm i @untemps/svelte-use-tooltip
 ```
 
 ## Usage
@@ -236,7 +236,7 @@ If you combine the `*` selector with other events, its callback will be triggere
 The component can be served for development purpose on `http://localhost:5000/` running:
 
 ```bash
-yarn dev
+npm run dev
 ```
 
 ## Contributing

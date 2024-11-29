@@ -1,5 +1,4 @@
-.husky/
-.idea/
-build/
-coverage/
-node_modules/
+# Package Managers
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
