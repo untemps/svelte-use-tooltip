@@ -73,6 +73,11 @@
 							"type": "chore",
 							"scope": "force",
 							"release": "patch"
+						},
+						{
+							"type": "chore",
+							"scope": "critical",
+							"release": "major"
 						}
 					]
 				}
