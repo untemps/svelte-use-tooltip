@@ -1,3 +1,5 @@
+# [3.0.0](https://github.com/untemps/svelte-use-tooltip/compare/v2.8.0...v3.0.0) (2024-12-01)
+
 # [2.8.0](https://github.com/untemps/svelte-use-tooltip/compare/v2.7.4...v2.8.0) (2022-11-19)
 
 
