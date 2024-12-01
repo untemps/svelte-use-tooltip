@@ -8,17 +8,17 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '16'
-      - run: yarn install
-      - run: yarn test:ci
-      - run: yarn build
+          node-version: 20
+      - run: npm install
+      - run: npm run test:ci
+      - run: npm run build
       - run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v4
         with:
-          file: coverage/lcov.info
+          directory: ./coverage/
