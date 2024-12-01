@@ -72,19 +72,22 @@
 
 	.tooltip__content {
 		display: flex;
-		column-gap: 0.5rem;
+		flex-direction: column;
+		row-gap: 0.5rem;
 		align-items: center;
 	}
 
 	:global(.tooltip) {
 		position: absolute;
 		z-index: 9999;
-		max-width: 140px;
+		width: 90%;
+		max-width: 10rem;
 		background-color: #ee7008;
 		color: #fff;
 		text-align: center;
 		border-radius: 6px;
 		padding: 0.5rem;
+		box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
 	}
 
 	:global(.tooltip::after) {
@@ -187,7 +190,7 @@
 
 	.settings__form input {
 		margin: 0;
-		max-width: 80px;
+		max-width: 100px;
 		height: 30px;
 	}
 
