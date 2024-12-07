@@ -11,8 +11,13 @@
 		"action",
 		"javascript"
 	],
-	"repository": "https://github.com/untemps/svelte-use-tooltip.git",
-	"bugs": "https://github.com/untemps/svelte-use-tooltip/issues",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/untemps/svelte-use-tooltip.git"
+	},
+	"bugs": {
+		"url": "https://github.com/untemps/svelte-use-tooltip/issues"
+	},
 	"publishConfig": {
 		"access": "public"
 	},
@@ -26,6 +31,7 @@
 	],
 	"exports": {
 		".": {
+			"types": "./dist/types/index.d.ts",
 			"svelte": "./dist/index.js"
 		}
 	},
@@ -44,6 +50,7 @@
 		"@sveltejs/vite-plugin-svelte": "^4.0.0",
 		"@testing-library/jest-dom": "^6.6.3",
 		"@testing-library/svelte": "^5.2.6",
+		"@types/node": "^22.10.1",
 		"@vitest/coverage-v8": "^2.1.6",
 		"eslint": "^9.7.0",
 		"eslint-config-prettier": "^9.1.0",
@@ -55,8 +62,9 @@
 		"publint": "^0.2.0",
 		"semantic-release": "^24.2.0",
 		"svelte": "^5.0.0",
-		"typescript": "^5.3.2",
+		"typescript": "^5.7.2",
 		"vite": "^5.0.11",
+		"vite-plugin-dts": "^4.3.0",
 		"vitest": "^2.0.4"
 	},
 	"dependencies": {

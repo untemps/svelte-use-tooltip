@@ -1,34 +1,50 @@
 import { DOMObserver } from '@untemps/dom-observer';
 import { standby } from '@untemps/utils/async/standby';
 
+interface ContentAction {
+	eventType: string;
+	callback?: (...args: any[]) => void;
+	callbackParams?: any[];
+	closeOnCallback?: boolean;
+}
+
+interface ContentActions {
+	[key: string]: ContentAction;
+}
+
+interface EventListener {
+	trigger: HTMLElement;
+	eventType: string;
+	listener: (event: Event) => void;
+}
+
 class Tooltip {
-	static #instances = [];
+	static #instances: Tooltip[] = [];
 
-	#tooltip = null;
+	#tooltip: HTMLDivElement | null = null;
+	#target: HTMLElement;
+	#content: string | null;
+	#contentSelector: string | null;
+	#contentActions: ContentActions | null;
+	#containerClassName: string | null;
+	#position: 'top' | 'bottom' | 'left' | 'right';
+	#animated: boolean;
+	#animationEnterClassName: string;
+	#animationLeaveClassName: string;
+	#enterDelay: number;
+	#leaveDelay: number;
+	#onEnter: (() => void) | null;
+	#onLeave: (() => void) | null;
+	#offset: number;
 
-	#target = null;
-	#content = null;
-	#contentSelector = null;
-	#contentActions = null;
-	#containerClassName = null;
-	#position = null;
-	#animated = false;
-	#animationEnterClassName = null;
-	#animationLeaveClassName = null;
-	#enterDelay = 0;
-	#leaveDelay = 0;
-	#onEnter = null;
-	#onLeave = null;
-	#offset = 10;
+	#observer: typeof DOMObserver | null;
+	#events: EventListener[] = [];
+	#delay: NodeJS.Timeout | null = null;
+	#transitioning: boolean = false;
 
-	#observer = null;
-	#events = [];
-	#delay = null;
-	#transitioning = false;
-
-	#boundEnterHandler = null;
-	#boundLeaveHandler = null;
-	#boundWindowChangeHandler = null;
+	#boundEnterHandler: ((e: Event) => void) | null = null;
+	#boundLeaveHandler: ((e: Event) => void) | null = null;
+	#boundWindowChangeHandler: ((e: Event) => void) | null = null;
 
 	static destroy() {
 		Tooltip.#instances.forEach((instance) => {
