@@ -6,7 +6,7 @@
 </h1>
 
 [![npm](https://img.shields.io/npm/v/@untemps/svelte-use-tooltip?style=for-the-badge)](https://www.npmjs.com/package/@untemps/svelte-use-tooltip)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/untemps/svelte-use-tooltip/index.yml?style=for-the-badge)](https://github.com/untemps/svelte-use-tooltip/actions)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/untemps/svelte-use-tooltip/publish.yml?style=for-the-badge)](https://github.com/untemps/svelte-use-tooltip/actions)
 [![Codecov](https://img.shields.io/codecov/c/github/untemps/svelte-use-tooltip?style=for-the-badge)](https://codecov.io/gh/untemps/svelte-use-tooltip)
 
 ## Demo
