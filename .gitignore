@@ -6,6 +6,10 @@ node_modules
 /.svelte-kit
 /build
 /dist
+/coverage
+
+# Lockfiles
+package-lock.json
 
 # OS
 .DS_Store
