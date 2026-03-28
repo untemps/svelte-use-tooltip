@@ -13,6 +13,7 @@
 	let triggerOnEnter = $state(false);
 	let triggerOnLeave = $state(false);
 	let offset = $state(10);
+	let width = $state('auto');
 
 	const _onTooltipEnter = () => {
 		if (triggerOnEnter) {
@@ -232,6 +233,7 @@
 				onEnter: _onTooltipEnter,
 				onLeave: _onTooltipLeave,
 				offset: offset,
+				width: width,
 				disabled: isDisabled
 			}}
 			class="target"
@@ -311,6 +313,12 @@
 				<label>
 					Offset (px):
 					<input type="number" step={1} min={5} bind:value={offset} />
+				</label>
+			</fieldset>
+			<fieldset>
+				<label>
+					Width:
+					<input type="text" bind:value={width} />
 				</label>
 			</fieldset>
 			<fieldset>
