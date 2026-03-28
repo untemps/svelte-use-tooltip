@@ -19,9 +19,9 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
-      - run: npm install
-      - run: npm run test:ci
-      - run: npm run build
+      - run: yarn install --frozen-lockfile
+      - run: yarn test:ci
+      - run: yarn build
       - run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
