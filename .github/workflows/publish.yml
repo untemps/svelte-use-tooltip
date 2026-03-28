@@ -1,0 +1,30 @@
+name: "publish"
+on:
+  push:
+    branches:
+      - main
+      - beta
+permissions:
+  contents: write
+  id-token: write
+  pull-requests: write
+  issues: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - run: npm install
+      - run: npm run test:ci
+      - run: npm run build
+      - run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      - uses: codecov/codecov-action@v5
+        with:
+          files: coverage/lcov.info
