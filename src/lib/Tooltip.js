@@ -20,6 +20,7 @@ class Tooltip {
 	#onEnter = null;
 	#onLeave = null;
 	#offset = 10;
+	#width = 'auto';
 
 	#observer = null;
 	#events = [];
@@ -52,6 +53,7 @@ class Tooltip {
 		onEnter,
 		onLeave,
 		offset,
+		width,
 		disabled
 	) {
 		this.#target = target;
@@ -68,6 +70,7 @@ class Tooltip {
 		this.#onEnter = onEnter || null;
 		this.#onLeave = onLeave || null;
 		this.#offset = Math.max(offset || 10, 5);
+		this.#width = width || 'auto';
 
 		this.#observer = new DOMObserver();
 
@@ -96,18 +99,71 @@ class Tooltip {
 		onEnter,
 		onLeave,
 		offset,
+		width,
 		disabled
 	) {
+		const changes = this.#detectChanges(
+			content,
+			contentSelector,
+			containerClassName,
+			position,
+			offset,
+			width,
+			disabled
+		);
+		this.#applyState(
+			content,
+			contentSelector,
+			contentActions,
+			containerClassName,
+			position,
+			animated,
+			animationEnterClassName,
+			animationLeaveClassName,
+			enterDelay,
+			leaveDelay,
+			onEnter,
+			onLeave,
+			offset,
+			width
+		);
+		this.#applyChanges(changes);
+	}
+
+	#detectChanges(content, contentSelector, containerClassName, position, offset, width, disabled) {
 		const hasContentChanged =
 			(contentSelector !== undefined && contentSelector !== this.#contentSelector) ||
 			(content !== undefined && content !== this.#content);
-		const hasContainerClassNameChanged =
-			containerClassName !== undefined && containerClassName !== this.#containerClassName;
-		const hasPositionChanged = position !== undefined && position !== this.#position;
-		const hasOffsetChanged = offset !== undefined && offset !== this.#offset;
-		const hasToDisableTarget = disabled && this.#boundEnterHandler;
-		const hasToEnableTarget = !disabled && !this.#boundEnterHandler;
+		const hasStructureChanged =
+			hasContentChanged ||
+			(position !== undefined && position !== this.#position) ||
+			(offset !== undefined && offset !== this.#offset);
+		return {
+			hasStructureChanged,
+			hasContainerClassNameChanged:
+				containerClassName !== undefined && containerClassName !== this.#containerClassName,
+			hasWidthChanged: width !== undefined && width !== this.#width,
+			hasToDisableTarget: disabled && Boolean(this.#boundEnterHandler),
+			hasToEnableTarget: !disabled && !Boolean(this.#boundEnterHandler)
+		};
+	}
 
+	#applyState(
+		content,
+		contentSelector,
+		contentActions,
+		containerClassName,
+		position,
+		animated,
+		animationEnterClassName,
+		animationLeaveClassName,
+		enterDelay,
+		leaveDelay,
+		onEnter,
+		onLeave,
+		offset,
+		width
+	) {
 		this.#content = content;
 		this.#contentSelector = contentSelector;
 		this.#contentActions = contentActions;
@@ -121,24 +177,29 @@ class Tooltip {
 		this.#onEnter = onEnter || null;
 		this.#onLeave = onLeave || null;
 		this.#offset = Math.max(offset || 10, 5);
+		this.#width = width || 'auto';
+	}
 
-		if (hasContentChanged || hasPositionChanged || hasOffsetChanged) {
+	#applyChanges({
+		hasStructureChanged,
+		hasContainerClassNameChanged,
+		hasWidthChanged,
+		hasToDisableTarget,
+		hasToEnableTarget
+	}) {
+		if (hasStructureChanged) {
 			this.#removeTooltipFromTarget();
 			this.#createTooltip();
 		}
-
-		if (
-			hasContainerClassNameChanged ||
-			hasContentChanged ||
-			hasPositionChanged ||
-			hasOffsetChanged
-		) {
+		if (hasStructureChanged || hasContainerClassNameChanged) {
 			this.#tooltip.setAttribute(
 				'class',
 				this.#containerClassName || `__tooltip __tooltip-${this.#position}`
 			);
 		}
-
+		if (hasWidthChanged) {
+			this.#applyWidth();
+		}
 		if (hasToDisableTarget) {
 			this.#disable();
 		} else if (hasToEnableTarget) {
@@ -215,6 +276,8 @@ class Tooltip {
 		);
 		this.#tooltip.setAttribute('role', 'tooltip');
 
+		this.#applyWidth();
+
 		if (this.#contentSelector) {
 			this.#observer
 				.wait(this.#contentSelector, null, { events: [DOMObserver.EXIST, DOMObserver.ADD] })
@@ -259,6 +322,14 @@ class Tooltip {
 			}
 		}
 		this.#tooltip.appendChild(area);
+	}
+
+	#applyWidth() {
+		if (this.#width !== 'auto') {
+			this.#tooltip.style.width = this.#width;
+		} else {
+			this.#tooltip.style.removeProperty('width');
+		}
 	}
 
 	#positionTooltip() {

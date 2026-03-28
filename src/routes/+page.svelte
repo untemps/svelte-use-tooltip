@@ -1,18 +1,19 @@
 <script>
 	import { useTooltip } from '$lib';
 
-	let textContent = null;
-	let useCustomClass = false;
-	let position = 'top';
-	let isDisabled = false;
-	let animate = false;
-	let useCustomAnimationEnterClass = false;
-	let useCustomAnimationLeaveClass = false;
-	let enterDelay = 50;
-	let leaveDelay = 50;
-	let triggerOnEnter = false;
-	let triggerOnLeave = false;
-	let offset = 10;
+	let textContent = $state(null);
+	let useCustomClass = $state(false);
+	let position = $state('top');
+	let isDisabled = $state(false);
+	let animate = $state(false);
+	let useCustomAnimationEnterClass = $state(false);
+	let useCustomAnimationLeaveClass = $state(false);
+	let enterDelay = $state(50);
+	let leaveDelay = $state(50);
+	let triggerOnEnter = $state(false);
+	let triggerOnLeave = $state(false);
+	let offset = $state(10);
+	let width = $state('auto');
 
 	const _onTooltipEnter = () => {
 		if (triggerOnEnter) {
@@ -42,6 +43,8 @@
 		padding: 0;
 		height: 100%;
 		background-color: #617899;
+		font-family: monospace, -apple-system, sans-serif;
+		font-size: 0.875rem;
 	}
 
 	.content {
@@ -62,6 +65,7 @@
 		align-items: center;
 		justify-content: center;
 		box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
+		font-size: 0.875rem;
 	}
 
 	.target:hover {
@@ -88,6 +92,8 @@
 		border-radius: 6px;
 		padding: 0.5rem;
 		box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
+		font-family: system-ui, -apple-system, sans-serif;
+		font-size: 0.875rem;
 	}
 
 	:global(.tooltip::after) {
@@ -148,6 +154,11 @@
 		}
 	}
 
+	.settings h1 {
+		font-size: 1.25rem;
+		margin: 0 0 1rem;
+	}
+
 	.settings {
 		overflow: hidden auto;
 		width: 320px;
@@ -192,12 +203,16 @@
 		margin: 0;
 		max-width: 100px;
 		height: 30px;
+		font-family: inherit;
+		font-size: inherit;
 	}
 
 	.settings__form select {
 		margin: 0;
 		max-width: 80px;
 		height: 30px;
+		font-family: inherit;
+		font-size: inherit;
 	}
 
 	.settings__form input[type='checkbox'] {
@@ -232,6 +247,7 @@
 				onEnter: _onTooltipEnter,
 				onLeave: _onTooltipLeave,
 				offset: offset,
+				width: width,
 				disabled: isDisabled
 			}}
 			class="target"
@@ -311,6 +327,12 @@
 				<label>
 					Offset (px):
 					<input type="number" step={1} min={5} bind:value={offset} />
+				</label>
+			</fieldset>
+			<fieldset>
+				<label>
+					Width:
+					<input type="text" bind:value={width} />
 				</label>
 			</fieldset>
 			<fieldset>
