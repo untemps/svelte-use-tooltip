@@ -102,8 +102,31 @@ class Tooltip {
 		width,
 		disabled
 	) {
-		const changes = this.#detectChanges(content, contentSelector, containerClassName, position, offset, width, disabled);
-		this.#applyState(content, contentSelector, contentActions, containerClassName, position, animated, animationEnterClassName, animationLeaveClassName, enterDelay, leaveDelay, onEnter, onLeave, offset, width);
+		const changes = this.#detectChanges(
+			content,
+			contentSelector,
+			containerClassName,
+			position,
+			offset,
+			width,
+			disabled
+		);
+		this.#applyState(
+			content,
+			contentSelector,
+			contentActions,
+			containerClassName,
+			position,
+			animated,
+			animationEnterClassName,
+			animationLeaveClassName,
+			enterDelay,
+			leaveDelay,
+			onEnter,
+			onLeave,
+			offset,
+			width
+		);
 		this.#applyChanges(changes);
 	}
 
@@ -117,14 +140,30 @@ class Tooltip {
 			(offset !== undefined && offset !== this.#offset);
 		return {
 			hasStructureChanged,
-			hasContainerClassNameChanged: containerClassName !== undefined && containerClassName !== this.#containerClassName,
+			hasContainerClassNameChanged:
+				containerClassName !== undefined && containerClassName !== this.#containerClassName,
 			hasWidthChanged: width !== undefined && width !== this.#width,
 			hasToDisableTarget: disabled && Boolean(this.#boundEnterHandler),
-			hasToEnableTarget: !disabled && !Boolean(this.#boundEnterHandler),
+			hasToEnableTarget: !disabled && !Boolean(this.#boundEnterHandler)
 		};
 	}
 
-	#applyState(content, contentSelector, contentActions, containerClassName, position, animated, animationEnterClassName, animationLeaveClassName, enterDelay, leaveDelay, onEnter, onLeave, offset, width) {
+	#applyState(
+		content,
+		contentSelector,
+		contentActions,
+		containerClassName,
+		position,
+		animated,
+		animationEnterClassName,
+		animationLeaveClassName,
+		enterDelay,
+		leaveDelay,
+		onEnter,
+		onLeave,
+		offset,
+		width
+	) {
 		this.#content = content;
 		this.#contentSelector = contentSelector;
 		this.#contentActions = contentActions;
@@ -141,7 +180,13 @@ class Tooltip {
 		this.#width = width || 'auto';
 	}
 
-	#applyChanges({ hasStructureChanged, hasContainerClassNameChanged, hasWidthChanged, hasToDisableTarget, hasToEnableTarget }) {
+	#applyChanges({
+		hasStructureChanged,
+		hasContainerClassNameChanged,
+		hasWidthChanged,
+		hasToDisableTarget,
+		hasToEnableTarget
+	}) {
 		if (hasStructureChanged) {
 			this.#removeTooltipFromTarget();
 			this.#createTooltip();
