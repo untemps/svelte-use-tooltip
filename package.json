@@ -11,7 +11,10 @@
 		"action",
 		"javascript"
 	],
-	"repository": "https://github.com/untemps/svelte-use-tooltip.git",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/untemps/svelte-use-tooltip.git"
+	},
 	"bugs": "https://github.com/untemps/svelte-use-tooltip/issues",
 	"publishConfig": {
 		"access": "public"
