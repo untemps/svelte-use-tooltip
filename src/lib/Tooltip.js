@@ -120,7 +120,7 @@ class Tooltip {
 			hasContainerClassNameChanged: containerClassName !== undefined && containerClassName !== this.#containerClassName,
 			hasWidthChanged: width !== undefined && width !== this.#width,
 			hasToDisableTarget: disabled && Boolean(this.#boundEnterHandler),
-			hasToEnableTarget: !disabled && !this.#boundEnterHandler,
+			hasToEnableTarget: !disabled && !Boolean(this.#boundEnterHandler),
 		};
 	}
 
