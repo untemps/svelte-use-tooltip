@@ -1,18 +1,18 @@
 <script>
 	import { useTooltip } from '$lib';
 
-	let textContent = null;
-	let useCustomClass = false;
-	let position = 'top';
-	let isDisabled = false;
-	let animate = false;
-	let useCustomAnimationEnterClass = false;
-	let useCustomAnimationLeaveClass = false;
-	let enterDelay = 50;
-	let leaveDelay = 50;
-	let triggerOnEnter = false;
-	let triggerOnLeave = false;
-	let offset = 10;
+	let textContent = $state(null);
+	let useCustomClass = $state(false);
+	let position = $state('top');
+	let isDisabled = $state(false);
+	let animate = $state(false);
+	let useCustomAnimationEnterClass = $state(false);
+	let useCustomAnimationLeaveClass = $state(false);
+	let enterDelay = $state(50);
+	let leaveDelay = $state(50);
+	let triggerOnEnter = $state(false);
+	let triggerOnLeave = $state(false);
+	let offset = $state(10);
 
 	const _onTooltipEnter = () => {
 		if (triggerOnEnter) {
