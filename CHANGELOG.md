@@ -1,3 +1,10 @@
+# [3.1.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.0.0...v3.1.0) (2026-03-28)
+
+
+### Features
+
+* Add width prop ([#114](https://github.com/untemps/svelte-use-tooltip/issues/114)) ([3a22a70](https://github.com/untemps/svelte-use-tooltip/commit/3a22a700c8abe7609871554811cc29e7ed2bb51e))
+
 # [3.0.0](https://github.com/untemps/svelte-use-tooltip/compare/v2.8.0...v3.0.0) (2024-12-01)
 
 # [2.8.0](https://github.com/untemps/svelte-use-tooltip/compare/v2.7.4...v2.8.0) (2022-11-19)
