@@ -441,6 +441,69 @@ describe('useTooltip', () => {
 		});
 	});
 
+	describe('useTooltip props: width', () => {
+		test('Sets tooltip width', async () => {
+			action = useTooltip(target, {
+				...options,
+				width: '200px'
+			});
+			await _enter(target);
+			const content = getElement('#content');
+			expect(content.parentNode.style.width).toBe('200px');
+		});
+
+		test('Does not set width when value is auto', async () => {
+			action = useTooltip(target, {
+				...options,
+				width: 'auto'
+			});
+			await _enter(target);
+			const content = getElement('#content');
+			expect(content.parentNode.style.width).toHaveLength(0);
+		});
+
+		test('Does not set width when value is not provided', async () => {
+			action = useTooltip(target, options);
+			await _enter(target);
+			const content = getElement('#content');
+			expect(content.parentNode.style.width).toHaveLength(0);
+		});
+
+		test('Sets tooltip width after update', async () => {
+			action = useTooltip(target, options);
+			action.update({
+				width: '300px'
+			});
+			await _enter(target);
+			const content = getElement('#content');
+			expect(content.parentNode.style.width).toBe('300px');
+		});
+
+		test('Removes tooltip width after update to auto', async () => {
+			action = useTooltip(target, {
+				...options,
+				width: '200px'
+			});
+			action.update({
+				width: 'auto'
+			});
+			await _enter(target);
+			const content = getElement('#content');
+			expect(content.parentNode.style.width).toHaveLength(0);
+		});
+
+		test('Does not change width when not passed in update', async () => {
+			action = useTooltip(target, {
+				...options,
+				width: '200px'
+			});
+			action.update({});
+			await _enter(target);
+			const content = getElement('#content');
+			expect(content.parentNode.style.width).toBe('200px');
+		});
+	});
+
 	describe('useTooltip props: animated', () => {
 		test('Animates tooltip disappearance', async () => {
 			action = useTooltip(target, {

@@ -18,6 +18,7 @@ const useTooltip = (
 		onEnter,
 		onLeave,
 		offset,
+		width,
 		disabled
 	}
 ) => {
@@ -36,6 +37,7 @@ const useTooltip = (
 		onEnter,
 		onLeave,
 		offset,
+		width,
 		disabled
 	);
 
@@ -54,6 +56,7 @@ const useTooltip = (
 			onEnter: newOnEnter,
 			onLeave: newOnLeave,
 			offset: newOffset,
+			width: newWidth,
 			disabled: newDisabled
 		}) =>
 			tooltip.update(
@@ -70,6 +73,7 @@ const useTooltip = (
 				newOnEnter,
 				newOnLeave,
 				newOffset,
+				newWidth,
 				newDisabled
 			),
 		destroy: () => tooltip.destroy()

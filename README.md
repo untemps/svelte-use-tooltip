@@ -150,6 +150,7 @@ npm i @untemps/svelte-use-tooltip
 | `onEnter`                 | func    | null                | Callback triggered when the tooltip appears.                                    |
 | `onLeave`                 | func    | null                | Callback triggered when the tooltip disappears.                                 |
 | `offset`                  | number  | 10                  | Distance between the tooltip and the target in pixels.                          |
+| `width`                   | string  | 'auto'              | Width of the tooltip. Use `'auto'` to let the tooltip shrink-fit the trigger width, or a CSS size value (e.g. `'200px'`) to allow it to exceed the trigger width. |
 | `disabled`                | boolean | false               | Flag to disable the tooltip content.                                            |
 
 ### Content and Content Selector

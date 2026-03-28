@@ -20,6 +20,7 @@ class Tooltip {
 	#onEnter = null;
 	#onLeave = null;
 	#offset = 10;
+	#width = 'auto';
 
 	#observer = null;
 	#events = [];
@@ -52,6 +53,7 @@ class Tooltip {
 		onEnter,
 		onLeave,
 		offset,
+		width,
 		disabled
 	) {
 		this.#target = target;
@@ -68,6 +70,7 @@ class Tooltip {
 		this.#onEnter = onEnter || null;
 		this.#onLeave = onLeave || null;
 		this.#offset = Math.max(offset || 10, 5);
+		this.#width = width || 'auto';
 
 		this.#observer = new DOMObserver();
 
@@ -96,6 +99,7 @@ class Tooltip {
 		onEnter,
 		onLeave,
 		offset,
+		width,
 		disabled
 	) {
 		const hasContentChanged =
@@ -105,6 +109,7 @@ class Tooltip {
 			containerClassName !== undefined && containerClassName !== this.#containerClassName;
 		const hasPositionChanged = position !== undefined && position !== this.#position;
 		const hasOffsetChanged = offset !== undefined && offset !== this.#offset;
+		const hasWidthChanged = width !== undefined && width !== this.#width;
 		const hasToDisableTarget = disabled && this.#boundEnterHandler;
 		const hasToEnableTarget = !disabled && !this.#boundEnterHandler;
 
@@ -121,6 +126,7 @@ class Tooltip {
 		this.#onEnter = onEnter || null;
 		this.#onLeave = onLeave || null;
 		this.#offset = Math.max(offset || 10, 5);
+		this.#width = width || 'auto';
 
 		if (hasContentChanged || hasPositionChanged || hasOffsetChanged) {
 			this.#removeTooltipFromTarget();
@@ -137,6 +143,14 @@ class Tooltip {
 				'class',
 				this.#containerClassName || `__tooltip __tooltip-${this.#position}`
 			);
+		}
+
+		if (hasWidthChanged) {
+			if (this.#width !== 'auto') {
+				this.#tooltip.style.width = this.#width;
+			} else {
+				this.#tooltip.style.removeProperty('width');
+			}
 		}
 
 		if (hasToDisableTarget) {
@@ -214,6 +228,10 @@ class Tooltip {
 			this.#containerClassName || `__tooltip __tooltip-${this.#position}`
 		);
 		this.#tooltip.setAttribute('role', 'tooltip');
+
+		if (this.#width !== 'auto') {
+			this.#tooltip.style.width = this.#width;
+		}
 
 		if (this.#contentSelector) {
 			this.#observer
