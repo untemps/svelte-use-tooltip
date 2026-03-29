@@ -244,6 +244,20 @@ describe('useTooltip', () => {
 	});
 
 	describe('useTooltip props: position', () => {
+		beforeEach(() => {
+			Object.defineProperty(document.documentElement, 'clientWidth', { get: () => 10000, configurable: true });
+			Object.defineProperty(document.documentElement, 'clientHeight', { get: () => 10000, configurable: true });
+			vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
+				top: 500, bottom: 550, left: 500, right: 600, width: 100, height: 50
+			});
+		});
+
+		afterEach(() => {
+			vi.restoreAllMocks();
+			Object.defineProperty(document.documentElement, 'clientWidth', { get: () => 0, configurable: true });
+			Object.defineProperty(document.documentElement, 'clientHeight', { get: () => 0, configurable: true });
+		});
+
 		test('Positions tooltip on the left', async () => {
 			action = useTooltip(target, {
 				...options,
@@ -358,6 +372,170 @@ describe('useTooltip', () => {
 			expect(content.parentNode.style.bottom).not.toHaveLength(0);
 			expect(content.parentNode).not.toHaveClass('__tooltip-top');
 			expect(content.parentNode).toHaveClass('__tooltip-bottom');
+		});
+	});
+
+	describe('useTooltip props: position (boundary flip)', () => {
+		const VW = 1024;
+		const VH = 768;
+
+		const mockRects = (targetRect, tooltipRect) => {
+			Object.defineProperty(document.documentElement, 'clientWidth', {
+				get: () => VW,
+				configurable: true
+			});
+			Object.defineProperty(document.documentElement, 'clientHeight', {
+				get: () => VH,
+				configurable: true
+			});
+			vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function () {
+				if (this === target) return { ...targetRect };
+				return { ...tooltipRect };
+			});
+		};
+
+		afterEach(() => {
+			vi.restoreAllMocks();
+			Object.defineProperty(document.documentElement, 'clientWidth', {
+				get: () => 0,
+				configurable: true
+			});
+			Object.defineProperty(document.documentElement, 'clientHeight', {
+				get: () => 0,
+				configurable: true
+			});
+		});
+
+		test('Flips top to bottom when target is too close to the top edge', async () => {
+			mockRects(
+				{ top: 5, bottom: 25, left: 100, right: 200, width: 100, height: 20 },
+				{ width: 80, height: 30 }
+			);
+			action = useTooltip(target, { ...options, position: 'top' });
+			await _enter(target);
+			const content = getElement('#content');
+			expect(content.parentNode).toHaveClass('__tooltip-bottom');
+			expect(content.parentNode).not.toHaveClass('__tooltip-top');
+		});
+
+		test('Does not flip top when there is sufficient space above', async () => {
+			mockRects(
+				{ top: 200, bottom: 220, left: 100, right: 200, width: 100, height: 20 },
+				{ width: 80, height: 30 }
+			);
+			action = useTooltip(target, { ...options, position: 'top' });
+			await _enter(target);
+			const content = getElement('#content');
+			expect(content.parentNode).toHaveClass('__tooltip-top');
+			expect(content.parentNode).not.toHaveClass('__tooltip-bottom');
+		});
+
+		test('Flips bottom to top when target is too close to the bottom edge', async () => {
+			mockRects(
+				{ top: VH - 25, bottom: VH - 5, left: 100, right: 200, width: 100, height: 20 },
+				{ width: 80, height: 30 }
+			);
+			action = useTooltip(target, { ...options, position: 'bottom' });
+			await _enter(target);
+			const content = getElement('#content');
+			expect(content.parentNode).toHaveClass('__tooltip-top');
+			expect(content.parentNode).not.toHaveClass('__tooltip-bottom');
+		});
+
+		test('Does not flip bottom when there is sufficient space below', async () => {
+			mockRects(
+				{ top: 100, bottom: 120, left: 100, right: 200, width: 100, height: 20 },
+				{ width: 80, height: 30 }
+			);
+			action = useTooltip(target, { ...options, position: 'bottom' });
+			await _enter(target);
+			const content = getElement('#content');
+			expect(content.parentNode).toHaveClass('__tooltip-bottom');
+			expect(content.parentNode).not.toHaveClass('__tooltip-top');
+		});
+
+		test('Flips left to right when target is too close to the left edge', async () => {
+			mockRects(
+				{ top: 100, bottom: 120, left: 5, right: 105, width: 100, height: 20 },
+				{ width: 80, height: 30 }
+			);
+			action = useTooltip(target, { ...options, position: 'left' });
+			await _enter(target);
+			const content = getElement('#content');
+			expect(content.parentNode).toHaveClass('__tooltip-right');
+			expect(content.parentNode).not.toHaveClass('__tooltip-left');
+		});
+
+		test('Does not flip left when there is sufficient space to the left', async () => {
+			mockRects(
+				{ top: 100, bottom: 120, left: 200, right: 300, width: 100, height: 20 },
+				{ width: 80, height: 30 }
+			);
+			action = useTooltip(target, { ...options, position: 'left' });
+			await _enter(target);
+			const content = getElement('#content');
+			expect(content.parentNode).toHaveClass('__tooltip-left');
+			expect(content.parentNode).not.toHaveClass('__tooltip-right');
+		});
+
+		test('Flips right to left when target is too close to the right edge', async () => {
+			mockRects(
+				{ top: 100, bottom: 120, left: VW - 105, right: VW - 5, width: 100, height: 20 },
+				{ width: 80, height: 30 }
+			);
+			action = useTooltip(target, { ...options, position: 'right' });
+			await _enter(target);
+			const content = getElement('#content');
+			expect(content.parentNode).toHaveClass('__tooltip-left');
+			expect(content.parentNode).not.toHaveClass('__tooltip-right');
+		});
+
+		test('Does not flip right when there is sufficient space to the right', async () => {
+			mockRects(
+				{ top: 100, bottom: 120, left: 100, right: 200, width: 100, height: 20 },
+				{ width: 80, height: 30 }
+			);
+			action = useTooltip(target, { ...options, position: 'right' });
+			await _enter(target);
+			const content = getElement('#content');
+			expect(content.parentNode).toHaveClass('__tooltip-right');
+			expect(content.parentNode).not.toHaveClass('__tooltip-left');
+		});
+
+		test('Does not mutate class when containerClassName is set', async () => {
+			mockRects(
+				{ top: 5, bottom: 25, left: 100, right: 200, width: 100, height: 20 },
+				{ width: 80, height: 30 }
+			);
+			action = useTooltip(target, {
+				...options,
+				position: 'top',
+				containerClassName: 'my-tooltip'
+			});
+			await _enter(target);
+			const content = getElement('#content');
+			expect(content.parentNode).toHaveClass('my-tooltip');
+			expect(content.parentNode).not.toHaveClass('__tooltip-bottom');
+		});
+
+		test('Resets class to declared position after hide and reshown', async () => {
+			mockRects(
+				{ top: 5, bottom: 25, left: 100, right: 200, width: 100, height: 20 },
+				{ width: 80, height: 30 }
+			);
+			action = useTooltip(target, { ...options, position: 'top' });
+			await _enter(target);
+			expect(getElement('#content').parentNode).toHaveClass('__tooltip-bottom');
+			await _leave(target);
+
+			vi.restoreAllMocks();
+			mockRects(
+				{ top: 200, bottom: 220, left: 100, right: 200, width: 100, height: 20 },
+				{ width: 80, height: 30 }
+			);
+			await _enter(target);
+			expect(getElement('#content').parentNode).toHaveClass('__tooltip-top');
+			expect(getElement('#content').parentNode).not.toHaveClass('__tooltip-bottom');
 		});
 	});
 

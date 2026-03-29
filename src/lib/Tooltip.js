@@ -332,10 +332,39 @@ class Tooltip {
 		}
 	}
 
-	#positionTooltip() {
-		const { width: targetWidth, height: targetHeight } = this.#target.getBoundingClientRect();
-		const { width: tooltipWidth, height: tooltipHeight } = this.#tooltip.getBoundingClientRect();
+	#resolvePosition(targetRect, tooltipRect) {
+		const vw = document.documentElement.clientWidth;
+		const vh = document.documentElement.clientHeight;
 		switch (this.#position) {
+			case 'top':
+				if (targetRect.top - tooltipRect.height - this.#offset < 0) return 'bottom';
+				break;
+			case 'bottom':
+				if (targetRect.bottom + tooltipRect.height + this.#offset > vh) return 'top';
+				break;
+			case 'left':
+				if (targetRect.left - tooltipRect.width - this.#offset < 0) return 'right';
+				break;
+			case 'right':
+				if (targetRect.right + tooltipRect.width + this.#offset > vw) return 'left';
+				break;
+		}
+		return this.#position;
+	}
+
+	#positionTooltip() {
+		const targetRect = this.#target.getBoundingClientRect();
+		const tooltipRect = this.#tooltip.getBoundingClientRect();
+		const { width: targetWidth, height: targetHeight } = targetRect;
+		const { width: tooltipWidth, height: tooltipHeight } = tooltipRect;
+
+		const effectivePosition = this.#resolvePosition(targetRect, tooltipRect);
+
+		if (effectivePosition !== this.#position && !this.#containerClassName) {
+			this.#tooltip.setAttribute('class', `__tooltip __tooltip-${effectivePosition}`);
+		}
+
+		switch (effectivePosition) {
 			case 'left': {
 				this.#tooltip.style.top = `${-(tooltipHeight - targetHeight) >> 1}px`;
 				this.#tooltip.style.left = `${-tooltipWidth - this.#offset}px`;
@@ -403,6 +432,10 @@ class Tooltip {
 		}
 
 		this.#tooltip.remove();
+
+		if (!this.#containerClassName) {
+			this.#tooltip.setAttribute('class', `__tooltip __tooltip-${this.#position}`);
+		}
 
 		this.#events.forEach(({ trigger, eventType, listener }) =>
 			trigger.removeEventListener(eventType, listener)
