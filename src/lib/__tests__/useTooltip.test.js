@@ -575,6 +575,21 @@ describe('useTooltip', () => {
 			expect(tooltip).not.toHaveClass('__tooltip-left');
 		});
 
+		test('Adapts width of the best alternative position when all positions overflow', async () => {
+			// tooltip 900×600: too wide for left/right as-is, too tall for top/bottom
+			// space: top=-5, bottom=558, left=90, right=814
+			// No position fits as-is; right(814) is widest horizontal ≥ MIN_WIDTH → adapts to 814px
+			mockRects(
+				{ top: 5, bottom: 200, left: 100, right: 200, width: 100, height: 195 },
+				{ width: 900, height: 600 }
+			);
+			action = useTooltip(target, { ...options, position: 'top' });
+			await _enter(target);
+			const tooltip = getElement('#content').parentNode;
+			expect(tooltip).toHaveClass('__tooltip-right');
+			expect(tooltip.style.width).toBe('814px');
+		});
+
 		// — Class and state management —
 
 		test('Does not mutate class when containerClassName is set', async () => {

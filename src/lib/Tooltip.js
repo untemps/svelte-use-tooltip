@@ -3,6 +3,8 @@ import { standby } from '@untemps/utils/async/standby';
 
 class Tooltip {
 	static #instances = [];
+	// Minimum width (px) a horizontal position must offer before width-adaptation is attempted.
+	// Below this threshold the tooltip switches to a different position instead.
 	static #MIN_WIDTH = 80;
 
 	#tooltip = null;
@@ -344,26 +346,17 @@ class Tooltip {
 			right: vw - targetRect.right - this.#offset
 		};
 
-		const tooltipDim = {
-			top: tooltipRect.height,
-			bottom: tooltipRect.height,
-			left: tooltipRect.width,
-			right: tooltipRect.width
-		};
-
-		const fits = (pos) => space[pos] >= tooltipDim[pos];
 		const isHorizontal = (pos) => pos === 'left' || pos === 'right';
+		const fits = (pos) => space[pos] >= (isHorizontal(pos) ? tooltipRect.width : tooltipRect.height);
+		// Floor keeps the adapted width strictly within the available space.
+		const adaptTo = (pos) => `${Math.floor(space[pos])}px`;
 
 		if (fits(this.#position)) {
 			return { position: this.#position, adaptedWidth: null };
 		}
 
-		if (
-			isHorizontal(this.#position) &&
-			this.#width === 'auto' &&
-			space[this.#position] >= Tooltip.#MIN_WIDTH
-		) {
-			return { position: this.#position, adaptedWidth: `${Math.floor(space[this.#position])}px` };
+		if (isHorizontal(this.#position) && this.#width === 'auto' && space[this.#position] >= Tooltip.#MIN_WIDTH) {
+			return { position: this.#position, adaptedWidth: adaptTo(this.#position) };
 		}
 
 		const candidates = ['top', 'bottom', 'left', 'right']
@@ -379,7 +372,7 @@ class Tooltip {
 		if (this.#width === 'auto') {
 			for (const pos of candidates) {
 				if (isHorizontal(pos) && space[pos] >= Tooltip.#MIN_WIDTH) {
-					return { position: pos, adaptedWidth: `${Math.floor(space[pos])}px` };
+					return { position: pos, adaptedWidth: adaptTo(pos) };
 				}
 			}
 		}
