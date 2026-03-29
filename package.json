@@ -62,6 +62,9 @@
 		"vite": "^8.0.3",
 		"vitest": "^4.1.2"
 	},
+	"resolutions": {
+		"cookie": "^0.7.0"
+	},
 	"dependencies": {
 		"@untemps/dom-observer": "^2.0.0",
 		"@untemps/utils": "^3.0.0"
