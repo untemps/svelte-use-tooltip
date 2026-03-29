@@ -358,7 +358,11 @@ class Tooltip {
 			return { position: this.#position, adaptedWidth: null };
 		}
 
-		if (isHorizontal(this.#position) && this.#width === 'auto' && space[this.#position] >= Tooltip.#MIN_WIDTH) {
+		if (
+			isHorizontal(this.#position) &&
+			this.#width === 'auto' &&
+			space[this.#position] >= Tooltip.#MIN_WIDTH
+		) {
 			return { position: this.#position, adaptedWidth: `${Math.floor(space[this.#position])}px` };
 		}
 
@@ -388,7 +392,10 @@ class Tooltip {
 		let tooltipRect = this.#tooltip.getBoundingClientRect();
 		const { width: targetWidth, height: targetHeight } = targetRect;
 
-		const { position: effectivePosition, adaptedWidth } = this.#resolvePlacement(targetRect, tooltipRect);
+		const { position: effectivePosition, adaptedWidth } = this.#resolvePlacement(
+			targetRect,
+			tooltipRect
+		);
 
 		if (adaptedWidth !== null) {
 			this.#tooltip.style.width = adaptedWidth;
