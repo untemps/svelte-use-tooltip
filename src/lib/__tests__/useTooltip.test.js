@@ -245,17 +245,34 @@ describe('useTooltip', () => {
 
 	describe('useTooltip props: position', () => {
 		beforeEach(() => {
-			Object.defineProperty(document.documentElement, 'clientWidth', { get: () => 10000, configurable: true });
-			Object.defineProperty(document.documentElement, 'clientHeight', { get: () => 10000, configurable: true });
+			Object.defineProperty(document.documentElement, 'clientWidth', {
+				get: () => 10000,
+				configurable: true
+			});
+			Object.defineProperty(document.documentElement, 'clientHeight', {
+				get: () => 10000,
+				configurable: true
+			});
 			vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
-				top: 500, bottom: 550, left: 500, right: 600, width: 100, height: 50
+				top: 500,
+				bottom: 550,
+				left: 500,
+				right: 600,
+				width: 100,
+				height: 50
 			});
 		});
 
 		afterEach(() => {
 			vi.restoreAllMocks();
-			Object.defineProperty(document.documentElement, 'clientWidth', { get: () => 0, configurable: true });
-			Object.defineProperty(document.documentElement, 'clientHeight', { get: () => 0, configurable: true });
+			Object.defineProperty(document.documentElement, 'clientWidth', {
+				get: () => 0,
+				configurable: true
+			});
+			Object.defineProperty(document.documentElement, 'clientHeight', {
+				get: () => 0,
+				configurable: true
+			});
 		});
 
 		test('Positions tooltip on the left', async () => {
