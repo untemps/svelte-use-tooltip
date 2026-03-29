@@ -392,7 +392,7 @@ describe('useTooltip', () => {
 		});
 	});
 
-	describe('useTooltip props: position (boundary flip)', () => {
+	describe('useTooltip props: position (boundary placement)', () => {
 		const VW = 1024;
 		const VH = 768;
 
@@ -423,106 +423,164 @@ describe('useTooltip', () => {
 			});
 		});
 
-		test('Flips top to bottom when target is too close to the top edge', async () => {
-			mockRects(
-				{ top: 5, bottom: 25, left: 100, right: 200, width: 100, height: 20 },
-				{ width: 80, height: 30 }
-			);
-			action = useTooltip(target, { ...options, position: 'top' });
-			await _enter(target);
-			const content = getElement('#content');
-			expect(content.parentNode).toHaveClass('__tooltip-bottom');
-			expect(content.parentNode).not.toHaveClass('__tooltip-top');
-		});
+		// — No overflow: declared position used as-is —
 
-		test('Does not flip top when there is sufficient space above', async () => {
+		test('Uses declared top when there is sufficient space above', async () => {
 			mockRects(
 				{ top: 200, bottom: 220, left: 100, right: 200, width: 100, height: 20 },
 				{ width: 80, height: 30 }
 			);
 			action = useTooltip(target, { ...options, position: 'top' });
 			await _enter(target);
-			const content = getElement('#content');
-			expect(content.parentNode).toHaveClass('__tooltip-top');
-			expect(content.parentNode).not.toHaveClass('__tooltip-bottom');
+			expect(getElement('#content').parentNode).toHaveClass('__tooltip-top');
 		});
 
-		test('Flips bottom to top when target is too close to the bottom edge', async () => {
-			mockRects(
-				{ top: VH - 25, bottom: VH - 5, left: 100, right: 200, width: 100, height: 20 },
-				{ width: 80, height: 30 }
-			);
-			action = useTooltip(target, { ...options, position: 'bottom' });
-			await _enter(target);
-			const content = getElement('#content');
-			expect(content.parentNode).toHaveClass('__tooltip-top');
-			expect(content.parentNode).not.toHaveClass('__tooltip-bottom');
-		});
-
-		test('Does not flip bottom when there is sufficient space below', async () => {
+		test('Uses declared bottom when there is sufficient space below', async () => {
 			mockRects(
 				{ top: 100, bottom: 120, left: 100, right: 200, width: 100, height: 20 },
 				{ width: 80, height: 30 }
 			);
 			action = useTooltip(target, { ...options, position: 'bottom' });
 			await _enter(target);
-			const content = getElement('#content');
-			expect(content.parentNode).toHaveClass('__tooltip-bottom');
-			expect(content.parentNode).not.toHaveClass('__tooltip-top');
+			expect(getElement('#content').parentNode).toHaveClass('__tooltip-bottom');
 		});
 
-		test('Flips left to right when target is too close to the left edge', async () => {
-			mockRects(
-				{ top: 100, bottom: 120, left: 5, right: 105, width: 100, height: 20 },
-				{ width: 80, height: 30 }
-			);
-			action = useTooltip(target, { ...options, position: 'left' });
-			await _enter(target);
-			const content = getElement('#content');
-			expect(content.parentNode).toHaveClass('__tooltip-right');
-			expect(content.parentNode).not.toHaveClass('__tooltip-left');
-		});
-
-		test('Does not flip left when there is sufficient space to the left', async () => {
+		test('Uses declared left when there is sufficient space to the left', async () => {
 			mockRects(
 				{ top: 100, bottom: 120, left: 200, right: 300, width: 100, height: 20 },
 				{ width: 80, height: 30 }
 			);
 			action = useTooltip(target, { ...options, position: 'left' });
 			await _enter(target);
-			const content = getElement('#content');
-			expect(content.parentNode).toHaveClass('__tooltip-left');
-			expect(content.parentNode).not.toHaveClass('__tooltip-right');
+			expect(getElement('#content').parentNode).toHaveClass('__tooltip-left');
 		});
 
-		test('Flips right to left when target is too close to the right edge', async () => {
-			mockRects(
-				{ top: 100, bottom: 120, left: VW - 105, right: VW - 5, width: 100, height: 20 },
-				{ width: 80, height: 30 }
-			);
-			action = useTooltip(target, { ...options, position: 'right' });
-			await _enter(target);
-			const content = getElement('#content');
-			expect(content.parentNode).toHaveClass('__tooltip-left');
-			expect(content.parentNode).not.toHaveClass('__tooltip-right');
-		});
-
-		test('Does not flip right when there is sufficient space to the right', async () => {
+		test('Uses declared right when there is sufficient space to the right', async () => {
 			mockRects(
 				{ top: 100, bottom: 120, left: 100, right: 200, width: 100, height: 20 },
 				{ width: 80, height: 30 }
 			);
 			action = useTooltip(target, { ...options, position: 'right' });
 			await _enter(target);
-			const content = getElement('#content');
-			expect(content.parentNode).toHaveClass('__tooltip-right');
-			expect(content.parentNode).not.toHaveClass('__tooltip-left');
+			expect(getElement('#content').parentNode).toHaveClass('__tooltip-right');
 		});
+
+		// — Overflow: best available position selected (most space) —
+
+		test('Switches to the position with most available space when declared top overflows', async () => {
+			// target near top, tooltip taller than available space above
+			// space: top=-5, bottom=533, left=90, right=814 → picks right (most space, fits)
+			mockRects(
+				{ top: 5, bottom: 25, left: 100, right: 200, width: 100, height: 20 },
+				{ width: 80, height: 30 }
+			);
+			action = useTooltip(target, { ...options, position: 'top' });
+			await _enter(target);
+			expect(getElement('#content').parentNode).toHaveClass('__tooltip-right');
+			expect(getElement('#content').parentNode).not.toHaveClass('__tooltip-top');
+		});
+
+		test('Switches to bottom (not just opposite) when it has the most space', async () => {
+			// target near top-left corner; tooltip wide enough that left/right don't fit
+			// space: top=-5, bottom=533, left=90, right=814
+			// tooltip width=900 → left(90<900) and right(814<900) don't fit; bottom fits (533>=30)
+			mockRects(
+				{ top: 5, bottom: 25, left: 100, right: 200, width: 100, height: 20 },
+				{ width: 900, height: 30 }
+			);
+			action = useTooltip(target, { ...options, position: 'top' });
+			await _enter(target);
+			expect(getElement('#content').parentNode).toHaveClass('__tooltip-bottom');
+			expect(getElement('#content').parentNode).not.toHaveClass('__tooltip-top');
+		});
+
+		test('Switches left to right when right has more space and fits', async () => {
+			// target near left edge, explicit width so no width adaptation
+			// space: left=-5, right=909 → picks right
+			mockRects(
+				{ top: 100, bottom: 120, left: 5, right: 105, width: 100, height: 20 },
+				{ width: 80, height: 30 }
+			);
+			action = useTooltip(target, { ...options, position: 'left', width: '80px' });
+			await _enter(target);
+			expect(getElement('#content').parentNode).toHaveClass('__tooltip-right');
+			expect(getElement('#content').parentNode).not.toHaveClass('__tooltip-left');
+		});
+
+		test('Switches right to left when left has more space and fits', async () => {
+			// target near right edge, explicit width so no width adaptation
+			// space: right=-5, left=909 → picks left
+			mockRects(
+				{ top: 100, bottom: 120, left: VW - 105, right: VW - 5, width: 100, height: 20 },
+				{ width: 80, height: 30 }
+			);
+			action = useTooltip(target, { ...options, position: 'right', width: '80px' });
+			await _enter(target);
+			expect(getElement('#content').parentNode).toHaveClass('__tooltip-left');
+			expect(getElement('#content').parentNode).not.toHaveClass('__tooltip-right');
+		});
+
+		// — Width adaptation (width: auto) —
+
+		test('Adapts width to available space and keeps declared left when space >= MIN_WIDTH', async () => {
+			// target at left=150; space.left=140 >= MIN_WIDTH(80); tooltip natural width=200 > 140
+			// → stays left, width adapted to 140px
+			mockRects(
+				{ top: 100, bottom: 120, left: 150, right: 250, width: 100, height: 20 },
+				{ width: 200, height: 30 }
+			);
+			action = useTooltip(target, { ...options, position: 'left' });
+			await _enter(target);
+			const tooltip = getElement('#content').parentNode;
+			expect(tooltip).toHaveClass('__tooltip-left');
+			expect(tooltip.style.width).toBe('140px');
+		});
+
+		test('Adapts width to available space and keeps declared right when space >= MIN_WIDTH', async () => {
+			// target at right=900; space.right=1024-900-10=114 >= MIN_WIDTH(80); tooltip width=200 > 114
+			// → stays right, width adapted to 114px
+			mockRects(
+				{ top: 100, bottom: 120, left: 800, right: 900, width: 100, height: 20 },
+				{ width: 200, height: 30 }
+			);
+			action = useTooltip(target, { ...options, position: 'right' });
+			await _enter(target);
+			const tooltip = getElement('#content').parentNode;
+			expect(tooltip).toHaveClass('__tooltip-right');
+			expect(tooltip.style.width).toBe('114px');
+		});
+
+		test('Switches position when available space is below MIN_WIDTH and width is auto', async () => {
+			// space.left=40 < MIN_WIDTH(80); cannot adapt; best alternative: right(909>=80) → right
+			mockRects(
+				{ top: 100, bottom: 120, left: 50, right: 150, width: 100, height: 20 },
+				{ width: 200, height: 30 }
+			);
+			action = useTooltip(target, { ...options, position: 'left' });
+			await _enter(target);
+			const tooltip = getElement('#content').parentNode;
+			expect(tooltip).toHaveClass('__tooltip-right');
+			expect(tooltip).not.toHaveClass('__tooltip-left');
+		});
+
+		test('Does not adapt width when width prop is explicitly set', async () => {
+			// explicit width='200px'; space.left=40 too small; no width adaptation → switches position
+			mockRects(
+				{ top: 100, bottom: 120, left: 50, right: 150, width: 100, height: 20 },
+				{ width: 200, height: 30 }
+			);
+			action = useTooltip(target, { ...options, position: 'left', width: '200px' });
+			await _enter(target);
+			const tooltip = getElement('#content').parentNode;
+			expect(tooltip).not.toHaveClass('__tooltip-left');
+		});
+
+		// — Class and state management —
 
 		test('Does not mutate class when containerClassName is set', async () => {
 			mockRects(
 				{ top: 5, bottom: 25, left: 100, right: 200, width: 100, height: 20 },
-				{ width: 80, height: 30 }
+				{ width: 900, height: 30 }
 			);
 			action = useTooltip(target, {
 				...options,
@@ -530,29 +588,32 @@ describe('useTooltip', () => {
 				containerClassName: 'my-tooltip'
 			});
 			await _enter(target);
-			const content = getElement('#content');
-			expect(content.parentNode).toHaveClass('my-tooltip');
-			expect(content.parentNode).not.toHaveClass('__tooltip-bottom');
+			const tooltip = getElement('#content').parentNode;
+			expect(tooltip).toHaveClass('my-tooltip');
+			expect(tooltip).not.toHaveClass('__tooltip-bottom');
 		});
 
-		test('Resets class to declared position after hide and reshown', async () => {
+		test('Resets class and width after tooltip is hidden', async () => {
+			// First show: top overflows → switches + width adapted
 			mockRects(
-				{ top: 5, bottom: 25, left: 100, right: 200, width: 100, height: 20 },
-				{ width: 80, height: 30 }
+				{ top: 100, bottom: 120, left: 150, right: 250, width: 100, height: 20 },
+				{ width: 200, height: 30 }
 			);
-			action = useTooltip(target, { ...options, position: 'top' });
+			action = useTooltip(target, { ...options, position: 'left' });
 			await _enter(target);
-			expect(getElement('#content').parentNode).toHaveClass('__tooltip-bottom');
+			expect(getElement('#content').parentNode.style.width).toBe('140px');
 			await _leave(target);
 
+			// Second show: enough space → declared position, no adapted width
 			vi.restoreAllMocks();
 			mockRects(
-				{ top: 200, bottom: 220, left: 100, right: 200, width: 100, height: 20 },
-				{ width: 80, height: 30 }
+				{ top: 100, bottom: 120, left: 300, right: 400, width: 100, height: 20 },
+				{ width: 200, height: 30 }
 			);
 			await _enter(target);
-			expect(getElement('#content').parentNode).toHaveClass('__tooltip-top');
-			expect(getElement('#content').parentNode).not.toHaveClass('__tooltip-bottom');
+			const tooltip = getElement('#content').parentNode;
+			expect(tooltip).toHaveClass('__tooltip-left');
+			expect(tooltip.style.width).toBe('');
 		});
 	});
 
