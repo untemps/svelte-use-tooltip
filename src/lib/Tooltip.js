@@ -3,6 +3,9 @@ import { standby } from '@untemps/utils/async/standby';
 
 class Tooltip {
 	static #instances = [];
+	// Minimum width (px) a horizontal position must offer before width-adaptation is attempted.
+	// Below this threshold the tooltip switches to a different position instead.
+	static #MIN_WIDTH = 80;
 
 	#tooltip = null;
 
@@ -332,10 +335,78 @@ class Tooltip {
 		}
 	}
 
+	#resolvePlacement(targetRect, tooltipRect) {
+		const vw = document.documentElement.clientWidth;
+		const vh = document.documentElement.clientHeight;
+
+		const space = {
+			top: targetRect.top - this.#offset,
+			bottom: vh - targetRect.bottom - this.#offset,
+			left: targetRect.left - this.#offset,
+			right: vw - targetRect.right - this.#offset
+		};
+
+		const isHorizontal = (pos) => pos === 'left' || pos === 'right';
+		const fits = (pos) =>
+			space[pos] >= (isHorizontal(pos) ? tooltipRect.width : tooltipRect.height);
+		// Floor keeps the adapted width strictly within the available space.
+		const adaptTo = (pos) => `${Math.floor(space[pos])}px`;
+
+		if (fits(this.#position)) {
+			return { position: this.#position, adaptedWidth: null };
+		}
+
+		if (
+			isHorizontal(this.#position) &&
+			this.#width === 'auto' &&
+			space[this.#position] >= Tooltip.#MIN_WIDTH
+		) {
+			return { position: this.#position, adaptedWidth: adaptTo(this.#position) };
+		}
+
+		const candidates = ['top', 'bottom', 'left', 'right']
+			.filter((p) => p !== this.#position)
+			.sort((a, b) => space[b] - space[a]);
+
+		for (const pos of candidates) {
+			if (fits(pos)) {
+				return { position: pos, adaptedWidth: null };
+			}
+		}
+
+		if (this.#width === 'auto') {
+			for (const pos of candidates) {
+				if (isHorizontal(pos) && space[pos] >= Tooltip.#MIN_WIDTH) {
+					return { position: pos, adaptedWidth: adaptTo(pos) };
+				}
+			}
+		}
+
+		return { position: this.#position, adaptedWidth: null };
+	}
+
 	#positionTooltip() {
-		const { width: targetWidth, height: targetHeight } = this.#target.getBoundingClientRect();
-		const { width: tooltipWidth, height: tooltipHeight } = this.#tooltip.getBoundingClientRect();
-		switch (this.#position) {
+		const targetRect = this.#target.getBoundingClientRect();
+		let tooltipRect = this.#tooltip.getBoundingClientRect();
+		const { width: targetWidth, height: targetHeight } = targetRect;
+
+		const { position: effectivePosition, adaptedWidth } = this.#resolvePlacement(
+			targetRect,
+			tooltipRect
+		);
+
+		if (adaptedWidth !== null) {
+			this.#tooltip.style.width = adaptedWidth;
+			tooltipRect = this.#tooltip.getBoundingClientRect();
+		}
+
+		if (effectivePosition !== this.#position && !this.#containerClassName) {
+			this.#tooltip.setAttribute('class', `__tooltip __tooltip-${effectivePosition}`);
+		}
+
+		const { width: tooltipWidth, height: tooltipHeight } = tooltipRect;
+
+		switch (effectivePosition) {
 			case 'left': {
 				this.#tooltip.style.top = `${-(tooltipHeight - targetHeight) >> 1}px`;
 				this.#tooltip.style.left = `${-tooltipWidth - this.#offset}px`;
@@ -403,6 +474,12 @@ class Tooltip {
 		}
 
 		this.#tooltip.remove();
+
+		if (!this.#containerClassName) {
+			this.#tooltip.setAttribute('class', `__tooltip __tooltip-${this.#position}`);
+		}
+
+		this.#applyWidth();
 
 		this.#events.forEach(({ trigger, eventType, listener }) =>
 			trigger.removeEventListener(eventType, listener)
