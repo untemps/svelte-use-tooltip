@@ -347,7 +347,8 @@ class Tooltip {
 		};
 
 		const isHorizontal = (pos) => pos === 'left' || pos === 'right';
-		const fits = (pos) => space[pos] >= (isHorizontal(pos) ? tooltipRect.width : tooltipRect.height);
+		const fits = (pos) =>
+			space[pos] >= (isHorizontal(pos) ? tooltipRect.width : tooltipRect.height);
 		// Floor keeps the adapted width strictly within the available space.
 		const adaptTo = (pos) => `${Math.floor(space[pos])}px`;
 
@@ -355,7 +356,11 @@ class Tooltip {
 			return { position: this.#position, adaptedWidth: null };
 		}
 
-		if (isHorizontal(this.#position) && this.#width === 'auto' && space[this.#position] >= Tooltip.#MIN_WIDTH) {
+		if (
+			isHorizontal(this.#position) &&
+			this.#width === 'auto' &&
+			space[this.#position] >= Tooltip.#MIN_WIDTH
+		) {
 			return { position: this.#position, adaptedWidth: adaptTo(this.#position) };
 		}
 
