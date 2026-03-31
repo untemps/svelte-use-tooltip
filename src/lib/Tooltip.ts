@@ -19,7 +19,7 @@ type ChangeSet = {
 	hasStructureChanged: boolean;
 	hasContainerClassNameChanged: boolean;
 	hasWidthChanged: boolean;
-	hasToDisableTarget: boolean | undefined;
+	hasToDisableTarget: boolean;
 	hasToEnableTarget: boolean;
 };
 
@@ -49,7 +49,7 @@ class Tooltip {
 
 	#observer: DOMObserver | null = null;
 	#events: EventRecord[] = [];
-	#delay: ReturnType<typeof setTimeout> | null = null;
+	#delay: ReturnType<typeof setTimeout> | undefined;
 	#transitioning = false;
 
 	#boundEnterHandler: ((e: Event) => void) | null = null;
@@ -176,7 +176,7 @@ class Tooltip {
 			hasContainerClassNameChanged:
 				containerClassName !== undefined && containerClassName !== this.#containerClassName,
 			hasWidthChanged: width !== undefined && width !== this.#width,
-			hasToDisableTarget: disabled && Boolean(this.#boundEnterHandler),
+			hasToDisableTarget: !!disabled && Boolean(this.#boundEnterHandler),
 			hasToEnableTarget: !disabled && !Boolean(this.#boundEnterHandler)
 		};
 	}
@@ -246,7 +246,7 @@ class Tooltip {
 
 		await this.#removeTooltipFromTarget();
 
-		this.#disableTarget();
+		this.#disable();
 
 		this.#clearDelay();
 
@@ -283,19 +283,25 @@ class Tooltip {
 	}
 
 	#disableTarget() {
-		this.#target?.removeEventListener('mouseenter', this.#boundEnterHandler as EventListener);
-		this.#target?.removeEventListener('mouseleave', this.#boundLeaveHandler as EventListener);
-		this.#target?.removeEventListener('focusin', this.#boundEnterHandler as EventListener);
-		this.#target?.removeEventListener('focusout', this.#boundLeaveHandler as EventListener);
+		if (this.#boundEnterHandler) {
+			this.#target?.removeEventListener('mouseenter', this.#boundEnterHandler);
+			this.#target?.removeEventListener('focusin', this.#boundEnterHandler);
+		}
+		if (this.#boundLeaveHandler) {
+			this.#target?.removeEventListener('mouseleave', this.#boundLeaveHandler);
+			this.#target?.removeEventListener('focusout', this.#boundLeaveHandler);
+		}
 
 		this.#boundEnterHandler = null;
 		this.#boundLeaveHandler = null;
 	}
 
 	#disableWindow() {
-		window.removeEventListener('keydown', this.#boundWindowChangeHandler!);
-		window.removeEventListener('resize', this.#boundWindowChangeHandler!);
-		window.removeEventListener('scroll', this.#boundWindowChangeHandler!);
+		if (this.#boundWindowChangeHandler) {
+			window.removeEventListener('keydown', this.#boundWindowChangeHandler);
+			window.removeEventListener('resize', this.#boundWindowChangeHandler);
+			window.removeEventListener('scroll', this.#boundWindowChangeHandler);
+		}
 
 		this.#boundWindowChangeHandler = null;
 	}
@@ -469,7 +475,7 @@ class Tooltip {
 
 	async #appendTooltipToTarget() {
 		if (this.#animated) {
-			await this.#transitionTooltip(1);
+			await this.#transitionTooltip(true);
 		}
 
 		this.#observer!.wait(this.#tooltip!, null, { events: [DOMObserver.ADD] }).then(() => {
@@ -500,7 +506,7 @@ class Tooltip {
 
 	async #removeTooltipFromTarget() {
 		if (this.#animated) {
-			await this.#transitionTooltip(0);
+			await this.#transitionTooltip(false);
 		}
 
 		this.#tooltip!.remove();
@@ -529,36 +535,32 @@ class Tooltip {
 	}
 
 	#clearDelay() {
-		clearTimeout(this.#delay ?? undefined);
-		this.#delay = null;
+		clearTimeout(this.#delay);
+		this.#delay = undefined;
 	}
 
-	#transitionTooltip(direction: number) {
+	#transitionTooltip(entering: boolean) {
 		return new Promise<void>((resolve) => {
-			switch (direction) {
-				case 1: {
-					this.#tooltip!.classList.add(this.#animationEnterClassName!);
+			if (entering) {
+				this.#tooltip!.classList.add(this.#animationEnterClassName!);
+				this.#tooltip!.classList.remove(this.#animationLeaveClassName!);
+				this.#transitioning = false;
+				resolve();
+			} else {
+				const onTransitionEnd = () => {
+					this.#tooltip!.removeEventListener('animationend', onTransitionEnd);
 					this.#tooltip!.classList.remove(this.#animationLeaveClassName!);
-					this.#transitioning = false;
-					resolve();
-					break;
-				}
-				default: {
-					const onTransitionEnd = () => {
-						this.#tooltip!.removeEventListener('animationend', onTransitionEnd);
-						this.#tooltip!.classList.remove(this.#animationLeaveClassName!);
-						if (this.#transitioning) {
-							this.#transitioning = false;
-							resolve();
-						}
-					};
-
-					if (!this.#transitioning) {
-						this.#tooltip!.addEventListener('animationend', onTransitionEnd);
-						this.#tooltip!.classList.add(this.#animationLeaveClassName!);
-						this.#tooltip!.classList.remove(this.#animationEnterClassName!);
-						this.#transitioning = true;
+					if (this.#transitioning) {
+						this.#transitioning = false;
+						resolve();
 					}
+				};
+
+				if (!this.#transitioning) {
+					this.#tooltip!.addEventListener('animationend', onTransitionEnd);
+					this.#tooltip!.classList.add(this.#animationLeaveClassName!);
+					this.#tooltip!.classList.remove(this.#animationEnterClassName!);
+					this.#transitioning = true;
 				}
 			}
 		});

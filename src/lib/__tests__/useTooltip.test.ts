@@ -8,9 +8,11 @@ import { standby } from '@untemps/utils/async/standby';
 import useTooltip from '../useTooltip';
 import type { TooltipOptions } from '../useTooltip';
 import Tooltip from '../Tooltip';
-import type { ContentActions } from '../Tooltip';
+import type { ContentAction, ContentActions } from '../Tooltip';
 
 type FullAction = Required<ReturnType<typeof useTooltip>>;
+type BoundContentAction = ContentAction & { callbackParams: unknown[] };
+type FixtureOptions = TooltipOptions & { contentActions: Record<string, BoundContentAction> };
 
 const initTarget = (id: string): HTMLElement => {
 	return createElement({ tag: 'div', attributes: { id, class: 'bar' }, parent: document.body });
@@ -21,6 +23,8 @@ const initTemplate = (id: string, contentId: string): void => {
 	createElement({
 		tag: 'div',
 		attributes: { id: contentId, class: 'foo' },
+		// DocumentFragment (template.content) is not an HTMLElement subtype — double-cast via
+		// unknown to satisfy the third-party createElement API that expects HTMLElement as parent
 		parent: (template as HTMLTemplateElement).content as unknown as HTMLElement
 	});
 };
@@ -30,7 +34,7 @@ const createAction = (node: HTMLElement, opts: TooltipOptions): FullAction =>
 
 describe('useTooltip', () => {
 	let target: HTMLElement;
-	let options: TooltipOptions & { contentActions: ContentActions };
+	let options: FixtureOptions;
 	let action: FullAction | null = null;
 
 	beforeEach(() => {
@@ -92,6 +96,16 @@ describe('useTooltip', () => {
 			await _enter(target);
 			expect(getElement('#content')).not.toBeInTheDocument();
 		});
+
+		test('Removes window event listeners on destroy', async () => {
+			action = createAction(target, options);
+			const spy = vi.spyOn(window, 'removeEventListener');
+			await action.destroy();
+			expect(spy).toHaveBeenCalledWith('keydown', expect.any(Function));
+			expect(spy).toHaveBeenCalledWith('resize', expect.any(Function));
+			expect(spy).toHaveBeenCalledWith('scroll', expect.any(Function));
+			spy.mockRestore();
+		});
 	});
 
 	describe('useTooltip props: content', () => {
@@ -126,7 +140,7 @@ describe('useTooltip', () => {
 			const content = getElement('#content');
 			await fireEvent.click(content as Element);
 			expect(contentAction.callback).toHaveBeenCalledWith(
-				(contentAction.callbackParams as unknown[])[0],
+				contentAction.callbackParams[0],
 				expect.any(Event)
 			);
 			expect(content).toBeInTheDocument();
@@ -140,7 +154,7 @@ describe('useTooltip', () => {
 			const content = getElement('#content');
 			await fireEvent.click(content as Element);
 			expect(contentAction.callback).toHaveBeenCalledWith(
-				(contentAction.callbackParams as unknown[])[0],
+				contentAction.callbackParams[0],
 				expect.any(Event)
 			);
 			expect(content).not.toBeInTheDocument();
@@ -156,7 +170,7 @@ describe('useTooltip', () => {
 			const content = getElement('#content');
 			await fireEvent.click(content as Element);
 			expect(contentAction.callback).toHaveBeenCalledWith(
-				(contentAction.callbackParams as unknown[])[0],
+				contentAction.callbackParams[0],
 				expect.any(Event)
 			);
 			expect(content).toBeInTheDocument();
@@ -167,7 +181,7 @@ describe('useTooltip', () => {
 		test('Triggers new callback on tooltip click after update', async () => {
 			action = createAction(target, options);
 			const newCallback = vi.fn(() => 0);
-			const newOptions: TooltipOptions & { contentActions: ContentActions } = {
+			const newOptions: FixtureOptions = {
 				...options,
 				contentActions: {
 					'*': {
@@ -182,8 +196,8 @@ describe('useTooltip', () => {
 			await _enter(target);
 			await fireEvent.click(getElement('#content') as Element);
 			expect(contentAction.callback).toHaveBeenCalledWith(
-				(contentAction.callbackParams as unknown[])[0],
-				(contentAction.callbackParams as unknown[])[1],
+				contentAction.callbackParams[0],
+				contentAction.callbackParams[1],
 				expect.any(Event)
 			);
 		});
@@ -285,6 +299,10 @@ describe('useTooltip', () => {
 			});
 			await _enter(target);
 			const content = getElement('#content');
+			expect(((content as Element).parentNode as HTMLElement).style.left).not.toHaveLength(0);
+			expect(((content as Element).parentNode as HTMLElement).style.right).toHaveLength(0);
+			expect(((content as Element).parentNode as HTMLElement).style.top).not.toHaveLength(0);
+			expect(((content as Element).parentNode as HTMLElement).style.bottom).toHaveLength(0);
 			expect((content as Element).parentNode).toHaveClass('__tooltip-left');
 		});
 
