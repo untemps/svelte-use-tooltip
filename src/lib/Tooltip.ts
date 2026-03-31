@@ -225,7 +225,7 @@ class Tooltip {
 			this.#createTooltip();
 		}
 		if (hasStructureChanged || hasContainerClassNameChanged) {
-			this.#tooltip!.setAttribute(
+			this.#tooltip?.setAttribute(
 				'class',
 				this.#containerClassName || `__tooltip __tooltip-${this.#position}`
 			);
@@ -241,8 +241,8 @@ class Tooltip {
 	}
 
 	async destroy() {
-		this.#target!.style.removeProperty('position');
-		this.#target!.removeAttribute('aria-describedby');
+		this.#target?.style.removeProperty('position');
+		this.#target?.removeAttribute('aria-describedby');
 
 		await this.#removeTooltipFromTarget();
 
@@ -263,10 +263,10 @@ class Tooltip {
 		this.#boundEnterHandler = this.#onTargetEnter.bind(this);
 		this.#boundLeaveHandler = this.#onTargetLeave.bind(this);
 
-		this.#target!.addEventListener('mouseenter', this.#boundEnterHandler);
-		this.#target!.addEventListener('mouseleave', this.#boundLeaveHandler);
-		this.#target!.addEventListener('focusin', this.#boundEnterHandler);
-		this.#target!.addEventListener('focusout', this.#boundLeaveHandler);
+		this.#target?.addEventListener('mouseenter', this.#boundEnterHandler);
+		this.#target?.addEventListener('mouseleave', this.#boundLeaveHandler);
+		this.#target?.addEventListener('focusin', this.#boundEnterHandler);
+		this.#target?.addEventListener('focusout', this.#boundLeaveHandler);
 	}
 
 	#enableWindow() {
@@ -283,10 +283,10 @@ class Tooltip {
 	}
 
 	#disableTarget() {
-		this.#target!.removeEventListener('mouseenter', this.#boundEnterHandler!);
-		this.#target!.removeEventListener('mouseleave', this.#boundLeaveHandler!);
-		this.#target!.removeEventListener('focusin', this.#boundEnterHandler!);
-		this.#target!.removeEventListener('focusout', this.#boundLeaveHandler!);
+		this.#target?.removeEventListener('mouseenter', this.#boundEnterHandler as EventListener);
+		this.#target?.removeEventListener('mouseleave', this.#boundLeaveHandler as EventListener);
+		this.#target?.removeEventListener('focusin', this.#boundEnterHandler as EventListener);
+		this.#target?.removeEventListener('focusout', this.#boundLeaveHandler as EventListener);
 
 		this.#boundEnterHandler = null;
 		this.#boundLeaveHandler = null;
@@ -472,7 +472,7 @@ class Tooltip {
 			await this.#transitionTooltip(1);
 		}
 
-		this.#observer!.wait(this.#tooltip!, null, { events: [DOMObserver.ADD] }).then(({ node: _ }) => {
+		this.#observer!.wait(this.#tooltip!, null, { events: [DOMObserver.ADD] }).then(() => {
 			this.#positionTooltip();
 		});
 		this.#target!.appendChild(this.#tooltip!);
@@ -565,7 +565,7 @@ class Tooltip {
 	}
 
 	async #onTargetEnter(e: Event) {
-		if (this.#target === (e as MouseEvent).target) {
+		if (this.#target === e.target) {
 			await this.#waitForDelay(this.#enterDelay);
 			await this.#appendTooltipToTarget();
 			await standby(0);
@@ -575,8 +575,8 @@ class Tooltip {
 
 	async #onTargetLeave(e: Event) {
 		if (
-			this.#target === (e as MouseEvent).target ||
-			!this.#target!.contains((e as MouseEvent).target as Node)
+			this.#target === e.target ||
+			!this.#target?.contains(e.target as Node)
 		) {
 			await this.#waitForDelay(this.#leaveDelay);
 			await this.#removeTooltipFromTarget();
@@ -590,10 +590,7 @@ class Tooltip {
 		if (
 			this.#tooltip &&
 			this.#tooltip.parentNode &&
-			(e.type !== 'keydown' ||
-				(e.type === 'keydown' && ke.key === 'Escape') ||
-				ke.key === 'Esc' ||
-				ke.keyCode === 27)
+			(e.type !== 'keydown' || ke.key === 'Escape' || ke.key === 'Esc')
 		) {
 			await this.#removeTooltipFromTarget();
 		}
