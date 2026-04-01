@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { useTooltip } from '$lib';
 
 	let textContent = $state(null);
