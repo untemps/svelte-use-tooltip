@@ -32,6 +32,9 @@ const initTemplate = (id: string, contentId: string): void => {
 const createAction = (node: HTMLElement, opts: TooltipOptions): FullAction =>
 	useTooltip(node, opts) as FullAction;
 
+const tooltipEl = (): HTMLElement =>
+	(getElement('#content') as Element).parentNode as HTMLElement;
+
 describe('useTooltip', () => {
 	let target: HTMLElement;
 	let options: FixtureOptions;

@@ -225,7 +225,7 @@ class Tooltip {
 			this.#createTooltip();
 		}
 		if (hasStructureChanged || hasContainerClassNameChanged) {
-			this.#tooltip?.setAttribute(
+			this.#tooltip!.setAttribute(
 				'class',
 				this.#containerClassName || `__tooltip __tooltip-${this.#position}`
 			);

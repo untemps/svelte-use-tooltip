@@ -8,7 +8,7 @@ declare module '@untemps/dom-observer' {
 			target: string | Element,
 			onEvent: null,
 			options: { events: string[] }
-		): Promise<{ node: HTMLElement & HTMLTemplateElement }>;
+		): Promise<{ node: HTMLElement & { content?: DocumentFragment } }>;
 		clear(): void;
 	}
 }
