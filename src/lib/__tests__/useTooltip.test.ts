@@ -154,6 +154,7 @@ describe('useTooltip', () => {
 			options.contentActions['*'].closeOnCallback = true;
 			const contentAction = options.contentActions['*'];
 			await _enter(target);
+			const tooltip = tooltipEl();
 			const content = getElement('#content');
 			await fireEvent.click(content as Element);
 			expect(contentAction.callback).toHaveBeenCalledWith(
@@ -161,7 +162,7 @@ describe('useTooltip', () => {
 				expect.any(Event)
 			);
 			expect(content).not.toBeInTheDocument();
-			await fireEvent.animationEnd((content as Element).parentNode as Element);
+			await fireEvent.animationEnd(tooltip);
 			expect(content).not.toBeInTheDocument();
 		});
 
@@ -170,6 +171,7 @@ describe('useTooltip', () => {
 			options.contentActions['*'].closeOnCallback = true;
 			const contentAction = options.contentActions['*'];
 			await _enter(target);
+			const tooltip = tooltipEl();
 			const content = getElement('#content');
 			await fireEvent.click(content as Element);
 			expect(contentAction.callback).toHaveBeenCalledWith(
@@ -177,7 +179,7 @@ describe('useTooltip', () => {
 				expect.any(Event)
 			);
 			expect(content).toBeInTheDocument();
-			await fireEvent.animationEnd((content as Element).parentNode as Element);
+			await fireEvent.animationEnd(tooltip);
 			expect(content).not.toBeInTheDocument();
 		});
 
@@ -210,7 +212,7 @@ describe('useTooltip', () => {
 		test('Sets tooltip default class', async () => {
 			action = createAction(target, options);
 			await _enter(target);
-			expect((getElement('#content') as Element).parentNode).toHaveClass('__tooltip');
+			expect(tooltipEl()).toHaveClass('__tooltip');
 		});
 
 		test('Updates tooltip class', async () => {
@@ -219,13 +221,13 @@ describe('useTooltip', () => {
 				containerClassName: '__custom-tooltip'
 			});
 			await _enter(target);
-			expect((getElement('#content') as Element).parentNode).toHaveClass('__custom-tooltip');
+			expect(tooltipEl()).toHaveClass('__custom-tooltip');
 		});
 
 		test('Sets tooltip custom class', async () => {
 			action = createAction(target, { ...options, containerClassName: '__custom-tooltip' });
 			await _enter(target);
-			expect((getElement('#content') as Element).parentNode).toHaveClass('__custom-tooltip');
+			expect(tooltipEl()).toHaveClass('__custom-tooltip');
 		});
 	});
 
@@ -301,12 +303,12 @@ describe('useTooltip', () => {
 				position: 'left'
 			});
 			await _enter(target);
-			const content = getElement('#content');
-			expect(((content as Element).parentNode as HTMLElement).style.left).not.toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.right).toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.top).not.toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.bottom).toHaveLength(0);
-			expect((content as Element).parentNode).toHaveClass('__tooltip-left');
+			const tooltip = tooltipEl();
+			expect(tooltip.style.left).not.toHaveLength(0);
+			expect(tooltip.style.right).toHaveLength(0);
+			expect(tooltip.style.top).not.toHaveLength(0);
+			expect(tooltip.style.bottom).toHaveLength(0);
+			expect(tooltip).toHaveClass('__tooltip-left');
 		});
 
 		test('Positions tooltip on the left after update', async () => {
@@ -315,13 +317,13 @@ describe('useTooltip', () => {
 				position: 'left'
 			});
 			await _enter(target);
-			const content = getElement('#content');
-			expect(((content as Element).parentNode as HTMLElement).style.left).not.toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.right).toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.top).not.toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.bottom).toHaveLength(0);
-			expect((content as Element).parentNode).not.toHaveClass('__tooltip-top');
-			expect((content as Element).parentNode).toHaveClass('__tooltip-left');
+			const tooltip = tooltipEl();
+			expect(tooltip.style.left).not.toHaveLength(0);
+			expect(tooltip.style.right).toHaveLength(0);
+			expect(tooltip.style.top).not.toHaveLength(0);
+			expect(tooltip.style.bottom).toHaveLength(0);
+			expect(tooltip).not.toHaveClass('__tooltip-top');
+			expect(tooltip).toHaveClass('__tooltip-left');
 		});
 
 		test('Positions tooltip on the right', async () => {
@@ -330,12 +332,12 @@ describe('useTooltip', () => {
 				position: 'right'
 			});
 			await _enter(target);
-			const content = getElement('#content');
-			expect(((content as Element).parentNode as HTMLElement).style.left).toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.right).not.toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.top).not.toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.bottom).toHaveLength(0);
-			expect((content as Element).parentNode).toHaveClass('__tooltip-right');
+			const tooltip = tooltipEl();
+			expect(tooltip.style.left).toHaveLength(0);
+			expect(tooltip.style.right).not.toHaveLength(0);
+			expect(tooltip.style.top).not.toHaveLength(0);
+			expect(tooltip.style.bottom).toHaveLength(0);
+			expect(tooltip).toHaveClass('__tooltip-right');
 		});
 
 		test('Positions tooltip on the right after update', async () => {
@@ -344,24 +346,24 @@ describe('useTooltip', () => {
 				position: 'right'
 			});
 			await _enter(target);
-			const content = getElement('#content');
-			expect(((content as Element).parentNode as HTMLElement).style.left).toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.right).not.toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.top).not.toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.bottom).toHaveLength(0);
-			expect((content as Element).parentNode).not.toHaveClass('__tooltip-top');
-			expect((content as Element).parentNode).toHaveClass('__tooltip-right');
+			const tooltip = tooltipEl();
+			expect(tooltip.style.left).toHaveLength(0);
+			expect(tooltip.style.right).not.toHaveLength(0);
+			expect(tooltip.style.top).not.toHaveLength(0);
+			expect(tooltip.style.bottom).toHaveLength(0);
+			expect(tooltip).not.toHaveClass('__tooltip-top');
+			expect(tooltip).toHaveClass('__tooltip-right');
 		});
 
 		test('Positions tooltip at the top', async () => {
 			action = createAction(target, options);
 			await _enter(target);
-			const content = getElement('#content');
-			expect(((content as Element).parentNode as HTMLElement).style.left).not.toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.right).toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.top).not.toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.bottom).toHaveLength(0);
-			expect((content as Element).parentNode).toHaveClass('__tooltip-top');
+			const tooltip = tooltipEl();
+			expect(tooltip.style.left).not.toHaveLength(0);
+			expect(tooltip.style.right).toHaveLength(0);
+			expect(tooltip.style.top).not.toHaveLength(0);
+			expect(tooltip.style.bottom).toHaveLength(0);
+			expect(tooltip).toHaveClass('__tooltip-top');
 		});
 
 		test('Positions tooltip at the top after update', async () => {
@@ -373,13 +375,13 @@ describe('useTooltip', () => {
 				position: 'top'
 			});
 			await _enter(target);
-			const content = getElement('#content');
-			expect(((content as Element).parentNode as HTMLElement).style.left).not.toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.right).toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.top).not.toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.bottom).toHaveLength(0);
-			expect((content as Element).parentNode).not.toHaveClass('__tooltip-left');
-			expect((content as Element).parentNode).toHaveClass('__tooltip-top');
+			const tooltip = tooltipEl();
+			expect(tooltip.style.left).not.toHaveLength(0);
+			expect(tooltip.style.right).toHaveLength(0);
+			expect(tooltip.style.top).not.toHaveLength(0);
+			expect(tooltip.style.bottom).toHaveLength(0);
+			expect(tooltip).not.toHaveClass('__tooltip-left');
+			expect(tooltip).toHaveClass('__tooltip-top');
 		});
 
 		test('Positions tooltip at the bottom', async () => {
@@ -388,12 +390,12 @@ describe('useTooltip', () => {
 				position: 'bottom'
 			});
 			await _enter(target);
-			const content = getElement('#content');
-			expect(((content as Element).parentNode as HTMLElement).style.left).not.toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.right).toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.top).toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.bottom).not.toHaveLength(0);
-			expect((content as Element).parentNode).toHaveClass('__tooltip-bottom');
+			const tooltip = tooltipEl();
+			expect(tooltip.style.left).not.toHaveLength(0);
+			expect(tooltip.style.right).toHaveLength(0);
+			expect(tooltip.style.top).toHaveLength(0);
+			expect(tooltip.style.bottom).not.toHaveLength(0);
+			expect(tooltip).toHaveClass('__tooltip-bottom');
 		});
 
 		test('Positions tooltip at the bottom after update', async () => {
@@ -402,13 +404,13 @@ describe('useTooltip', () => {
 				position: 'bottom'
 			});
 			await _enter(target);
-			const content = getElement('#content');
-			expect(((content as Element).parentNode as HTMLElement).style.left).not.toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.right).toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.top).toHaveLength(0);
-			expect(((content as Element).parentNode as HTMLElement).style.bottom).not.toHaveLength(0);
-			expect((content as Element).parentNode).not.toHaveClass('__tooltip-top');
-			expect((content as Element).parentNode).toHaveClass('__tooltip-bottom');
+			const tooltip = tooltipEl();
+			expect(tooltip.style.left).not.toHaveLength(0);
+			expect(tooltip.style.right).toHaveLength(0);
+			expect(tooltip.style.top).toHaveLength(0);
+			expect(tooltip.style.bottom).not.toHaveLength(0);
+			expect(tooltip).not.toHaveClass('__tooltip-top');
+			expect(tooltip).toHaveClass('__tooltip-bottom');
 		});
 	});
 
@@ -454,7 +456,7 @@ describe('useTooltip', () => {
 			);
 			action = createAction(target, { ...options, position: 'top' });
 			await _enter(target);
-			expect((getElement('#content') as Element).parentNode).toHaveClass('__tooltip-top');
+			expect(tooltipEl()).toHaveClass('__tooltip-top');
 		});
 
 		test('Uses declared bottom when there is sufficient space below', async () => {
@@ -464,7 +466,7 @@ describe('useTooltip', () => {
 			);
 			action = createAction(target, { ...options, position: 'bottom' });
 			await _enter(target);
-			expect((getElement('#content') as Element).parentNode).toHaveClass('__tooltip-bottom');
+			expect(tooltipEl()).toHaveClass('__tooltip-bottom');
 		});
 
 		test('Uses declared left when there is sufficient space to the left', async () => {
@@ -474,7 +476,7 @@ describe('useTooltip', () => {
 			);
 			action = createAction(target, { ...options, position: 'left' });
 			await _enter(target);
-			expect((getElement('#content') as Element).parentNode).toHaveClass('__tooltip-left');
+			expect(tooltipEl()).toHaveClass('__tooltip-left');
 		});
 
 		test('Uses declared right when there is sufficient space to the right', async () => {
@@ -484,7 +486,7 @@ describe('useTooltip', () => {
 			);
 			action = createAction(target, { ...options, position: 'right' });
 			await _enter(target);
-			expect((getElement('#content') as Element).parentNode).toHaveClass('__tooltip-right');
+			expect(tooltipEl()).toHaveClass('__tooltip-right');
 		});
 
 		// — Overflow: best available position selected (most space) —
@@ -496,8 +498,8 @@ describe('useTooltip', () => {
 			);
 			action = createAction(target, { ...options, position: 'top' });
 			await _enter(target);
-			expect((getElement('#content') as Element).parentNode).toHaveClass('__tooltip-right');
-			expect((getElement('#content') as Element).parentNode).not.toHaveClass('__tooltip-top');
+			expect(tooltipEl()).toHaveClass('__tooltip-right');
+			expect(tooltipEl()).not.toHaveClass('__tooltip-top');
 		});
 
 		test('Switches to bottom (not just opposite) when it has the most space', async () => {
@@ -507,8 +509,8 @@ describe('useTooltip', () => {
 			);
 			action = createAction(target, { ...options, position: 'top' });
 			await _enter(target);
-			expect((getElement('#content') as Element).parentNode).toHaveClass('__tooltip-bottom');
-			expect((getElement('#content') as Element).parentNode).not.toHaveClass('__tooltip-top');
+			expect(tooltipEl()).toHaveClass('__tooltip-bottom');
+			expect(tooltipEl()).not.toHaveClass('__tooltip-top');
 		});
 
 		test('Switches left to right when right has more space and fits', async () => {
@@ -518,8 +520,8 @@ describe('useTooltip', () => {
 			);
 			action = createAction(target, { ...options, position: 'left', width: '80px' });
 			await _enter(target);
-			expect((getElement('#content') as Element).parentNode).toHaveClass('__tooltip-right');
-			expect((getElement('#content') as Element).parentNode).not.toHaveClass('__tooltip-left');
+			expect(tooltipEl()).toHaveClass('__tooltip-right');
+			expect(tooltipEl()).not.toHaveClass('__tooltip-left');
 		});
 
 		test('Switches right to left when left has more space and fits', async () => {
@@ -529,8 +531,8 @@ describe('useTooltip', () => {
 			);
 			action = createAction(target, { ...options, position: 'right', width: '80px' });
 			await _enter(target);
-			expect((getElement('#content') as Element).parentNode).toHaveClass('__tooltip-left');
-			expect((getElement('#content') as Element).parentNode).not.toHaveClass('__tooltip-right');
+			expect(tooltipEl()).toHaveClass('__tooltip-left');
+			expect(tooltipEl()).not.toHaveClass('__tooltip-right');
 		});
 
 		// — Width adaptation (width: auto) —
@@ -542,7 +544,7 @@ describe('useTooltip', () => {
 			);
 			action = createAction(target, { ...options, position: 'left' });
 			await _enter(target);
-			const tooltip = (getElement('#content') as Element).parentNode as HTMLElement;
+			const tooltip = tooltipEl();
 			expect(tooltip).toHaveClass('__tooltip-left');
 			expect(tooltip.style.width).toBe('140px');
 		});
@@ -554,7 +556,7 @@ describe('useTooltip', () => {
 			);
 			action = createAction(target, { ...options, position: 'right' });
 			await _enter(target);
-			const tooltip = (getElement('#content') as Element).parentNode as HTMLElement;
+			const tooltip = tooltipEl();
 			expect(tooltip).toHaveClass('__tooltip-right');
 			expect(tooltip.style.width).toBe('114px');
 		});
@@ -566,7 +568,7 @@ describe('useTooltip', () => {
 			);
 			action = createAction(target, { ...options, position: 'left' });
 			await _enter(target);
-			const tooltip = (getElement('#content') as Element).parentNode as HTMLElement;
+			const tooltip = tooltipEl();
 			expect(tooltip).toHaveClass('__tooltip-right');
 			expect(tooltip).not.toHaveClass('__tooltip-left');
 		});
@@ -578,8 +580,7 @@ describe('useTooltip', () => {
 			);
 			action = createAction(target, { ...options, position: 'left', width: '200px' });
 			await _enter(target);
-			const tooltip = (getElement('#content') as Element).parentNode as HTMLElement;
-			expect(tooltip).not.toHaveClass('__tooltip-left');
+			expect(tooltipEl()).not.toHaveClass('__tooltip-left');
 		});
 
 		test('Adapts width of the best alternative position when all positions overflow', async () => {
@@ -589,7 +590,7 @@ describe('useTooltip', () => {
 			);
 			action = createAction(target, { ...options, position: 'top' });
 			await _enter(target);
-			const tooltip = (getElement('#content') as Element).parentNode as HTMLElement;
+			const tooltip = tooltipEl();
 			expect(tooltip).toHaveClass('__tooltip-right');
 			expect(tooltip.style.width).toBe('814px');
 		});
@@ -607,7 +608,7 @@ describe('useTooltip', () => {
 				containerClassName: 'my-tooltip'
 			});
 			await _enter(target);
-			const tooltip = (getElement('#content') as Element).parentNode as HTMLElement;
+			const tooltip = tooltipEl();
 			expect(tooltip).toHaveClass('my-tooltip');
 			expect(tooltip).not.toHaveClass('__tooltip-bottom');
 		});
@@ -619,9 +620,7 @@ describe('useTooltip', () => {
 			);
 			action = createAction(target, { ...options, position: 'left' });
 			await _enter(target);
-			expect(((getElement('#content') as Element).parentNode as HTMLElement).style.width).toBe(
-				'140px'
-			);
+			expect(tooltipEl().style.width).toBe('140px');
 			await _leave(target);
 
 			vi.restoreAllMocks();
@@ -630,7 +629,7 @@ describe('useTooltip', () => {
 				{ width: 200, height: 30 }
 			);
 			await _enter(target);
-			const tooltip = (getElement('#content') as Element).parentNode as HTMLElement;
+			const tooltip = tooltipEl();
 			expect(tooltip).toHaveClass('__tooltip-left');
 			expect(tooltip.style.width).toBe('');
 		});
@@ -723,8 +722,7 @@ describe('useTooltip', () => {
 				width: '200px'
 			});
 			await _enter(target);
-			const content = getElement('#content');
-			expect(((content as Element).parentNode as HTMLElement).style.width).toBe('200px');
+			expect(tooltipEl().style.width).toBe('200px');
 		});
 
 		test('Does not set width when value is auto', async () => {
@@ -733,15 +731,13 @@ describe('useTooltip', () => {
 				width: 'auto'
 			});
 			await _enter(target);
-			const content = getElement('#content');
-			expect(((content as Element).parentNode as HTMLElement).style.width).toHaveLength(0);
+			expect(tooltipEl().style.width).toHaveLength(0);
 		});
 
 		test('Does not set width when value is not provided', async () => {
 			action = createAction(target, options);
 			await _enter(target);
-			const content = getElement('#content');
-			expect(((content as Element).parentNode as HTMLElement).style.width).toHaveLength(0);
+			expect(tooltipEl().style.width).toHaveLength(0);
 		});
 
 		test('Sets tooltip width after update', async () => {
@@ -750,8 +746,7 @@ describe('useTooltip', () => {
 				width: '300px'
 			});
 			await _enter(target);
-			const content = getElement('#content');
-			expect(((content as Element).parentNode as HTMLElement).style.width).toBe('300px');
+			expect(tooltipEl().style.width).toBe('300px');
 		});
 
 		test('Removes tooltip width after update to auto', async () => {
@@ -763,8 +758,7 @@ describe('useTooltip', () => {
 				width: 'auto'
 			});
 			await _enter(target);
-			const content = getElement('#content');
-			expect(((content as Element).parentNode as HTMLElement).style.width).toHaveLength(0);
+			expect(tooltipEl().style.width).toHaveLength(0);
 		});
 
 		test('Does not change width when not passed in update', async () => {
@@ -774,8 +768,7 @@ describe('useTooltip', () => {
 			});
 			action.update({});
 			await _enter(target);
-			const content = getElement('#content');
-			expect(((content as Element).parentNode as HTMLElement).style.width).toBe('200px');
+			expect(tooltipEl().style.width).toBe('200px');
 		});
 	});
 
@@ -787,8 +780,9 @@ describe('useTooltip', () => {
 			});
 			await _enterAndLeave(target);
 			const content = getElement('#content');
+			const tooltip = tooltipEl();
 			expect(content).toBeInTheDocument();
-			await fireEvent.animationEnd((content as Element).parentNode as Element);
+			await fireEvent.animationEnd(tooltip);
 			expect(content).not.toBeInTheDocument();
 		});
 
@@ -799,8 +793,9 @@ describe('useTooltip', () => {
 			});
 			await _enterAndLeave(target);
 			const content = getElement('#content');
+			const tooltip = tooltipEl();
 			expect(content).toBeInTheDocument();
-			await fireEvent.animationEnd((content as Element).parentNode as Element);
+			await fireEvent.animationEnd(tooltip);
 			expect(content).not.toBeInTheDocument();
 		});
 	});
