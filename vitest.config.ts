@@ -8,7 +8,7 @@ export default defineConfig({
 		coverage: {
 			reporter: ['text', 'lcov']
 		},
-		setupFiles: ['./vitest.setup.js']
+		setupFiles: ['./vitest.setup.ts']
 	},
 	plugins: [sveltekit()]
 });
