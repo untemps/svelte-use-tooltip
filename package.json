@@ -66,7 +66,7 @@
 		"cookie": "^0.7.0"
 	},
 	"dependencies": {
-		"@untemps/dom-observer": "^2.0.0",
+		"@untemps/dom-observer": "^3.1.0",
 		"@untemps/utils": "^3.0.0"
 	},
 	"release": {

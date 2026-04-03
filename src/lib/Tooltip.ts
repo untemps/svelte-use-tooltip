@@ -1,4 +1,4 @@
-import { DOMObserver } from '@untemps/dom-observer';
+import { DOMObserver, type WaitResult } from '@untemps/dom-observer';
 import { standby } from '@untemps/utils/async/standby';
 
 export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right';
@@ -320,8 +320,9 @@ class Tooltip {
 		if (this.#contentSelector) {
 			this.#observer!
 				.wait(this.#contentSelector, null, { events: [DOMObserver.EXIST, DOMObserver.ADD] })
-				.then(({ node }) => {
-					const child = node.content ? node.content.firstElementChild : node;
+				.then(({ node }: WaitResult) => {
+					const templateNode = node as HTMLTemplateElement;
+					const child = templateNode.content ? templateNode.content.firstElementChild : node;
 					(child as HTMLElement).setAttribute('style', 'position: relative');
 					this.#tooltip!.appendChild(child!.cloneNode(true));
 				});
