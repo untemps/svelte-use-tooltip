@@ -1,16 +1,14 @@
 # [3.2.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.1.0...v3.2.0) (2026-03-29)
 
-
 ### Features
 
-* Flip tooltip position when it overflows the viewport ([#115](https://github.com/untemps/svelte-use-tooltip/issues/115)) ([8d2ed2c](https://github.com/untemps/svelte-use-tooltip/commit/8d2ed2c56a37a9275264ec898b9feeafbf8294a2))
+- Flip tooltip position when it overflows the viewport ([#115](https://github.com/untemps/svelte-use-tooltip/issues/115)) ([8d2ed2c](https://github.com/untemps/svelte-use-tooltip/commit/8d2ed2c56a37a9275264ec898b9feeafbf8294a2))
 
 # [3.1.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.0.0...v3.1.0) (2026-03-28)
 
-
 ### Features
 
-* Add width prop ([#114](https://github.com/untemps/svelte-use-tooltip/issues/114)) ([3a22a70](https://github.com/untemps/svelte-use-tooltip/commit/3a22a700c8abe7609871554811cc29e7ed2bb51e))
+- Add width prop ([#114](https://github.com/untemps/svelte-use-tooltip/issues/114)) ([3a22a70](https://github.com/untemps/svelte-use-tooltip/commit/3a22a700c8abe7609871554811cc29e7ed2bb51e))
 
 # [3.0.0](https://github.com/untemps/svelte-use-tooltip/compare/v2.8.0...v3.0.0) (2024-12-01)
 

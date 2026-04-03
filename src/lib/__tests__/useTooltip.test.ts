@@ -10,7 +10,7 @@ import type { TooltipOptions } from '../useTooltip';
 import Tooltip from '../Tooltip';
 import type { ContentAction, ContentActions } from '../Tooltip';
 
-type FullAction = Required<ReturnType<typeof useTooltip>>;
+type FullAction = { update: (params: TooltipOptions) => void; destroy: () => Promise<void> };
 type BoundContentAction = ContentAction & { callbackParams: unknown[] };
 type FixtureOptions = TooltipOptions & { contentActions: Record<string, BoundContentAction> };
 
@@ -487,6 +487,8 @@ describe('useTooltip', () => {
 		// — Overflow: best available position selected (most space) —
 
 		test('Switches to the position with most available space when declared top overflows', async () => {
+			// target near top, tooltip taller than available space above
+			// space: top=-5, bottom=533, left=90, right=814 → picks right (most space, fits)
 			mockRects(
 				{ top: 5, bottom: 25, left: 100, right: 200, width: 100, height: 20 },
 				{ width: 80, height: 30 }
@@ -498,6 +500,9 @@ describe('useTooltip', () => {
 		});
 
 		test('Switches to bottom (not just opposite) when it has the most space', async () => {
+			// target near top-left corner; tooltip wide enough that left/right don't fit
+			// space: top=-5, bottom=533, left=90, right=814
+			// tooltip width=900 → left(90<900) and right(814<900) don't fit; bottom fits (533>=30)
 			mockRects(
 				{ top: 5, bottom: 25, left: 100, right: 200, width: 100, height: 20 },
 				{ width: 900, height: 30 }
@@ -509,6 +514,8 @@ describe('useTooltip', () => {
 		});
 
 		test('Switches left to right when right has more space and fits', async () => {
+			// target near left edge, explicit width so no width adaptation
+			// space: left=-5, right=909 → picks right
 			mockRects(
 				{ top: 100, bottom: 120, left: 5, right: 105, width: 100, height: 20 },
 				{ width: 80, height: 30 }
@@ -520,6 +527,8 @@ describe('useTooltip', () => {
 		});
 
 		test('Switches right to left when left has more space and fits', async () => {
+			// target near right edge, explicit width so no width adaptation
+			// space: right=-5, left=909 → picks left
 			mockRects(
 				{ top: 100, bottom: 120, left: VW - 105, right: VW - 5, width: 100, height: 20 },
 				{ width: 80, height: 30 }
@@ -533,6 +542,8 @@ describe('useTooltip', () => {
 		// — Width adaptation (width: auto) —
 
 		test('Adapts width to available space and keeps declared left when space >= MIN_WIDTH', async () => {
+			// target at left=150; space.left=140 >= MIN_WIDTH(80); tooltip natural width=200 > 140
+			// → stays left, width adapted to 140px
 			mockRects(
 				{ top: 100, bottom: 120, left: 150, right: 250, width: 100, height: 20 },
 				{ width: 200, height: 30 }
@@ -545,6 +556,8 @@ describe('useTooltip', () => {
 		});
 
 		test('Adapts width to available space and keeps declared right when space >= MIN_WIDTH', async () => {
+			// target at right=900; space.right=1024-900-10=114 >= MIN_WIDTH(80); tooltip width=200 > 114
+			// → stays right, width adapted to 114px
 			mockRects(
 				{ top: 100, bottom: 120, left: 800, right: 900, width: 100, height: 20 },
 				{ width: 200, height: 30 }
@@ -557,6 +570,7 @@ describe('useTooltip', () => {
 		});
 
 		test('Switches position when available space is below MIN_WIDTH and width is auto', async () => {
+			// space.left=40 < MIN_WIDTH(80); cannot adapt; best alternative: right(874>=80) → right
 			mockRects(
 				{ top: 100, bottom: 120, left: 50, right: 150, width: 100, height: 20 },
 				{ width: 200, height: 30 }
@@ -569,6 +583,7 @@ describe('useTooltip', () => {
 		});
 
 		test('Does not adapt width when width prop is explicitly set', async () => {
+			// explicit width='200px'; space.left=40 too small; no width adaptation → switches position
 			mockRects(
 				{ top: 100, bottom: 120, left: 50, right: 150, width: 100, height: 20 },
 				{ width: 200, height: 30 }
@@ -580,6 +595,9 @@ describe('useTooltip', () => {
 		});
 
 		test('Adapts width of the best alternative position when all positions overflow', async () => {
+			// tooltip 900×600: too wide for left/right as-is, too tall for top/bottom
+			// space: top=-5, bottom=558, left=90, right=814
+			// No position fits as-is; right(814) is widest horizontal ≥ MIN_WIDTH → adapts to 814px
 			mockRects(
 				{ top: 5, bottom: 200, left: 100, right: 200, width: 100, height: 195 },
 				{ width: 900, height: 600 }
@@ -610,6 +628,7 @@ describe('useTooltip', () => {
 		});
 
 		test('Resets class and width after tooltip is hidden', async () => {
+			// First show: left overflows → width adapted to available space
 			mockRects(
 				{ top: 100, bottom: 120, left: 150, right: 250, width: 100, height: 20 },
 				{ width: 200, height: 30 }
@@ -621,6 +640,7 @@ describe('useTooltip', () => {
 			);
 			await _leave(target);
 
+			// Second show: enough space → declared position, no adapted width
 			vi.restoreAllMocks();
 			mockRects(
 				{ top: 100, bottom: 120, left: 300, right: 400, width: 100, height: 20 },
