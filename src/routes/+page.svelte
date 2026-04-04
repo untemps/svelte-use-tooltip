@@ -43,7 +43,10 @@
 		padding: 0;
 		height: 100%;
 		background-color: #617899;
-		font-family: monospace, -apple-system, sans-serif;
+		font-family:
+			monospace,
+			-apple-system,
+			sans-serif;
 		font-size: 0.875rem;
 	}
 
@@ -92,7 +95,10 @@
 		border-radius: 6px;
 		padding: 0.5rem;
 		box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
-		font-family: system-ui, -apple-system, sans-serif;
+		font-family:
+			system-ui,
+			-apple-system,
+			sans-serif;
 		font-size: 0.875rem;
 	}
 

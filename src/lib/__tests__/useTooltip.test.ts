@@ -10,7 +10,7 @@ import type { TooltipOptions } from '../useTooltip';
 import Tooltip from '../Tooltip';
 import type { ContentAction, ContentActions } from '../Tooltip';
 
-type FullAction = Required<ReturnType<typeof useTooltip>>;
+type FullAction = { update: (params: TooltipOptions) => void; destroy: () => Promise<void> };
 type BoundContentAction = ContentAction & { callbackParams: unknown[] };
 type FixtureOptions = TooltipOptions & { contentActions: Record<string, BoundContentAction> };
 
@@ -562,6 +562,7 @@ describe('useTooltip', () => {
 		});
 
 		test('Switches position when available space is below MIN_WIDTH and width is auto', async () => {
+			// space.left=40 < MIN_WIDTH(80); cannot adapt; best alternative: right(874>=80) → right
 			mockRects(
 				{ top: 100, bottom: 120, left: 50, right: 150, width: 100, height: 20 },
 				{ width: 200, height: 30 }
@@ -614,6 +615,7 @@ describe('useTooltip', () => {
 		});
 
 		test('Resets class and width after tooltip is hidden', async () => {
+			// First show: left overflows → width adapted to available space
 			mockRects(
 				{ top: 100, bottom: 120, left: 150, right: 250, width: 100, height: 20 },
 				{ width: 200, height: 30 }
