@@ -14,6 +14,7 @@ yarn test:ci      # Run tests once (used in CI)
 ```
 
 Run a single test file:
+
 ```bash
 yarn vitest run src/lib/__tests__/useTooltip.test.js
 ```

@@ -1,4 +1,4 @@
-import { DOMObserver } from '@untemps/dom-observer';
+import { DOMObserver, type WaitResult } from '@untemps/dom-observer';
 import { standby } from '@untemps/utils/async/standby';
 
 export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right';
@@ -32,10 +32,10 @@ class Tooltip {
 	#tooltip: HTMLDivElement | null = null;
 
 	#target: HTMLElement | null = null;
-	#content: string | null | undefined = null;
-	#contentSelector: string | null | undefined = null;
-	#contentActions: ContentActions | null | undefined = null;
-	#containerClassName: string | null | undefined = null;
+	#content: string | null = null;
+	#contentSelector: string | null = null;
+	#contentActions: ContentActions | null = null;
+	#containerClassName: string | null = null;
 	#position: TooltipPosition = 'top';
 	#animated = false;
 	#animationEnterClassName: string | null = null;
@@ -318,13 +318,14 @@ class Tooltip {
 		this.#applyWidth();
 
 		if (this.#contentSelector) {
-			this.#observer!
-				.wait(this.#contentSelector, null, { events: [DOMObserver.EXIST, DOMObserver.ADD] })
-				.then(({ node }) => {
-					const child = node.content ? node.content.firstElementChild : node;
-					(child as HTMLElement).setAttribute('style', 'position: relative');
-					this.#tooltip!.appendChild(child!.cloneNode(true));
-				});
+			this.#observer!.wait(this.#contentSelector, {
+				events: [DOMObserver.EXIST, DOMObserver.ADD]
+			}).then(({ node }: WaitResult) => {
+				const templateNode = node as HTMLTemplateElement;
+				const child = templateNode.content ? templateNode.content.firstElementChild : node;
+				(child as HTMLElement).setAttribute('style', 'position: relative');
+				this.#tooltip!.appendChild(child!.cloneNode(true));
+			});
 		} else if (this.#content) {
 			const child = document.createTextNode(this.#content);
 			this.#tooltip.appendChild(child);
@@ -478,7 +479,7 @@ class Tooltip {
 			await this.#transitionTooltip(true);
 		}
 
-		this.#observer!.wait(this.#tooltip!, null, { events: [DOMObserver.ADD] }).then(() => {
+		this.#observer!.wait(this.#tooltip!, { events: [DOMObserver.ADD] }).then(() => {
 			this.#positionTooltip();
 		});
 		this.#target!.appendChild(this.#tooltip!);
@@ -576,10 +577,7 @@ class Tooltip {
 	}
 
 	async #onTargetLeave(e: Event) {
-		if (
-			this.#target === e.target ||
-			!this.#target?.contains(e.target as Node)
-		) {
+		if (this.#target === e.target || !this.#target?.contains(e.target as Node)) {
 			await this.#waitForDelay(this.#leaveDelay);
 			await this.#removeTooltipFromTarget();
 			await standby(0);

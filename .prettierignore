@@ -2,3 +2,6 @@
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
+
+# GitHub Actions — must stay identical to main branch for claude-code-action OIDC validation
+.github/workflows/
