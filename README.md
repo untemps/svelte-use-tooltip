@@ -26,10 +26,10 @@ npm i @untemps/svelte-use-tooltip
 ### Basic usage
 
 ```svelte
-<script>
+<script lang="ts">
 	import { useTooltip } from '@untemps/svelte-use-tooltip';
 
-	const _onTooltipClick = (arg, event) => {
+	const _onTooltipClick = (arg: string, event: Event) => {
 		console.log(arg, event);
 	};
 </script>
@@ -49,7 +49,6 @@ npm i @untemps/svelte-use-tooltip
 		containerClassName: `tooltip tooltip-right`,
 		animated: true,
 		animationEnterClassName: 'tooltip-enter',
-		animationLeaveClassName: null,
 		enterDelay: 100,
 		leaveDelay: 100,
 		offset: 20
@@ -138,9 +137,9 @@ npm i @untemps/svelte-use-tooltip
 | Props                     | Type    | Default             | Description                                                                                                                                                                                                                                                                                                                           |
 | ------------------------- | ------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `content`                 | string  | null                | Text content to display in the tooltip.                                                                                                                                                                                                                                                                                               |
-| `contentSelector`         | string  | null                | Selector of the content to display in the tooltip.                                                                                                                                                                                                                                                                                    |
+| `contentSelector`         | string  | null                | Selector of the content to display in the tooltip. Takes precedence over `content` when both are provided.                                                                                                                                                                                                                            |
 | `contentActions`          | object  | null                | Configuration of the tooltip actions (see [Content Actions](#content-actions)).                                                                                                                                                                                                                                                       |
-| `containerClassName`      | string  | '\_\_tooltip'       | Class name to apply to the tooltip container.                                                                                                                                                                                                                                                                                         |
+| `containerClassName`      | string  | null                | Class name to apply to the tooltip container. When not set, the tooltip receives the auto-generated classes `__tooltip __tooltip-{position}`.                                                                                                                                                                                         |
 | `position`                | string  | 'top'               | Position of the tooltip. Available values: 'top', 'bottom', 'left', 'right'. If the tooltip would overflow the viewport, it automatically switches to the position with the most available space. For `'left'`/`'right'`, when `width` is `'auto'`, the width shrinks to fit before switching positions (down to a minimum of 80 px). |
 | `animated`                | boolean | false               | Flag to animate tooltip transitions.                                                                                                                                                                                                                                                                                                  |
 | `animationEnterClassName` | string  | '\_\_tooltip-enter' | Class name to apply to the tooltip enter transition.                                                                                                                                                                                                                                                                                  |
@@ -149,13 +148,21 @@ npm i @untemps/svelte-use-tooltip
 | `leaveDelay`              | number  | 0                   | Delay before hiding the tooltip in milliseconds.                                                                                                                                                                                                                                                                                      |
 | `onEnter`                 | func    | null                | Callback triggered when the tooltip appears.                                                                                                                                                                                                                                                                                          |
 | `onLeave`                 | func    | null                | Callback triggered when the tooltip disappears.                                                                                                                                                                                                                                                                                       |
-| `offset`                  | number  | 10                  | Distance between the tooltip and the target in pixels.                                                                                                                                                                                                                                                                                |
+| `offset`                  | number  | 10                  | Distance between the tooltip and the target in pixels. Minimum enforced value is 5.                                                                                                                                                                                                                                                   |
 | `width`                   | string  | 'auto'              | Width of the tooltip. Use `'auto'` to let the tooltip shrink-fit the trigger width, or a CSS size value (e.g. `'200px'`) to allow it to exceed the trigger width.                                                                                                                                                                     |
-| `disabled`                | boolean | false               | Flag to disable the tooltip content.                                                                                                                                                                                                                                                                                                  |
+| `disabled`                | boolean | false               | Flag to disable the tooltip.                                                                                                                                                                                                                                                                                                          |
+
+### TypeScript
+
+The package ships TypeScript types. The main types you may need when composing options or building wrappers:
+
+```ts
+import type { TooltipOptions, TooltipPosition, ContentAction, ContentActions } from '@untemps/svelte-use-tooltip';
+```
 
 ### Content and Content Selector
 
-The tooltip content can be specified either by the `content` prop or the `contentSelector` prop.
+The tooltip content can be specified either by the `content` prop or the `contentSelector` prop. When both are provided, `contentSelector` takes precedence.
 
 `content` must be a text string that will be displayed as is in the tooltip.
 
@@ -163,7 +170,7 @@ It's useful for most of the use cases of a tooltip however sometimes you need to
 
 To do so, you may use the `contentSelector` prop that allows to specify the selector of an element from the DOM.
 
-The best option is to use a [template](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template) HTML element although you may also use a plain element. In this case, **it will remain in the DOM and will be clones in the tooltip**.
+The best option is to use a [template](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template) HTML element although you may also use a plain element. In this case, **it will remain in the DOM and will be cloned in the tooltip**.
 
 ### Content Actions
 
@@ -174,7 +181,7 @@ Each element inside the content parent may configure its own action since it can
 One event by element is possible so far as elements are referenced by selector. The last one declared in the `contentActions` object has precedence over the previous ones.
 
 ```svelte
-<script>
+<script lang="ts">
 	import { useTooltip } from '@untemps/svelte-use-tooltip';
 </script>
 
@@ -217,7 +224,7 @@ One event by element is possible so far as elements are referenced by selector. 
 If you need the whole tooltip content to be interactive, you can use the special `*` key:
 
 ```svelte
-<script>
+<script lang="ts">
 	import { useTooltip } from '@untemps/svelte-use-tooltip';
 </script>
 
@@ -245,7 +252,7 @@ If you combine the `*` selector with other events, its callback will be triggere
 The component can be served for development purpose on `http://localhost:5173/` running:
 
 ```bash
-npm run dev
+yarn dev
 ```
 
 ## Contributing
@@ -255,6 +262,5 @@ Contributions are warmly welcomed:
 - Fork the repository
 - Create a feature branch
 - Develop the feature AND write the tests (or write the tests AND develop the feature)
-- Commit your changes
-  using [Angular Git Commit Guidelines](https://github.com/angular/angular.js/blob/master/DEVELOPERS.md#-git-commit-guidelines)
+- Commit your changes using [Conventional Commits](https://www.conventionalcommits.org/) with sentence-case subject (e.g. `feat: Add offset prop`)
 - Submit a Pull Request
