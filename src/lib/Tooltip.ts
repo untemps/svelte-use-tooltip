@@ -82,10 +82,10 @@ class Tooltip {
 		disabled: boolean | undefined
 	) {
 		this.#target = target;
-		this.#content = content;
-		this.#contentSelector = contentSelector;
-		this.#contentActions = contentActions;
-		this.#containerClassName = containerClassName;
+		this.#content = content ?? null;
+		this.#contentSelector = contentSelector ?? null;
+		this.#contentActions = contentActions ?? null;
+		this.#containerClassName = containerClassName ?? null;
 		this.#position = position || 'top';
 		this.#animated = animated || false;
 		this.#animationEnterClassName = animationEnterClassName || '__tooltip-enter';
@@ -197,10 +197,10 @@ class Tooltip {
 		offset: number | undefined,
 		width: string | undefined
 	) {
-		this.#content = content;
-		this.#contentSelector = contentSelector;
-		this.#contentActions = contentActions;
-		this.#containerClassName = containerClassName;
+		this.#content = content ?? null;
+		this.#contentSelector = contentSelector ?? null;
+		this.#contentActions = contentActions ?? null;
+		this.#containerClassName = containerClassName ?? null;
 		this.#position = position || 'top';
 		this.#animated = animated || false;
 		this.#animationEnterClassName = animationEnterClassName || '__tooltip-enter';
