@@ -3,6 +3,11 @@ name: Claude Code Review
 on:
   pull_request:
     types: [opened, synchronize, ready_for_review, reopened]
+    # Skip PRs that only modify workflow files — the OIDC token exchange
+    # requires the workflow to be identical to main, so any PR changing
+    # claude-code-review.yml would always fail validation.
+    paths-ignore:
+      - '.github/workflows/**'
     # Optional: Only run on specific file changes
     # paths:
     #   - "src/**/*.ts"
