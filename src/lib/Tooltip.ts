@@ -28,6 +28,7 @@ class Tooltip {
 	// Minimum width (px) a horizontal position must offer before width-adaptation is attempted.
 	// Below this threshold the tooltip switches to a different position instead.
 	static #MIN_WIDTH = 80;
+	static #ANIMATION_TIMEOUT_MS = 1000;
 
 	#tooltip: HTMLDivElement | null = null;
 
@@ -52,7 +53,6 @@ class Tooltip {
 	#observer: DOMObserver | null = null;
 	#events: EventRecord[] = [];
 	#delay: ReturnType<typeof setTimeout> | undefined;
-	#transitioning = false;
 
 	#boundEnterHandler: ((e: Event) => void) | null = null;
 	#boundLeaveHandler: ((e: Event) => void) | null = null;
@@ -554,24 +554,18 @@ class Tooltip {
 			if (entering) {
 				this.#tooltip!.classList.add(this.#animationEnterClassName!);
 				this.#tooltip!.classList.remove(this.#animationLeaveClassName!);
-				this.#transitioning = false;
 				resolve();
 			} else {
-				const onTransitionEnd = () => {
-					this.#tooltip!.removeEventListener('animationend', onTransitionEnd);
+				const cleanup = () => {
+					clearTimeout(timer);
+					this.#tooltip!.removeEventListener('animationend', cleanup);
 					this.#tooltip!.classList.remove(this.#animationLeaveClassName!);
-					if (this.#transitioning) {
-						this.#transitioning = false;
-						resolve();
-					}
+					resolve();
 				};
-
-				if (!this.#transitioning) {
-					this.#tooltip!.addEventListener('animationend', onTransitionEnd);
-					this.#tooltip!.classList.add(this.#animationLeaveClassName!);
-					this.#tooltip!.classList.remove(this.#animationEnterClassName!);
-					this.#transitioning = true;
-				}
+				const timer = setTimeout(cleanup, Tooltip.#ANIMATION_TIMEOUT_MS);
+				this.#tooltip!.addEventListener('animationend', cleanup, { once: true });
+				this.#tooltip!.classList.add(this.#animationLeaveClassName!);
+				this.#tooltip!.classList.remove(this.#animationEnterClassName!);
 			}
 		});
 	}

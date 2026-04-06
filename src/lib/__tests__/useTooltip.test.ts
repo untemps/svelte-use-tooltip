@@ -843,5 +843,29 @@ describe('useTooltip', () => {
 			await fireEvent.animationEnd(tooltip);
 			expect(content).not.toBeInTheDocument();
 		});
+
+		test('Removes tooltip via timeout fallback when animationend never fires', async () => {
+			vi.useFakeTimers();
+			try {
+				action = createAction(target, { ...options, animated: true });
+
+				await fireEvent.mouseOver(target);
+				await fireEvent.mouseEnter(target);
+				await vi.advanceTimersByTimeAsync(10);
+
+				expect(getElement('#content')).toBeInTheDocument();
+
+				await fireEvent.mouseLeave(target);
+				await vi.advanceTimersByTimeAsync(10);
+
+				expect(getElement('#content')).toBeInTheDocument();
+
+				await vi.advanceTimersByTimeAsync(1000);
+
+				expect(getElement('#content')).not.toBeInTheDocument();
+			} finally {
+				vi.useRealTimers();
+			}
+		});
 	});
 });
