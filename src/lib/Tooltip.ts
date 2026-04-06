@@ -237,6 +237,9 @@ class Tooltip {
 			this.#applyWidth();
 		}
 		if (hasToDisableTarget) {
+			if (this.#tooltip?.parentNode) {
+				this.#removeTooltipFromTarget();
+			}
 			this.#disable();
 		} else if (hasToEnableTarget) {
 			this.#enable();

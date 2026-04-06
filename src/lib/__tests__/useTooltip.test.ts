@@ -296,6 +296,14 @@ describe('useTooltip', () => {
 			await _enter(target);
 			expect(getElement('#content')).toBeInTheDocument();
 		});
+
+		test('Hides tooltip immediately when disabled via update while visible', async () => {
+			action = createAction(target, options);
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			action.update({ disabled: true });
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
 	});
 
 	describe('useTooltip props: position', () => {
