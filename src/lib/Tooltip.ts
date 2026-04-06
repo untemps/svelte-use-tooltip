@@ -82,20 +82,20 @@ class Tooltip {
 		disabled: boolean | undefined
 	) {
 		this.#target = target;
-		this.#content = content;
-		this.#contentSelector = contentSelector;
-		this.#contentActions = contentActions;
-		this.#containerClassName = containerClassName;
-		this.#position = position || 'top';
-		this.#animated = animated || false;
+		this.#content = content ?? null;
+		this.#contentSelector = contentSelector ?? null;
+		this.#contentActions = contentActions ?? null;
+		this.#containerClassName = containerClassName ?? null;
+		this.#position = position ?? 'top';
+		this.#animated = animated ?? false;
 		this.#animationEnterClassName = animationEnterClassName || '__tooltip-enter';
 		this.#animationLeaveClassName = animationLeaveClassName || '__tooltip-leave';
-		this.#enterDelay = enterDelay || 0;
-		this.#leaveDelay = leaveDelay || 0;
-		this.#onEnter = onEnter || null;
-		this.#onLeave = onLeave || null;
-		this.#offset = Math.max(offset || 10, 5);
-		this.#width = width || 'auto';
+		this.#enterDelay = enterDelay ?? 0;
+		this.#leaveDelay = leaveDelay ?? 0;
+		this.#onEnter = onEnter ?? null;
+		this.#onLeave = onLeave ?? null;
+		this.#offset = Math.max(offset ?? 10, 5);
+		this.#width = width ?? 'auto';
 
 		this.#observer = new DOMObserver();
 
@@ -197,20 +197,20 @@ class Tooltip {
 		offset: number | undefined,
 		width: string | undefined
 	) {
-		this.#content = content;
-		this.#contentSelector = contentSelector;
-		this.#contentActions = contentActions;
-		this.#containerClassName = containerClassName;
-		this.#position = position || 'top';
-		this.#animated = animated || false;
+		this.#content = content ?? null;
+		this.#contentSelector = contentSelector ?? null;
+		this.#contentActions = contentActions ?? null;
+		this.#containerClassName = containerClassName ?? null;
+		this.#position = position ?? 'top';
+		this.#animated = animated ?? false;
 		this.#animationEnterClassName = animationEnterClassName || '__tooltip-enter';
 		this.#animationLeaveClassName = animationLeaveClassName || '__tooltip-leave';
-		this.#enterDelay = enterDelay || 0;
-		this.#leaveDelay = leaveDelay || 0;
-		this.#onEnter = onEnter || null;
-		this.#onLeave = onLeave || null;
-		this.#offset = Math.max(offset || 10, 5);
-		this.#width = width || 'auto';
+		this.#enterDelay = enterDelay ?? 0;
+		this.#leaveDelay = leaveDelay ?? 0;
+		this.#onEnter = onEnter ?? null;
+		this.#onLeave = onLeave ?? null;
+		this.#offset = Math.max(offset ?? 10, 5);
+		this.#width = width ?? 'auto';
 	}
 
 	#applyChanges({
