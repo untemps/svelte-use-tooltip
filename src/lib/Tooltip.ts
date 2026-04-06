@@ -47,6 +47,8 @@ class Tooltip {
 	#offset = 10;
 	#width = 'auto';
 
+	#originalTitle: string | null = null;
+
 	#observer: DOMObserver | null = null;
 	#events: EventRecord[] = [];
 	#delay: ReturnType<typeof setTimeout> | undefined;
@@ -101,7 +103,8 @@ class Tooltip {
 
 		this.#createTooltip();
 
-		this.#target.title = '';
+		this.#originalTitle = this.#target.getAttribute('title');
+		this.#target.removeAttribute('title');
 		this.#target.style.position = 'relative';
 		this.#target.setAttribute('aria-describedby', 'tooltip');
 
@@ -241,6 +244,9 @@ class Tooltip {
 	}
 
 	async destroy() {
+		if (this.#originalTitle !== null) {
+			this.#target?.setAttribute('title', this.#originalTitle);
+		}
 		this.#target?.style.removeProperty('position');
 		this.#target?.removeAttribute('aria-describedby');
 
