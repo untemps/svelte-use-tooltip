@@ -86,16 +86,16 @@ class Tooltip {
 		this.#contentSelector = contentSelector ?? null;
 		this.#contentActions = contentActions ?? null;
 		this.#containerClassName = containerClassName ?? null;
-		this.#position = position || 'top';
-		this.#animated = animated || false;
+		this.#position = position ?? 'top';
+		this.#animated = animated ?? false;
 		this.#animationEnterClassName = animationEnterClassName || '__tooltip-enter';
 		this.#animationLeaveClassName = animationLeaveClassName || '__tooltip-leave';
-		this.#enterDelay = enterDelay || 0;
-		this.#leaveDelay = leaveDelay || 0;
-		this.#onEnter = onEnter || null;
-		this.#onLeave = onLeave || null;
-		this.#offset = Math.max(offset || 10, 5);
-		this.#width = width || 'auto';
+		this.#enterDelay = enterDelay ?? 0;
+		this.#leaveDelay = leaveDelay ?? 0;
+		this.#onEnter = onEnter ?? null;
+		this.#onLeave = onLeave ?? null;
+		this.#offset = Math.max(offset ?? 10, 5);
+		this.#width = width ?? 'auto';
 
 		this.#observer = new DOMObserver();
 
@@ -201,16 +201,16 @@ class Tooltip {
 		this.#contentSelector = contentSelector ?? null;
 		this.#contentActions = contentActions ?? null;
 		this.#containerClassName = containerClassName ?? null;
-		this.#position = position || 'top';
-		this.#animated = animated || false;
+		this.#position = position ?? 'top';
+		this.#animated = animated ?? false;
 		this.#animationEnterClassName = animationEnterClassName || '__tooltip-enter';
 		this.#animationLeaveClassName = animationLeaveClassName || '__tooltip-leave';
-		this.#enterDelay = enterDelay || 0;
-		this.#leaveDelay = leaveDelay || 0;
-		this.#onEnter = onEnter || null;
-		this.#onLeave = onLeave || null;
-		this.#offset = Math.max(offset || 10, 5);
-		this.#width = width || 'auto';
+		this.#enterDelay = enterDelay ?? 0;
+		this.#leaveDelay = leaveDelay ?? 0;
+		this.#onEnter = onEnter ?? null;
+		this.#onLeave = onLeave ?? null;
+		this.#offset = Math.max(offset ?? 10, 5);
+		this.#width = width ?? 'auto';
 	}
 
 	#applyChanges({
