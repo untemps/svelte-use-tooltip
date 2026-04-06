@@ -1,3 +1,10 @@
+## [3.3.4](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.3...v3.3.4) (2026-04-06)
+
+
+### Bug Fixes
+
+* Hide tooltip immediately when disabled via update ([#154](https://github.com/untemps/svelte-use-tooltip/issues/154)) ([7cd696e](https://github.com/untemps/svelte-use-tooltip/commit/7cd696ea7f1085f8b29b6994a74f5adaf1cf515f))
+
 ## [3.3.3](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.2...v3.3.3) (2026-04-06)
 
 
