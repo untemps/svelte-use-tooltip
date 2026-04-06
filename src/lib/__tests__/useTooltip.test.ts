@@ -32,8 +32,7 @@ const initTemplate = (id: string, contentId: string): void => {
 const createAction = (node: HTMLElement, opts: TooltipOptions): FullAction =>
 	useTooltip(node, opts) as FullAction;
 
-const tooltipEl = (): HTMLElement =>
-	(getElement('#content') as Element).parentNode as HTMLElement;
+const tooltipEl = (): HTMLElement => (getElement('#content') as Element).parentNode as HTMLElement;
 
 describe('useTooltip', () => {
 	let target: HTMLElement;
@@ -87,6 +86,28 @@ describe('useTooltip', () => {
 				await _keyDown(target);
 				expect(getElement('#content')).not.toBeInTheDocument();
 			});
+		});
+	});
+
+	describe('useTooltip inline styles preservation', () => {
+		test('Preserves existing inline styles on the target element after init', () => {
+			target.style.fontSize = '14px';
+			action = createAction(target, { content: 'tooltip' });
+			expect(target).toHaveStyle('font-size: 14px');
+			expect(target).toHaveStyle('position: relative');
+		});
+
+		test('Preserves existing inline styles on template child after cloning', async () => {
+			const template = document.querySelector('#template') as HTMLTemplateElement;
+			const child = template.content.firstElementChild as HTMLElement;
+			child.style.fontSize = '14px';
+
+			action = createAction(target, options);
+			await _enter(target);
+
+			const cloned = getElement('#content');
+			expect(cloned).toHaveStyle('font-size: 14px');
+			expect(cloned).toHaveStyle('position: relative');
 		});
 	});
 

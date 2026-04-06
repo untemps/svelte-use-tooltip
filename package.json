@@ -52,6 +52,7 @@
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.16.0",
 		"globals": "^17.4.0",
+		"husky": "^9.1.7",
 		"jsdom": "^29.0.1",
 		"prettier": "^3.3.2",
 		"prettier-plugin-svelte": "^3.2.6",
@@ -121,6 +122,7 @@
 		]
 	},
 	"scripts": {
+		"prepare": "husky",
 		"dev": "vite dev",
 		"build": "vite build && yarn package",
 		"preview": "vite preview",
