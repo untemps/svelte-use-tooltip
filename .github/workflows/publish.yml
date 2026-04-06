@@ -1,4 +1,4 @@
-name: 'publish'
+name: 'Publish package'
 on:
   push:
     branches:
