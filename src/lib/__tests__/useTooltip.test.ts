@@ -843,5 +843,51 @@ describe('useTooltip', () => {
 			await fireEvent.animationEnd(tooltip);
 			expect(content).not.toBeInTheDocument();
 		});
+
+		test('Cancels animation timeout on destroy and removes tooltip immediately', async () => {
+			vi.useFakeTimers();
+			try {
+				action = createAction(target, { ...options, animated: true });
+
+				await fireEvent.mouseOver(target);
+				await fireEvent.mouseEnter(target);
+				await vi.advanceTimersByTimeAsync(10);
+
+				await fireEvent.mouseLeave(target);
+				await vi.advanceTimersByTimeAsync(10);
+
+				// Animation timer is running — destroy must complete without advancing timers
+				await action.destroy();
+				action = null;
+
+				expect(getElement('#content')).not.toBeInTheDocument();
+			} finally {
+				vi.useRealTimers();
+			}
+		});
+
+		test('Removes tooltip via timeout fallback when animationend never fires', async () => {
+			vi.useFakeTimers();
+			try {
+				action = createAction(target, { ...options, animated: true });
+
+				await fireEvent.mouseOver(target);
+				await fireEvent.mouseEnter(target);
+				await vi.advanceTimersByTimeAsync(10);
+
+				expect(getElement('#content')).toBeInTheDocument();
+
+				await fireEvent.mouseLeave(target);
+				await vi.advanceTimersByTimeAsync(10);
+
+				expect(getElement('#content')).toBeInTheDocument();
+
+				await vi.advanceTimersByTimeAsync(1000);
+
+				expect(getElement('#content')).not.toBeInTheDocument();
+			} finally {
+				vi.useRealTimers();
+			}
+		});
 	});
 });
