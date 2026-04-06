@@ -1,3 +1,10 @@
+## [3.3.3](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.2...v3.3.3) (2026-04-06)
+
+
+### Bug Fixes
+
+* Restore title attribute on destroy ([#153](https://github.com/untemps/svelte-use-tooltip/issues/153)) ([d87290c](https://github.com/untemps/svelte-use-tooltip/commit/d87290cc929c6e5e0cac41f4d91df200861ec8c9))
+
 ## [3.3.2](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.1...v3.3.2) (2026-04-06)
 
 
