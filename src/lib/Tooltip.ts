@@ -28,6 +28,7 @@ class Tooltip {
 	// Minimum width (px) a horizontal position must offer before width-adaptation is attempted.
 	// Below this threshold the tooltip switches to a different position instead.
 	static #MIN_WIDTH = 80;
+	static #ANIMATION_TIMEOUT_MS = 1000;
 
 	#tooltip: HTMLDivElement | null = null;
 
@@ -52,7 +53,7 @@ class Tooltip {
 	#observer: DOMObserver | null = null;
 	#events: EventRecord[] = [];
 	#delay: ReturnType<typeof setTimeout> | undefined;
-	#transitioning = false;
+	#animationTimer: ReturnType<typeof setTimeout> | undefined;
 
 	#boundEnterHandler: ((e: Event) => void) | null = null;
 	#boundLeaveHandler: ((e: Event) => void) | null = null;
@@ -247,13 +248,16 @@ class Tooltip {
 	}
 
 	async destroy() {
+		clearTimeout(this.#animationTimer);
+		this.#animationTimer = undefined;
+
 		if (this.#originalTitle !== null) {
 			this.#target?.setAttribute('title', this.#originalTitle);
 		}
 		this.#target?.style.removeProperty('position');
 		this.#target?.removeAttribute('aria-describedby');
 
-		await this.#removeTooltipFromTarget();
+		await this.#removeTooltipFromTarget(true);
 
 		this.#disable();
 
@@ -514,8 +518,8 @@ class Tooltip {
 		}
 	}
 
-	async #removeTooltipFromTarget() {
-		if (this.#animated) {
+	async #removeTooltipFromTarget(skipAnimation = false) {
+		if (this.#animated && !skipAnimation) {
 			await this.#transitionTooltip(false);
 		}
 
@@ -554,24 +558,19 @@ class Tooltip {
 			if (entering) {
 				this.#tooltip!.classList.add(this.#animationEnterClassName!);
 				this.#tooltip!.classList.remove(this.#animationLeaveClassName!);
-				this.#transitioning = false;
 				resolve();
 			} else {
-				const onTransitionEnd = () => {
-					this.#tooltip!.removeEventListener('animationend', onTransitionEnd);
+				const cleanup = () => {
+					clearTimeout(this.#animationTimer);
+					this.#animationTimer = undefined;
+					this.#tooltip!.removeEventListener('animationend', cleanup);
 					this.#tooltip!.classList.remove(this.#animationLeaveClassName!);
-					if (this.#transitioning) {
-						this.#transitioning = false;
-						resolve();
-					}
+					resolve();
 				};
-
-				if (!this.#transitioning) {
-					this.#tooltip!.addEventListener('animationend', onTransitionEnd);
-					this.#tooltip!.classList.add(this.#animationLeaveClassName!);
-					this.#tooltip!.classList.remove(this.#animationEnterClassName!);
-					this.#transitioning = true;
-				}
+				this.#animationTimer = setTimeout(cleanup, Tooltip.#ANIMATION_TIMEOUT_MS);
+				this.#tooltip!.addEventListener('animationend', cleanup, { once: true });
+				this.#tooltip!.classList.add(this.#animationLeaveClassName!);
+				this.#tooltip!.classList.remove(this.#animationEnterClassName!);
 			}
 		});
 	}
