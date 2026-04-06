@@ -157,7 +157,12 @@ npm i @untemps/svelte-use-tooltip
 The package ships TypeScript types. The main types you may need when composing options or building wrappers:
 
 ```ts
-import type { TooltipOptions, TooltipPosition, ContentAction, ContentActions } from '@untemps/svelte-use-tooltip';
+import type {
+	TooltipOptions,
+	TooltipPosition,
+	ContentAction,
+	ContentActions
+} from '@untemps/svelte-use-tooltip';
 ```
 
 ### Content and Content Selector

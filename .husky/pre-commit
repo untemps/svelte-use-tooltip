@@ -1,1 +1,1 @@
-npm run test:ci && npm run format
+yarn test:ci && yarn format
