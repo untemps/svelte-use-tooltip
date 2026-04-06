@@ -102,7 +102,7 @@ class Tooltip {
 		this.#createTooltip();
 
 		this.#target.title = '';
-		this.#target.setAttribute('style', 'position: relative');
+		this.#target.style.position = 'relative';
 		this.#target.setAttribute('aria-describedby', 'tooltip');
 
 		disabled ? this.#disable() : this.#enable();
@@ -323,7 +323,7 @@ class Tooltip {
 			}).then(({ node }: WaitResult) => {
 				const templateNode = node as HTMLTemplateElement;
 				const child = templateNode.content ? templateNode.content.firstElementChild : node;
-				(child as HTMLElement).setAttribute('style', 'position: relative');
+				(child as HTMLElement).style.position = 'relative';
 				this.#tooltip!.appendChild(child!.cloneNode(true));
 			});
 		} else if (this.#content) {
