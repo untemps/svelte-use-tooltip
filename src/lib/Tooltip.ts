@@ -53,6 +53,7 @@ class Tooltip {
 	#observer: DOMObserver | null = null;
 	#events: EventRecord[] = [];
 	#delay: ReturnType<typeof setTimeout> | undefined;
+	#animationTimer: ReturnType<typeof setTimeout> | undefined;
 
 	#boundEnterHandler: ((e: Event) => void) | null = null;
 	#boundLeaveHandler: ((e: Event) => void) | null = null;
@@ -247,13 +248,16 @@ class Tooltip {
 	}
 
 	async destroy() {
+		clearTimeout(this.#animationTimer);
+		this.#animationTimer = undefined;
+
 		if (this.#originalTitle !== null) {
 			this.#target?.setAttribute('title', this.#originalTitle);
 		}
 		this.#target?.style.removeProperty('position');
 		this.#target?.removeAttribute('aria-describedby');
 
-		await this.#removeTooltipFromTarget();
+		await this.#removeTooltipFromTarget(true);
 
 		this.#disable();
 
@@ -514,8 +518,8 @@ class Tooltip {
 		}
 	}
 
-	async #removeTooltipFromTarget() {
-		if (this.#animated) {
+	async #removeTooltipFromTarget(skipAnimation = false) {
+		if (this.#animated && !skipAnimation) {
 			await this.#transitionTooltip(false);
 		}
 
@@ -557,12 +561,13 @@ class Tooltip {
 				resolve();
 			} else {
 				const cleanup = () => {
-					clearTimeout(timer);
+					clearTimeout(this.#animationTimer);
+					this.#animationTimer = undefined;
 					this.#tooltip!.removeEventListener('animationend', cleanup);
 					this.#tooltip!.classList.remove(this.#animationLeaveClassName!);
 					resolve();
 				};
-				const timer = setTimeout(cleanup, Tooltip.#ANIMATION_TIMEOUT_MS);
+				this.#animationTimer = setTimeout(cleanup, Tooltip.#ANIMATION_TIMEOUT_MS);
 				this.#tooltip!.addEventListener('animationend', cleanup, { once: true });
 				this.#tooltip!.classList.add(this.#animationLeaveClassName!);
 				this.#tooltip!.classList.remove(this.#animationEnterClassName!);
