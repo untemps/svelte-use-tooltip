@@ -1,3 +1,10 @@
+## [3.3.2](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.1...v3.3.2) (2026-04-06)
+
+
+### Bug Fixes
+
+* Use style.position instead of setAttribute to preserve consumer inline styles ([#151](https://github.com/untemps/svelte-use-tooltip/issues/151)) ([a8af271](https://github.com/untemps/svelte-use-tooltip/commit/a8af271b493ede9574a484a30aa5d7cf3857fe66))
+
 ## [3.3.1](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.0...v3.3.1) (2026-04-06)
 
 ### Bug Fixes
