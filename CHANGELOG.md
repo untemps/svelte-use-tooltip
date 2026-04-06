@@ -1,3 +1,10 @@
+## [3.3.5](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.4...v3.3.5) (2026-04-06)
+
+
+### Bug Fixes
+
+* Add timeout fallback to prevent animation hang ([#156](https://github.com/untemps/svelte-use-tooltip/issues/156)) ([9831e85](https://github.com/untemps/svelte-use-tooltip/commit/9831e85ea0dcc5fdddc83eed5e534225a1416204))
+
 ## [3.3.4](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.3...v3.3.4) (2026-04-06)
 
 
