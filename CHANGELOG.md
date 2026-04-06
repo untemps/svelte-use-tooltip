@@ -1,3 +1,10 @@
+## [3.3.1](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.0...v3.3.1) (2026-04-06)
+
+
+### Bug Fixes
+
+* Remove stale vendor.d.ts and surface hidden type errors ([#150](https://github.com/untemps/svelte-use-tooltip/issues/150)) ([0948b9c](https://github.com/untemps/svelte-use-tooltip/commit/0948b9cc69e4648b4c194ea0d1477589971c3185))
+
 # [3.3.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.2.0...v3.3.0) (2026-04-01)
 
 
