@@ -130,6 +130,20 @@ describe('useTooltip', () => {
 			expect(spy).toHaveBeenCalledWith('scroll', expect.any(Function));
 			spy.mockRestore();
 		});
+
+		test('Restores original title attribute on destroy', async () => {
+			target.setAttribute('title', 'original title');
+			action = createAction(target, { content: 'tooltip' });
+			expect(target).not.toHaveAttribute('title', 'original title');
+			await action.destroy();
+			expect(target).toHaveAttribute('title', 'original title');
+		});
+
+		test('Does not set title attribute on destroy if target had none', async () => {
+			action = createAction(target, { content: 'tooltip' });
+			await action.destroy();
+			expect(target).not.toHaveAttribute('title');
+		});
 	});
 
 	describe('useTooltip props: content', () => {
