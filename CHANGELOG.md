@@ -1,3 +1,10 @@
+## [3.3.6](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.5...v3.3.6) (2026-04-08)
+
+
+### Bug Fixes
+
+* Guard observer callbacks after destroy ([#157](https://github.com/untemps/svelte-use-tooltip/issues/157)) ([9c1e329](https://github.com/untemps/svelte-use-tooltip/commit/9c1e3291d9247c6bea8357560d7915c7c510d990))
+
 ## [3.3.5](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.4...v3.3.5) (2026-04-06)
 
 
