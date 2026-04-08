@@ -50,6 +50,8 @@ class Tooltip {
 
 	#originalTitle: string | null = null;
 
+	#destroyed = false;
+
 	#observer: DOMObserver | null = null;
 	#events: EventRecord[] = [];
 	#delay: ReturnType<typeof setTimeout> | undefined;
@@ -248,6 +250,8 @@ class Tooltip {
 	}
 
 	async destroy() {
+		this.#destroyed = true;
+
 		clearTimeout(this.#animationTimer);
 		this.#animationTimer = undefined;
 
@@ -334,6 +338,7 @@ class Tooltip {
 			this.#observer!.wait(this.#contentSelector, {
 				events: [DOMObserver.EXIST, DOMObserver.ADD]
 			}).then(({ node }: WaitResult) => {
+				if (this.#destroyed) return;
 				const templateNode = node as HTMLTemplateElement;
 				const child = templateNode.content ? templateNode.content.firstElementChild : node;
 				(child as HTMLElement).style.position = 'relative';
@@ -493,6 +498,7 @@ class Tooltip {
 		}
 
 		this.#observer!.wait(this.#tooltip!, { events: [DOMObserver.ADD] }).then(() => {
+			if (this.#destroyed) return;
 			this.#positionTooltip();
 		});
 		this.#target!.appendChild(this.#tooltip!);
