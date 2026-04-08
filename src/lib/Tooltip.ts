@@ -133,6 +133,8 @@ class Tooltip {
 		width: string | undefined,
 		disabled: boolean | undefined
 	) {
+		if (this.#destroyed) return;
+
 		const changes = this.#detectChanges(
 			content,
 			contentSelector,

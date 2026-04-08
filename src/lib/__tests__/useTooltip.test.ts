@@ -145,6 +145,13 @@ describe('useTooltip', () => {
 			expect(target).not.toHaveAttribute('title');
 		});
 
+		test('Does not apply update after destroy', async () => {
+			action = createAction(target, options);
+			await action.destroy();
+			// update() on a destroyed instance must be a no-op — no error thrown
+			expect(() => action!.update({ content: 'new content' })).not.toThrow();
+		});
+
 		test('Does not set up content when destroyed before contentSelector resolves', async () => {
 			// Remove template so the observer waits for it to appear
 			removeElement('#template');
