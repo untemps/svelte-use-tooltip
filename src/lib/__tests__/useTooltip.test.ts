@@ -145,6 +145,25 @@ describe('useTooltip', () => {
 			expect(target).not.toHaveAttribute('title');
 		});
 
+		test('Removes instance from static registry on individual destroy', async () => {
+			const target2 = initTarget('target2');
+			const action2 = createAction(target2, { content: 'tooltip2' });
+			action = createAction(target, options);
+
+			// Destroy action2 individually — it should be pruned from #instances
+			await action2.destroy();
+
+			// Tooltip.destroy() should cleanly destroy remaining instances (only action)
+			// without double-destroying action2 — verified by absence of errors and
+			// correct cleanup of action's target
+			Tooltip.destroy();
+
+			expect(target).not.toHaveAttribute('aria-describedby');
+			expect(target2).not.toHaveAttribute('aria-describedby');
+
+			removeElement('#target2');
+		});
+
 		test('Does not apply update after destroy', async () => {
 			action = createAction(target, options);
 			await action.destroy();

@@ -271,6 +271,8 @@ class Tooltip {
 
 		this.#observer?.clear();
 		this.#observer = null;
+
+		Tooltip.#instances = Tooltip.#instances.filter((i) => i !== this);
 	}
 
 	#enable() {
