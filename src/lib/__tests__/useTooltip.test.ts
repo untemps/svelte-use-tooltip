@@ -934,4 +934,94 @@ describe('useTooltip', () => {
 			}
 		});
 	});
+
+	describe('useTooltip props: open', () => {
+		test('Shows tooltip programmatically on init when open is true', async () => {
+			action = createAction(target, { content: 'Hello', open: true });
+			await standby(1);
+			expect(getElement('#tooltip')).toBeInTheDocument();
+		});
+
+		test('Does not show tooltip on init when open is false', async () => {
+			action = createAction(target, { content: 'Hello', open: false });
+			await standby(1);
+			expect(getElement('#tooltip')).not.toBeInTheDocument();
+		});
+
+		test('Shows tooltip programmatically via update', async () => {
+			action = createAction(target, { content: 'Hello' });
+			expect(getElement('#tooltip')).not.toBeInTheDocument();
+
+			action.update({ content: 'Hello', open: true });
+			await standby(1);
+			expect(getElement('#tooltip')).toBeInTheDocument();
+		});
+
+		test('Hides tooltip programmatically via update', async () => {
+			action = createAction(target, { content: 'Hello', open: true });
+			await standby(1);
+			expect(getElement('#tooltip')).toBeInTheDocument();
+
+			action.update({ content: 'Hello', open: false });
+			await standby(1);
+			expect(getElement('#tooltip')).not.toBeInTheDocument();
+		});
+
+		test('Toggles tooltip via successive open updates', async () => {
+			action = createAction(target, { content: 'Hello' });
+
+			action.update({ content: 'Hello', open: true });
+			await standby(1);
+			expect(getElement('#tooltip')).toBeInTheDocument();
+
+			action.update({ content: 'Hello', open: false });
+			await standby(1);
+			expect(getElement('#tooltip')).not.toBeInTheDocument();
+
+			action.update({ content: 'Hello', open: true });
+			await standby(1);
+			expect(getElement('#tooltip')).toBeInTheDocument();
+		});
+
+		test('Is a no-op when open is false and tooltip is already hidden', async () => {
+			action = createAction(target, { content: 'Hello' });
+			expect(getElement('#tooltip')).not.toBeInTheDocument();
+
+			action.update({ content: 'Hello', open: false });
+			await standby(1);
+			expect(getElement('#tooltip')).not.toBeInTheDocument();
+		});
+
+		test('Is a no-op when open is true and tooltip is already shown', async () => {
+			action = createAction(target, { content: 'Hello', open: true });
+			await standby(1);
+			expect(getElement('#tooltip')).toBeInTheDocument();
+
+			action.update({ content: 'Hello', open: true });
+			await standby(1);
+			expect(getElement('#tooltip')).toBeInTheDocument();
+		});
+
+		test('Preserves normal hover behavior alongside open prop', async () => {
+			action = createAction(target, { content: 'Hello' });
+
+			// open via hover
+			await _enter(target);
+			expect(getElement('#tooltip')).toBeInTheDocument();
+
+			// close programmatically
+			action.update({ content: 'Hello', open: false });
+			await standby(1);
+			expect(getElement('#tooltip')).not.toBeInTheDocument();
+
+			// open programmatically
+			action.update({ content: 'Hello', open: true });
+			await standby(1);
+			expect(getElement('#tooltip')).toBeInTheDocument();
+
+			// close via hover leave
+			await _leave(target);
+			expect(getElement('#tooltip')).not.toBeInTheDocument();
+		});
+	});
 });

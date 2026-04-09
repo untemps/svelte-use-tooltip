@@ -28,6 +28,7 @@ export type TooltipOptions = {
 	offset?: number;
 	width?: string;
 	disabled?: boolean;
+	open?: boolean;
 };
 
 type SpaceMap = Record<TooltipPosition, number>;
@@ -39,6 +40,8 @@ type ChangeSet = {
 	hasWidthChanged: boolean;
 	hasToDisableTarget: boolean;
 	hasToEnableTarget: boolean;
+	hasToShow: boolean;
+	hasToHide: boolean;
 };
 
 class Tooltip {
@@ -132,6 +135,10 @@ class Tooltip {
 
 		disabled ? this.#disable() : this.#enable();
 
+		if (options.open === true) {
+			this.#appendTooltipToTarget();
+		}
+
 		Tooltip.#instances.push(this);
 	}
 
@@ -149,7 +156,8 @@ class Tooltip {
 		position,
 		offset,
 		width,
-		disabled
+		disabled,
+		open
 	}: TooltipOptions): ChangeSet {
 		const hasContentChanged =
 			(contentSelector !== undefined && contentSelector !== this.#contentSelector) ||
@@ -158,13 +166,16 @@ class Tooltip {
 			hasContentChanged ||
 			(position !== undefined && position !== this.#position) ||
 			(offset !== undefined && offset !== this.#offset);
+		const isCurrentlyShown = !!this.#tooltip?.parentNode;
 		return {
 			hasStructureChanged,
 			hasContainerClassNameChanged:
 				containerClassName !== undefined && containerClassName !== this.#containerClassName,
 			hasWidthChanged: width !== undefined && width !== this.#width,
 			hasToDisableTarget: !!disabled && Boolean(this.#boundEnterHandler),
-			hasToEnableTarget: !disabled && !Boolean(this.#boundEnterHandler)
+			hasToEnableTarget: !disabled && !Boolean(this.#boundEnterHandler),
+			hasToShow: open === true && !isCurrentlyShown,
+			hasToHide: open === false && isCurrentlyShown
 		};
 	}
 
@@ -205,7 +216,9 @@ class Tooltip {
 		hasContainerClassNameChanged,
 		hasWidthChanged,
 		hasToDisableTarget,
-		hasToEnableTarget
+		hasToEnableTarget,
+		hasToShow,
+		hasToHide
 	}: ChangeSet) {
 		if (hasStructureChanged) {
 			this.#removeTooltipFromTarget();
@@ -227,6 +240,12 @@ class Tooltip {
 			this.#disable();
 		} else if (hasToEnableTarget) {
 			this.#enable();
+		}
+
+		if (hasToShow) {
+			this.#appendTooltipToTarget();
+		} else if (hasToHide) {
+			this.#removeTooltipFromTarget();
 		}
 	}
 
