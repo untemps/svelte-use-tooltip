@@ -137,62 +137,20 @@ class Tooltip {
 
 	update(options: TooltipOptions) {
 		if (this.#destroyed) return;
-
-		const {
-			content,
-			contentSelector,
-			contentActions,
-			containerClassName,
-			position,
-			animated,
-			animationEnterClassName,
-			animationLeaveClassName,
-			enterDelay,
-			leaveDelay,
-			onEnter,
-			onLeave,
-			offset,
-			width,
-			disabled
-		} = options;
-
-		const changes = this.#detectChanges(
-			content,
-			contentSelector,
-			containerClassName,
-			position,
-			offset,
-			width,
-			disabled
-		);
-		this.#applyState(
-			content,
-			contentSelector,
-			contentActions,
-			containerClassName,
-			position,
-			animated,
-			animationEnterClassName,
-			animationLeaveClassName,
-			enterDelay,
-			leaveDelay,
-			onEnter,
-			onLeave,
-			offset,
-			width
-		);
+		const changes = this.#detectChanges(options);
+		this.#applyState(options);
 		this.#applyChanges(changes);
 	}
 
-	#detectChanges(
-		content: string | null | undefined,
-		contentSelector: string | null | undefined,
-		containerClassName: string | null | undefined,
-		position: TooltipPosition | undefined,
-		offset: number | undefined,
-		width: string | undefined,
-		disabled: boolean | undefined
-	): ChangeSet {
+	#detectChanges({
+		content,
+		contentSelector,
+		containerClassName,
+		position,
+		offset,
+		width,
+		disabled
+	}: TooltipOptions): ChangeSet {
 		const hasContentChanged =
 			(contentSelector !== undefined && contentSelector !== this.#contentSelector) ||
 			(content !== undefined && content !== this.#content);
@@ -210,22 +168,22 @@ class Tooltip {
 		};
 	}
 
-	#applyState(
-		content: string | null | undefined,
-		contentSelector: string | null | undefined,
-		contentActions: ContentActions | null | undefined,
-		containerClassName: string | null | undefined,
-		position: TooltipPosition | undefined,
-		animated: boolean | undefined,
-		animationEnterClassName: string | null | undefined,
-		animationLeaveClassName: string | null | undefined,
-		enterDelay: number | undefined,
-		leaveDelay: number | undefined,
-		onEnter: (() => void) | null | undefined,
-		onLeave: (() => void) | null | undefined,
-		offset: number | undefined,
-		width: string | undefined
-	) {
+	#applyState({
+		content,
+		contentSelector,
+		contentActions,
+		containerClassName,
+		position,
+		animated,
+		animationEnterClassName,
+		animationLeaveClassName,
+		enterDelay,
+		leaveDelay,
+		onEnter,
+		onLeave,
+		offset,
+		width
+	}: TooltipOptions) {
 		this.#content = content ?? null;
 		this.#contentSelector = contentSelector ?? null;
 		this.#contentActions = contentActions ?? null;
