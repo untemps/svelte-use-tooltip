@@ -12,6 +12,24 @@ export type ContentAction = {
 
 export type ContentActions = Record<string, ContentAction>;
 
+export type TooltipOptions = {
+	content?: string | null;
+	contentSelector?: string | null;
+	contentActions?: ContentActions | null;
+	containerClassName?: string | null;
+	position?: TooltipPosition;
+	animated?: boolean;
+	animationEnterClassName?: string | null;
+	animationLeaveClassName?: string | null;
+	enterDelay?: number;
+	leaveDelay?: number;
+	onEnter?: (() => void) | null;
+	onLeave?: (() => void) | null;
+	offset?: number;
+	width?: string;
+	disabled?: boolean;
+};
+
 type SpaceMap = Record<TooltipPosition, number>;
 type PlacementResult = { position: TooltipPosition; adaptedWidth: string | null };
 type EventRecord = { trigger: Element; eventType: string; listener: EventListener };
@@ -68,24 +86,25 @@ class Tooltip {
 		Tooltip.#instances = [];
 	}
 
-	constructor(
-		target: HTMLElement,
-		content: string | null | undefined,
-		contentSelector: string | null | undefined,
-		contentActions: ContentActions | null | undefined,
-		containerClassName: string | null | undefined,
-		position: TooltipPosition | undefined,
-		animated: boolean | undefined,
-		animationEnterClassName: string | null | undefined,
-		animationLeaveClassName: string | null | undefined,
-		enterDelay: number | undefined,
-		leaveDelay: number | undefined,
-		onEnter: (() => void) | null | undefined,
-		onLeave: (() => void) | null | undefined,
-		offset: number | undefined,
-		width: string | undefined,
-		disabled: boolean | undefined
-	) {
+	constructor(target: HTMLElement, options: TooltipOptions = {}) {
+		const {
+			content,
+			contentSelector,
+			contentActions,
+			containerClassName,
+			position,
+			animated,
+			animationEnterClassName,
+			animationLeaveClassName,
+			enterDelay,
+			leaveDelay,
+			onEnter,
+			onLeave,
+			offset,
+			width,
+			disabled
+		} = options;
+
 		this.#target = target;
 		this.#content = content ?? null;
 		this.#contentSelector = contentSelector ?? null;
@@ -116,24 +135,26 @@ class Tooltip {
 		Tooltip.#instances.push(this);
 	}
 
-	update(
-		content: string | null | undefined,
-		contentSelector: string | null | undefined,
-		contentActions: ContentActions | null | undefined,
-		containerClassName: string | null | undefined,
-		position: TooltipPosition | undefined,
-		animated: boolean | undefined,
-		animationEnterClassName: string | null | undefined,
-		animationLeaveClassName: string | null | undefined,
-		enterDelay: number | undefined,
-		leaveDelay: number | undefined,
-		onEnter: (() => void) | null | undefined,
-		onLeave: (() => void) | null | undefined,
-		offset: number | undefined,
-		width: string | undefined,
-		disabled: boolean | undefined
-	) {
+	update(options: TooltipOptions) {
 		if (this.#destroyed) return;
+
+		const {
+			content,
+			contentSelector,
+			contentActions,
+			containerClassName,
+			position,
+			animated,
+			animationEnterClassName,
+			animationLeaveClassName,
+			enterDelay,
+			leaveDelay,
+			onEnter,
+			onLeave,
+			offset,
+			width,
+			disabled
+		} = options;
 
 		const changes = this.#detectChanges(
 			content,
