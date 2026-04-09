@@ -71,6 +71,8 @@ class Tooltip {
 
 	#originalTitle: string | null = null;
 
+	#open: boolean | undefined = undefined;
+
 	#destroyed = false;
 
 	#observer: DOMObserver | null = null;
@@ -105,7 +107,8 @@ class Tooltip {
 			onLeave,
 			offset,
 			width,
-			disabled
+			disabled,
+			open
 		} = options;
 
 		this.#target = target;
@@ -133,9 +136,11 @@ class Tooltip {
 		this.#target.style.position = 'relative';
 		this.#target.setAttribute('aria-describedby', 'tooltip');
 
+		this.#open = open;
+
 		disabled ? this.#disable() : this.#enable();
 
-		if (options.open === true) {
+		if (this.#open === true && !disabled) {
 			this.#appendTooltipToTarget();
 		}
 
@@ -174,7 +179,9 @@ class Tooltip {
 			hasWidthChanged: width !== undefined && width !== this.#width,
 			hasToDisableTarget: !!disabled && Boolean(this.#boundEnterHandler),
 			hasToEnableTarget: !disabled && !Boolean(this.#boundEnterHandler),
-			hasToShow: open === true && !isCurrentlyShown,
+			// Re-show when open:true is passed after a structure rebuild (tooltip removed from DOM),
+			// or when the tooltip is not yet visible. Guard with !disabled so open+disabled is a no-op.
+			hasToShow: open === true && !disabled && (!isCurrentlyShown || hasStructureChanged),
 			hasToHide: open === false && isCurrentlyShown
 		};
 	}
@@ -193,7 +200,8 @@ class Tooltip {
 		onEnter,
 		onLeave,
 		offset,
-		width
+		width,
+		open
 	}: TooltipOptions) {
 		this.#content = content ?? null;
 		this.#contentSelector = contentSelector ?? null;
@@ -209,6 +217,7 @@ class Tooltip {
 		this.#onLeave = onLeave ?? null;
 		this.#offset = Math.max(offset ?? 10, 5);
 		this.#width = width ?? 'auto';
+		this.#open = open;
 	}
 
 	#applyChanges({
@@ -584,6 +593,7 @@ class Tooltip {
 	}
 
 	async #onTargetEnter(e: Event) {
+		if (this.#open === false) return;
 		if (this.#target === e.target) {
 			await this.#waitForDelay(this.#enterDelay);
 			await this.#appendTooltipToTarget();
@@ -593,6 +603,7 @@ class Tooltip {
 	}
 
 	async #onTargetLeave(e: Event) {
+		if (this.#open === true) return;
 		if (this.#target === e.target || !this.#target?.contains(e.target as Node)) {
 			await this.#waitForDelay(this.#leaveDelay);
 			await this.#removeTooltipFromTarget();
@@ -602,6 +613,7 @@ class Tooltip {
 	}
 
 	async #onWindowChange(e: Event) {
+		if (this.#open === true) return;
 		const ke = e as KeyboardEvent;
 		if (
 			this.#tooltip &&

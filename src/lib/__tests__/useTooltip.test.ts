@@ -1019,9 +1019,58 @@ describe('useTooltip', () => {
 			await standby(1);
 			expect(getElement('#tooltip')).toBeInTheDocument();
 
-			// close via hover leave
+			// release open lock — hover-away should close again
+			action.update({ content: 'Hello' });
 			await _leave(target);
 			expect(getElement('#tooltip')).not.toBeInTheDocument();
+		});
+
+		test('Does not show tooltip on init when open is true and disabled is true', async () => {
+			action = createAction(target, { content: 'Hello', open: true, disabled: true });
+			await standby(1);
+			expect(getElement('#tooltip')).not.toBeInTheDocument();
+		});
+
+		test('Does not show tooltip via update when open is true and disabled is true', async () => {
+			action = createAction(target, { content: 'Hello' });
+			action.update({ content: 'Hello', open: true, disabled: true });
+			await standby(1);
+			expect(getElement('#tooltip')).not.toBeInTheDocument();
+		});
+
+		test('Keeps tooltip open when open is true and user hovers away', async () => {
+			action = createAction(target, { content: 'Hello', open: true });
+			await standby(1);
+			expect(getElement('#tooltip')).toBeInTheDocument();
+
+			await _leave(target);
+			expect(getElement('#tooltip')).toBeInTheDocument();
+		});
+
+		test('Keeps tooltip open when open is true and Escape key is pressed', async () => {
+			action = createAction(target, { content: 'Hello', open: true });
+			await standby(1);
+			expect(getElement('#tooltip')).toBeInTheDocument();
+
+			await _keyDown(target);
+			expect(getElement('#tooltip')).toBeInTheDocument();
+		});
+
+		test('Prevents hover from showing tooltip when open is false', async () => {
+			action = createAction(target, { content: 'Hello', open: false });
+			await _enter(target);
+			expect(getElement('#tooltip')).not.toBeInTheDocument();
+		});
+
+		test('Re-shows tooltip after content update when open is true', async () => {
+			action = createAction(target, { content: 'Hello', open: true });
+			await standby(1);
+			expect(getElement('#tooltip')).toBeInTheDocument();
+
+			// structure change + open: true — tooltip must still be visible after rebuild
+			action.update({ content: 'Updated', open: true });
+			await standby(1);
+			expect(getElement('#tooltip')).toBeInTheDocument();
 		});
 	});
 });
