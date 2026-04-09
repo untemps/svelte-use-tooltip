@@ -1,3 +1,10 @@
+## [3.3.7](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.6...v3.3.7) (2026-04-09)
+
+
+### Bug Fixes
+
+* Prune destroyed instances from static #instances array ([#159](https://github.com/untemps/svelte-use-tooltip/issues/159)) ([d38fcb8](https://github.com/untemps/svelte-use-tooltip/commit/d38fcb8a278627a914496b05f3a97757a3c76ec8)), closes [#instances](https://github.com/untemps/svelte-use-tooltip/issues/instances)
+
 ## [3.3.6](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.5...v3.3.6) (2026-04-08)
 
 
