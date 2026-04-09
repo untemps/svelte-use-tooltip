@@ -256,7 +256,7 @@
 				offset: offset,
 				width: width,
 				disabled: isDisabled,
-				open: isOpen
+				open: isOpen ? true : undefined
 			}}
 			class="target"
 		>
