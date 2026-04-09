@@ -14,6 +14,7 @@
 	let triggerOnLeave = $state(false);
 	let offset = $state(10);
 	let width = $state('auto');
+	let isOpen = $state(false);
 
 	const _onTooltipEnter = () => {
 		if (triggerOnEnter) {
@@ -254,7 +255,8 @@
 				onLeave: _onTooltipLeave,
 				offset: offset,
 				width: width,
-				disabled: isDisabled
+				disabled: isDisabled,
+				open: isOpen
 			}}
 			class="target"
 		>
@@ -345,6 +347,12 @@
 				<label>
 					Disable:
 					<input type="checkbox" bind:checked={isDisabled} />
+				</label>
+			</fieldset>
+			<fieldset>
+				<label>
+					Open (programmatic):
+					<input type="checkbox" bind:checked={isOpen} />
 				</label>
 			</fieldset>
 		</form>
