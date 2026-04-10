@@ -14,6 +14,7 @@
 	let triggerOnLeave = $state(false);
 	let offset = $state(10);
 	let width = $state('auto');
+	let isOpen = $state<boolean | undefined>(undefined);
 
 	const _onTooltipEnter = () => {
 		if (triggerOnEnter) {
@@ -213,6 +214,13 @@
 		font-size: inherit;
 	}
 
+	.settings__form textarea {
+		margin: 0;
+		padding: 0.5em;
+		font-family: inherit;
+		font-size: inherit;
+	}
+
 	.settings__form select {
 		margin: 0;
 		max-width: 80px;
@@ -223,6 +231,12 @@
 
 	.settings__form input[type='checkbox'] {
 		padding: 0;
+	}
+
+	.settings__form button {
+		padding: 0.5em 1em;
+		font-family: inherit;
+		font-size: inherit;
 	}
 </style>
 
@@ -254,7 +268,8 @@
 				onLeave: _onTooltipLeave,
 				offset: offset,
 				width: width,
-				disabled: isDisabled
+				disabled: isDisabled,
+				open: isOpen
 			}}
 			class="target"
 		>
@@ -267,7 +282,7 @@
 			<fieldset>
 				<label>
 					Text Content:
-					<input type="text" bind:value={textContent} />
+					<textarea bind:value={textContent} rows={3}></textarea>
 				</label>
 			</fieldset>
 			<fieldset>
@@ -346,6 +361,11 @@
 					Disable:
 					<input type="checkbox" bind:checked={isDisabled} />
 				</label>
+			</fieldset>
+			<fieldset>
+				<button type="button" onclick={() => (isOpen = !isOpen)} disabled={isDisabled}>
+					{isOpen === true ? 'Masquer la tooltip' : 'Afficher la tooltip'}
+				</button>
 			</fieldset>
 		</form>
 	</div>
