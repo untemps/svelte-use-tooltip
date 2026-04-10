@@ -354,7 +354,7 @@
 				</label>
 			</fieldset>
 			<fieldset>
-				<button type="button" onclick={() => (isOpen = !isOpen)}>
+				<button type="button" onclick={() => (isOpen = !isOpen)} disabled={isDisabled}>
 					{isOpen === true ? 'Masquer la tooltip' : 'Afficher la tooltip'}
 				</button>
 			</fieldset>
