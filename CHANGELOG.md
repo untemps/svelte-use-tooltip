@@ -1,3 +1,10 @@
+## [3.4.1](https://github.com/untemps/svelte-use-tooltip/compare/v3.4.0...v3.4.1) (2026-04-10)
+
+
+### Bug Fixes
+
+* Generate unique IDs for aria-describedby to avoid ARIA collisions ([#165](https://github.com/untemps/svelte-use-tooltip/issues/165)) ([37d0fe7](https://github.com/untemps/svelte-use-tooltip/commit/37d0fe7635a977600cb84a51deb0f123cf987f29))
+
 # [3.4.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.7...v3.4.0) (2026-04-10)
 
 
