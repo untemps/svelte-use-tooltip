@@ -140,7 +140,7 @@ class Tooltip {
 
 		disabled ? this.#disable() : this.#enable();
 
-		if (this.#open === true && !disabled) {
+		if (this.#open && !disabled) {
 			this.#appendTooltipToTarget();
 		}
 
