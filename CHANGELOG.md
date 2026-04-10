@@ -1,3 +1,10 @@
+# [3.4.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.7...v3.4.0) (2026-04-10)
+
+
+### Features
+
+* Expose programmatic show/hide API via open prop ([#163](https://github.com/untemps/svelte-use-tooltip/issues/163)) ([1886922](https://github.com/untemps/svelte-use-tooltip/commit/18869226b35aa40405a3f009f687d5d0bf9bbfd6))
+
 ## [3.3.7](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.6...v3.3.7) (2026-04-09)
 
 
