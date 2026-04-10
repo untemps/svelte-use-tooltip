@@ -28,6 +28,7 @@ export type TooltipOptions = {
 	offset?: number;
 	width?: string;
 	disabled?: boolean;
+	open?: boolean;
 };
 
 type SpaceMap = Record<TooltipPosition, number>;
@@ -39,6 +40,8 @@ type ChangeSet = {
 	hasWidthChanged: boolean;
 	hasToDisableTarget: boolean;
 	hasToEnableTarget: boolean;
+	hasToShow: boolean;
+	hasToHide: boolean;
 };
 
 class Tooltip {
@@ -67,6 +70,8 @@ class Tooltip {
 	#width = 'auto';
 
 	#originalTitle: string | null = null;
+
+	#open: boolean | undefined = undefined;
 
 	#destroyed = false;
 
@@ -102,7 +107,8 @@ class Tooltip {
 			onLeave,
 			offset,
 			width,
-			disabled
+			disabled,
+			open
 		} = options;
 
 		this.#target = target;
@@ -130,7 +136,13 @@ class Tooltip {
 		this.#target.style.position = 'relative';
 		this.#target.setAttribute('aria-describedby', 'tooltip');
 
+		this.#open = open === true ? true : undefined;
+
 		disabled ? this.#disable() : this.#enable();
+
+		if (this.#open && !disabled) {
+			this.#appendTooltipToTarget();
+		}
 
 		Tooltip.#instances.push(this);
 	}
@@ -149,7 +161,8 @@ class Tooltip {
 		position,
 		offset,
 		width,
-		disabled
+		disabled,
+		open
 	}: TooltipOptions): ChangeSet {
 		const hasContentChanged =
 			(contentSelector !== undefined && contentSelector !== this.#contentSelector) ||
@@ -158,13 +171,19 @@ class Tooltip {
 			hasContentChanged ||
 			(position !== undefined && position !== this.#position) ||
 			(offset !== undefined && offset !== this.#offset);
+		const isCurrentlyShown = !!this.#tooltip?.parentNode;
 		return {
 			hasStructureChanged,
 			hasContainerClassNameChanged:
 				containerClassName !== undefined && containerClassName !== this.#containerClassName,
 			hasWidthChanged: width !== undefined && width !== this.#width,
 			hasToDisableTarget: !!disabled && Boolean(this.#boundEnterHandler),
-			hasToEnableTarget: !disabled && !Boolean(this.#boundEnterHandler)
+			hasToEnableTarget: !disabled && !Boolean(this.#boundEnterHandler),
+			// Re-show when open:true is passed after a structure rebuild (tooltip removed from DOM),
+			// or when the tooltip is not yet visible. Guard with !disabled so open+disabled is a no-op.
+			hasToShow: open === true && !disabled && (!isCurrentlyShown || hasStructureChanged),
+			// Skip explicit hide when structure already removed the tooltip from the DOM.
+			hasToHide: open === false && isCurrentlyShown && !hasStructureChanged
 		};
 	}
 
@@ -182,7 +201,8 @@ class Tooltip {
 		onEnter,
 		onLeave,
 		offset,
-		width
+		width,
+		open
 	}: TooltipOptions) {
 		this.#content = content ?? null;
 		this.#contentSelector = contentSelector ?? null;
@@ -198,6 +218,8 @@ class Tooltip {
 		this.#onLeave = onLeave ?? null;
 		this.#offset = Math.max(offset ?? 10, 5);
 		this.#width = width ?? 'auto';
+		// false is treated as a one-shot close — no lock. Only true locks the tooltip open.
+		this.#open = open === true ? true : undefined;
 	}
 
 	#applyChanges({
@@ -205,7 +227,9 @@ class Tooltip {
 		hasContainerClassNameChanged,
 		hasWidthChanged,
 		hasToDisableTarget,
-		hasToEnableTarget
+		hasToEnableTarget,
+		hasToShow,
+		hasToHide
 	}: ChangeSet) {
 		if (hasStructureChanged) {
 			this.#removeTooltipFromTarget();
@@ -227,6 +251,12 @@ class Tooltip {
 			this.#disable();
 		} else if (hasToEnableTarget) {
 			this.#enable();
+		}
+
+		if (hasToShow) {
+			this.#appendTooltipToTarget();
+		} else if (hasToHide) {
+			this.#removeTooltipFromTarget();
 		}
 	}
 
@@ -574,6 +604,7 @@ class Tooltip {
 	}
 
 	async #onTargetLeave(e: Event) {
+		if (this.#open) return;
 		if (this.#target === e.target || !this.#target?.contains(e.target as Node)) {
 			await this.#waitForDelay(this.#leaveDelay);
 			await this.#removeTooltipFromTarget();
@@ -583,6 +614,7 @@ class Tooltip {
 	}
 
 	async #onWindowChange(e: Event) {
+		if (this.#open) return;
 		const ke = e as KeyboardEvent;
 		if (
 			this.#tooltip &&
