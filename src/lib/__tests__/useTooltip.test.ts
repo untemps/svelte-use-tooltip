@@ -1206,4 +1206,49 @@ describe('useTooltip', () => {
 			expect(target).not.toHaveAttribute('aria-expanded');
 		});
 	});
+
+	describe('useTooltip aria-haspopup', () => {
+		const interactiveOptions: TooltipOptions = {
+			contentSelector: '#template',
+			contentActions: {
+				'*': { eventType: 'click', callback: vi.fn(), callbackParams: [] }
+			}
+		};
+
+		test('Sets aria-haspopup="dialog" on init when tooltip is interactive', () => {
+			action = createAction(target, interactiveOptions);
+			expect(target).toHaveAttribute('aria-haspopup', 'dialog');
+		});
+
+		test('Removes aria-haspopup on destroy', async () => {
+			action = createAction(target, interactiveOptions);
+			await action.destroy();
+			expect(target).not.toHaveAttribute('aria-haspopup');
+			action = null;
+		});
+
+		test('Does not set aria-haspopup when tooltip has no contentActions', () => {
+			action = createAction(target, { content: 'Hello' });
+			expect(target).not.toHaveAttribute('aria-haspopup');
+		});
+
+		test('Does not set aria-haspopup when contentActions is empty', () => {
+			action = createAction(target, { content: 'Hello', contentActions: {} });
+			expect(target).not.toHaveAttribute('aria-haspopup');
+		});
+
+		test('Adds aria-haspopup when contentActions is added via update', () => {
+			action = createAction(target, { content: 'Hello' });
+			expect(target).not.toHaveAttribute('aria-haspopup');
+			action.update(interactiveOptions);
+			expect(target).toHaveAttribute('aria-haspopup', 'dialog');
+		});
+
+		test('Removes aria-haspopup when contentActions is removed via update', () => {
+			action = createAction(target, interactiveOptions);
+			expect(target).toHaveAttribute('aria-haspopup', 'dialog');
+			action.update({ ...interactiveOptions, contentActions: null });
+			expect(target).not.toHaveAttribute('aria-haspopup');
+		});
+	});
 });
