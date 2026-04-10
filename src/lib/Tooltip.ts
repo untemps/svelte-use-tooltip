@@ -182,7 +182,8 @@ class Tooltip {
 			// Re-show when open:true is passed after a structure rebuild (tooltip removed from DOM),
 			// or when the tooltip is not yet visible. Guard with !disabled so open+disabled is a no-op.
 			hasToShow: open === true && !disabled && (!isCurrentlyShown || hasStructureChanged),
-			hasToHide: open === false && isCurrentlyShown
+			// Skip explicit hide when structure already removed the tooltip from the DOM.
+			hasToHide: open === false && isCurrentlyShown && !hasStructureChanged
 		};
 	}
 
@@ -603,7 +604,7 @@ class Tooltip {
 	}
 
 	async #onTargetLeave(e: Event) {
-		if (this.#open === true) return;
+		if (this.#open) return;
 		if (this.#target === e.target || !this.#target?.contains(e.target as Node)) {
 			await this.#waitForDelay(this.#leaveDelay);
 			await this.#removeTooltipFromTarget();
@@ -613,7 +614,7 @@ class Tooltip {
 	}
 
 	async #onWindowChange(e: Event) {
-		if (this.#open === true) return;
+		if (this.#open) return;
 		const ke = e as KeyboardEvent;
 		if (
 			this.#tooltip &&
