@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { tick } from 'svelte';
 	import { useTooltip } from '$lib';
 
 	let textContent = $state(null);
@@ -26,16 +25,6 @@
 	const _onTooltipLeave = () => {
 		if (triggerOnLeave) {
 			alert("You've left the target");
-		}
-	};
-
-	const _toggleOpen = async () => {
-		if (isOpen === true) {
-			isOpen = false;
-			await tick();
-			isOpen = undefined;
-		} else {
-			isOpen = true;
 		}
 	};
 
@@ -228,7 +217,7 @@
 	.settings__form select {
 		margin: 0;
 		max-width: 80px;
-		//height: 30px;
+		height: 30px;
 		font-family: inherit;
 		font-size: inherit;
 	}
@@ -237,9 +226,9 @@
 		padding: 0;
 	}
 
-.settings__form button {
-    padding: 0.5em 1em;
-}
+	.settings__form button {
+		padding: 0.5em 1em;
+	}
 </style>
 
 <template id="tooltip__template">
@@ -365,7 +354,7 @@
 				</label>
 			</fieldset>
 			<fieldset>
-				<button type="button" onclick={_toggleOpen}>
+				<button type="button" onclick={() => (isOpen = !isOpen)}>
 					{isOpen === true ? 'Masquer la tooltip' : 'Afficher la tooltip'}
 				</button>
 			</fieldset>

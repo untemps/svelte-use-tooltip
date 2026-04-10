@@ -1038,6 +1038,20 @@ describe('useTooltip', () => {
 			expect(getElement('#tooltip')).not.toBeInTheDocument();
 		});
 
+		test('Restores hover after open: false (one-shot close, no lock)', async () => {
+			action = createAction(target, { content: 'Hello', open: true });
+			await standby(1);
+			expect(getElement('#tooltip')).toBeInTheDocument();
+
+			action.update({ content: 'Hello', open: false });
+			await standby(1);
+			expect(getElement('#tooltip')).not.toBeInTheDocument();
+
+			// hover must work again — no lock
+			await _enter(target);
+			expect(getElement('#tooltip')).toBeInTheDocument();
+		});
+
 		test('Keeps tooltip open when open is true and user hovers away', async () => {
 			action = createAction(target, { content: 'Hello', open: true });
 			await standby(1);
@@ -1056,10 +1070,10 @@ describe('useTooltip', () => {
 			expect(getElement('#tooltip')).toBeInTheDocument();
 		});
 
-		test('Prevents hover from showing tooltip when open is false', async () => {
+		test('Allows hover after open is false (no lock)', async () => {
 			action = createAction(target, { content: 'Hello', open: false });
 			await _enter(target);
-			expect(getElement('#tooltip')).not.toBeInTheDocument();
+			expect(getElement('#tooltip')).toBeInTheDocument();
 		});
 
 		test('Re-shows tooltip after content update when open is true', async () => {

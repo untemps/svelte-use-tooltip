@@ -136,7 +136,7 @@ class Tooltip {
 		this.#target.style.position = 'relative';
 		this.#target.setAttribute('aria-describedby', 'tooltip');
 
-		this.#open = open;
+		this.#open = open === true ? true : undefined;
 
 		disabled ? this.#disable() : this.#enable();
 
@@ -217,7 +217,8 @@ class Tooltip {
 		this.#onLeave = onLeave ?? null;
 		this.#offset = Math.max(offset ?? 10, 5);
 		this.#width = width ?? 'auto';
-		this.#open = open;
+		// false is treated as a one-shot close — no lock. Only true locks the tooltip open.
+		this.#open = open === true ? true : undefined;
 	}
 
 	#applyChanges({
