@@ -594,7 +594,6 @@ class Tooltip {
 	}
 
 	async #onTargetEnter(e: Event) {
-		if (this.#open === false) return;
 		if (this.#target === e.target) {
 			await this.#waitForDelay(this.#enterDelay);
 			await this.#appendTooltipToTarget();
