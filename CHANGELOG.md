@@ -1,3 +1,10 @@
+# [3.5.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.4.1...v3.5.0) (2026-04-10)
+
+
+### Features
+
+* Add aria-expanded to trigger when tooltip has interactive content ([#166](https://github.com/untemps/svelte-use-tooltip/issues/166)) ([e9c9cc3](https://github.com/untemps/svelte-use-tooltip/commit/e9c9cc3266f20ee1b3f8a47c6924fea41a280aae))
+
 ## [3.4.1](https://github.com/untemps/svelte-use-tooltip/compare/v3.4.0...v3.4.1) (2026-04-10)
 
 
