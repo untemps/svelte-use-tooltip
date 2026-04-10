@@ -1,3 +1,10 @@
+# [3.6.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.5.0...v3.6.0) (2026-04-10)
+
+
+### Features
+
+* Add aria-haspopup="dialog" to trigger when tooltip has interactive content ([#168](https://github.com/untemps/svelte-use-tooltip/issues/168)) ([e57848d](https://github.com/untemps/svelte-use-tooltip/commit/e57848dd06c0cb1dafae1938d03775a6f76f0c8a))
+
 # [3.5.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.4.1...v3.5.0) (2026-04-10)
 
 
