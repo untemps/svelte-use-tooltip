@@ -1251,4 +1251,93 @@ describe('useTooltip', () => {
 			expect(target).not.toHaveAttribute('aria-haspopup');
 		});
 	});
+
+	describe('useTooltip focus trap', () => {
+		const TRAP_TEMPLATE_ID = 'trap-template';
+		const trapOptions: TooltipOptions = {
+			contentSelector: `#${TRAP_TEMPLATE_ID}`,
+			contentActions: {
+				'*': { eventType: 'click', callback: vi.fn(), callbackParams: [] }
+			}
+		};
+
+		let trapTarget: HTMLElement;
+		let trapAction: FullAction | null = null;
+
+		beforeEach(() => {
+			trapTarget = createElement({
+				tag: 'div',
+				attributes: { id: 'trap-target', tabindex: '0' },
+				parent: document.body
+			});
+			const tmpl = createElement({
+				tag: 'template',
+				attributes: { id: TRAP_TEMPLATE_ID },
+				parent: document.body
+			});
+			const content = (tmpl as HTMLTemplateElement).content as unknown as HTMLElement;
+			const container = createElement({ tag: 'div', parent: content });
+			createElement({ tag: 'button', parent: container });
+			createElement({ tag: 'button', parent: container });
+		});
+
+		afterEach(async () => {
+			await trapAction?.destroy();
+			trapAction = null;
+			removeElement('#trap-target');
+			removeElement(`#${TRAP_TEMPLATE_ID}`);
+		});
+
+		test('Moves focus to first focusable element when tooltip opens', async () => {
+			trapAction = createAction(trapTarget, trapOptions);
+			await _enter(trapTarget);
+			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
+			expect(document.activeElement).toBe(tooltip.querySelector('button'));
+		});
+
+		test('Traps Tab: wraps focus from last element to first', async () => {
+			trapAction = createAction(trapTarget, trapOptions);
+			await _enter(trapTarget);
+			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
+			const buttons = tooltip.querySelectorAll<HTMLElement>('button');
+			buttons[buttons.length - 1].focus();
+			await fireEvent.keyDown(tooltip, { key: 'Tab', shiftKey: false });
+			await standby(1);
+			expect(document.activeElement).toBe(buttons[0]);
+		});
+
+		test('Traps Shift+Tab: wraps focus from first element to last', async () => {
+			trapAction = createAction(trapTarget, trapOptions);
+			await _enter(trapTarget);
+			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
+			const buttons = tooltip.querySelectorAll<HTMLElement>('button');
+			buttons[0].focus();
+			await fireEvent.keyDown(tooltip, { key: 'Tab', shiftKey: true });
+			await standby(1);
+			expect(document.activeElement).toBe(buttons[buttons.length - 1]);
+		});
+
+		test('Escape closes tooltip and returns focus to trigger', async () => {
+			trapAction = createAction(trapTarget, trapOptions);
+			await _enter(trapTarget);
+			await _keyDown(trapTarget);
+			expect(getElement('[role="tooltip"]')).not.toBeInTheDocument();
+			expect(document.activeElement).toBe(trapTarget);
+		});
+
+		test('Returns focus to trigger when tooltip closes', async () => {
+			trapAction = createAction(trapTarget, trapOptions);
+			await _enter(trapTarget);
+			await _leave(trapTarget);
+			expect(document.activeElement).toBe(trapTarget);
+		});
+
+		test('Does not trap focus when tooltip has no focusable elements', async () => {
+			action = createAction(target, options);
+			await _enter(target);
+			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
+			expect(tooltip.querySelector('button')).toBeNull();
+			expect(document.activeElement).not.toBeInstanceOf(HTMLButtonElement);
+		});
+	});
 });

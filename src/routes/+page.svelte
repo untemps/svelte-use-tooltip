@@ -15,6 +15,7 @@
 	let offset = $state(10);
 	let width = $state('auto');
 	let isOpen = $state<boolean | undefined>(undefined);
+	let useInteractiveContent = $state(false);
 
 	const _onTooltipEnter = () => {
 		if (triggerOnEnter) {
@@ -83,6 +84,23 @@
 		flex-direction: column;
 		row-gap: 0.5rem;
 		align-items: center;
+	}
+
+	:global(.tooltip__interactive__btn) {
+		width: 100%;
+		padding: 0.25rem 0.5rem;
+		font-family: inherit;
+		font-size: inherit;
+		cursor: pointer;
+		border: 1px solid rgba(255, 255, 255, 0.5);
+		border-radius: 4px;
+		background-color: rgba(255, 255, 255, 0.15);
+		color: #fff;
+	}
+
+	:global(.tooltip__interactive__btn:focus) {
+		outline: 2px solid #fff;
+		outline-offset: 1px;
 	}
 
 	:global(.tooltip) {
@@ -243,21 +261,40 @@
 <template id="tooltip__template">
 	<span class="tooltip__content">Hi! I'm a <i>fancy</i> <strong>tooltip</strong>!</span>
 </template>
+<template id="tooltip__interactive__template">
+	<div class="tooltip__content">
+		<button class="tooltip__interactive__btn">Action 1</button>
+		<button class="tooltip__interactive__btn">Action 2</button>
+	</div>
+</template>
 <main>
 	<div class="content">
 		<div
 			use:useTooltip={{
 				position: position,
-				content: textContent,
-				contentSelector: !textContent?.length ? '#tooltip__template' : null,
-				contentActions: {
-					'*': {
-						eventType: 'click',
-						callback: _onTooltipClick,
-						callbackParams: ['ok'],
-						closeOnCallback: true
-					}
-				},
+				content: useInteractiveContent ? null : textContent,
+				contentSelector: useInteractiveContent
+					? '#tooltip__interactive__template'
+					: !textContent?.length
+						? '#tooltip__template'
+						: null,
+				contentActions: useInteractiveContent
+					? {
+							'.tooltip__interactive__btn': {
+								eventType: 'click',
+								callback: _onTooltipClick,
+								callbackParams: ['ok'],
+								closeOnCallback: false
+							}
+						}
+					: {
+							'*': {
+								eventType: 'click',
+								callback: _onTooltipClick,
+								callbackParams: ['ok'],
+								closeOnCallback: true
+							}
+						},
 				containerClassName: useCustomClass ? `tooltip tooltip-${position}` : null,
 				animated: animate,
 				animationEnterClassName: useCustomAnimationEnterClass ? 'tooltip-enter' : null,
@@ -354,6 +391,12 @@
 				<label>
 					Width:
 					<input type="text" bind:value={width} />
+				</label>
+			</fieldset>
+			<fieldset>
+				<label>
+					Interactive Content (focus trap):
+					<input type="checkbox" bind:checked={useInteractiveContent} />
 				</label>
 			</fieldset>
 			<fieldset>

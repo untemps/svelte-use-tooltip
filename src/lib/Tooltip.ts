@@ -86,6 +86,7 @@ class Tooltip {
 	#boundEnterHandler: ((e: Event) => void) | null = null;
 	#boundLeaveHandler: ((e: Event) => void) | null = null;
 	#boundWindowChangeHandler: ((e: Event) => void) | null = null;
+	#trapHandler: ((e: KeyboardEvent) => void) | null = null;
 
 	static destroy() {
 		Tooltip.#instances.forEach((instance) => {
@@ -550,7 +551,7 @@ class Tooltip {
 
 		if (this.#contentActions) {
 			Object.entries(this.#contentActions).forEach(
-				([key, { eventType, callback, callbackParams, closeOnCallback }], i) => {
+				([key, { eventType, callback, callbackParams, closeOnCallback }]) => {
 					const trigger = key === '*' ? this.#tooltip! : this.#tooltip!.querySelector(key);
 					if (trigger) {
 						const listener: EventListener = (event) => {
@@ -561,11 +562,10 @@ class Tooltip {
 						};
 						trigger.addEventListener(eventType, listener);
 						this.#events.push({ trigger, eventType, listener });
-
-						if (i === 0) (trigger as HTMLElement).focus();
 					}
 				}
 			);
+			this.#setupFocusTrap();
 		}
 	}
 
@@ -591,6 +591,8 @@ class Tooltip {
 			trigger.removeEventListener(eventType, listener)
 		);
 		this.#events = [];
+
+		this.#teardownFocusTrap();
 	}
 
 	#waitForDelay(delay: number) {
@@ -611,6 +613,50 @@ class Tooltip {
 
 	#isInteractive() {
 		return Object.keys(this.#contentActions ?? {}).length > 0;
+	}
+
+	#setupFocusTrap(): void {
+		const focusable = this.#tooltip!.querySelectorAll<HTMLElement>(
+			'a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+		);
+		if (!focusable.length) return;
+
+		const first = focusable[0];
+		const last = focusable[focusable.length - 1];
+
+		this.#trapHandler = (e: KeyboardEvent) => {
+			if (e.key !== 'Tab') return;
+			if (e.shiftKey) {
+				if (document.activeElement === first) {
+					e.preventDefault();
+					last.focus();
+				}
+			} else {
+				if (document.activeElement === last) {
+					e.preventDefault();
+					first.focus();
+				}
+			}
+		};
+
+		this.#tooltip!.addEventListener('keydown', this.#trapHandler);
+		first.focus();
+	}
+
+	#teardownFocusTrap(): void {
+		if (this.#trapHandler) {
+			this.#tooltip?.removeEventListener('keydown', this.#trapHandler);
+			this.#trapHandler = null;
+			// Temporarily remove the focusin listener so that returning focus to the trigger
+			// does not re-open the tooltip.
+			if (this.#boundEnterHandler) {
+				this.#target?.removeEventListener('focusin', this.#boundEnterHandler);
+			}
+			this.#target?.focus();
+			if (this.#boundEnterHandler) {
+				this.#target?.addEventListener('focusin', this.#boundEnterHandler);
+			}
+		}
 	}
 
 	#transitionTooltip(entering: boolean) {
@@ -646,6 +692,8 @@ class Tooltip {
 
 	async #onTargetLeave(e: Event) {
 		if (this.#open) return;
+		if (e.type === 'focusout' && this.#target?.contains((e as FocusEvent).relatedTarget as Node))
+			return;
 		if (this.#target === e.target || !this.#target?.contains(e.target as Node)) {
 			await this.#waitForDelay(this.#leaveDelay);
 			await this.#removeTooltipFromTarget();
