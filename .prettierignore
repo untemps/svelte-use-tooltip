@@ -5,3 +5,10 @@ yarn.lock
 
 # GitHub Actions — must stay identical to main branch for claude-code-action OIDC validation
 .github/workflows/
+
+# Auto-generated — do not reformat
+CHANGELOG.md
+
+# Markdown tables — Prettier widens all columns to match the longest row,
+# causing noisy diffs when a new row is added
+README.md
