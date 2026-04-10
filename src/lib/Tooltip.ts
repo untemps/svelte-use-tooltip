@@ -42,6 +42,7 @@ type ChangeSet = {
 	hasToEnableTarget: boolean;
 	hasToShow: boolean;
 	hasToHide: boolean;
+	hasInteractivityChanged: boolean;
 };
 
 class Tooltip {
@@ -139,6 +140,10 @@ class Tooltip {
 		this.#target.removeAttribute('title');
 		this.#target.style.position = 'relative';
 
+		if (this.#isInteractive()) {
+			this.#target.setAttribute('aria-expanded', 'false');
+		}
+
 		this.#open = open === true ? true : undefined;
 
 		disabled ? this.#disable() : this.#enable();
@@ -160,6 +165,7 @@ class Tooltip {
 	#detectChanges({
 		content,
 		contentSelector,
+		contentActions,
 		containerClassName,
 		position,
 		offset,
@@ -186,7 +192,10 @@ class Tooltip {
 			// or when the tooltip is not yet visible. Guard with !disabled so open+disabled is a no-op.
 			hasToShow: open === true && !disabled && (!isCurrentlyShown || hasStructureChanged),
 			// Skip explicit hide when structure already removed the tooltip from the DOM.
-			hasToHide: open === false && isCurrentlyShown && !hasStructureChanged
+			hasToHide: open === false && isCurrentlyShown && !hasStructureChanged,
+			hasInteractivityChanged:
+				contentActions !== undefined &&
+				Object.keys(contentActions ?? {}).length > 0 !== this.#isInteractive()
 		};
 	}
 
@@ -232,7 +241,8 @@ class Tooltip {
 		hasToDisableTarget,
 		hasToEnableTarget,
 		hasToShow,
-		hasToHide
+		hasToHide,
+		hasInteractivityChanged
 	}: ChangeSet) {
 		if (hasStructureChanged) {
 			this.#removeTooltipFromTarget();
@@ -261,6 +271,14 @@ class Tooltip {
 		} else if (hasToHide) {
 			this.#removeTooltipFromTarget();
 		}
+
+		if (hasInteractivityChanged) {
+			if (this.#isInteractive()) {
+				this.#target?.setAttribute('aria-expanded', this.#tooltip?.parentNode ? 'true' : 'false');
+			} else {
+				this.#target?.removeAttribute('aria-expanded');
+			}
+		}
 	}
 
 	async destroy() {
@@ -274,6 +292,7 @@ class Tooltip {
 		}
 		this.#target?.style.removeProperty('position');
 		this.#target?.removeAttribute('aria-describedby');
+		this.#target?.removeAttribute('aria-expanded');
 
 		await this.#removeTooltipFromTarget(true);
 
@@ -515,6 +534,10 @@ class Tooltip {
 
 		this.#target!.setAttribute('aria-describedby', this.#id);
 
+		if (this.#isInteractive()) {
+			this.#target!.setAttribute('aria-expanded', 'true');
+		}
+
 		this.#observer!.wait(this.#tooltip!, { events: [DOMObserver.ADD] }).then(() => {
 			if (this.#destroyed) return;
 			this.#positionTooltip();
@@ -550,6 +573,10 @@ class Tooltip {
 		this.#tooltip!.remove();
 		this.#target?.removeAttribute('aria-describedby');
 
+		if (this.#isInteractive() && !this.#destroyed) {
+			this.#target?.setAttribute('aria-expanded', 'false');
+		}
+
 		if (!this.#containerClassName) {
 			this.#tooltip!.setAttribute('class', `__tooltip __tooltip-${this.#position}`);
 		}
@@ -576,6 +603,10 @@ class Tooltip {
 	#clearDelay() {
 		clearTimeout(this.#delay);
 		this.#delay = undefined;
+	}
+
+	#isInteractive() {
+		return Object.keys(this.#contentActions ?? {}).length > 0;
 	}
 
 	#transitionTooltip(entering: boolean) {
