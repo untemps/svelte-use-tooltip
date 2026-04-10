@@ -214,6 +214,13 @@
 		font-size: inherit;
 	}
 
+	.settings__form textarea {
+		margin: 0;
+		padding: 0.5em;
+		font-family: inherit;
+		font-size: inherit;
+	}
+
 	.settings__form select {
 		margin: 0;
 		max-width: 80px;
@@ -228,6 +235,8 @@
 
 	.settings__form button {
 		padding: 0.5em 1em;
+		font-family: inherit;
+		font-size: inherit;
 	}
 </style>
 
@@ -273,7 +282,7 @@
 			<fieldset>
 				<label>
 					Text Content:
-					<input type="text" bind:value={textContent} />
+					<textarea bind:value={textContent} rows={3}></textarea>
 				</label>
 			</fieldset>
 			<fieldset>

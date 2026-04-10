@@ -1,44 +1,38 @@
 ## [3.3.7](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.6...v3.3.7) (2026-04-09)
 
-
 ### Bug Fixes
 
-* Prune destroyed instances from static #instances array ([#159](https://github.com/untemps/svelte-use-tooltip/issues/159)) ([d38fcb8](https://github.com/untemps/svelte-use-tooltip/commit/d38fcb8a278627a914496b05f3a97757a3c76ec8)), closes [#instances](https://github.com/untemps/svelte-use-tooltip/issues/instances)
+- Prune destroyed instances from static #instances array ([#159](https://github.com/untemps/svelte-use-tooltip/issues/159)) ([d38fcb8](https://github.com/untemps/svelte-use-tooltip/commit/d38fcb8a278627a914496b05f3a97757a3c76ec8)), closes [#instances](https://github.com/untemps/svelte-use-tooltip/issues/instances)
 
 ## [3.3.6](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.5...v3.3.6) (2026-04-08)
 
-
 ### Bug Fixes
 
-* Guard observer callbacks after destroy ([#157](https://github.com/untemps/svelte-use-tooltip/issues/157)) ([9c1e329](https://github.com/untemps/svelte-use-tooltip/commit/9c1e3291d9247c6bea8357560d7915c7c510d990))
+- Guard observer callbacks after destroy ([#157](https://github.com/untemps/svelte-use-tooltip/issues/157)) ([9c1e329](https://github.com/untemps/svelte-use-tooltip/commit/9c1e3291d9247c6bea8357560d7915c7c510d990))
 
 ## [3.3.5](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.4...v3.3.5) (2026-04-06)
 
-
 ### Bug Fixes
 
-* Add timeout fallback to prevent animation hang ([#156](https://github.com/untemps/svelte-use-tooltip/issues/156)) ([9831e85](https://github.com/untemps/svelte-use-tooltip/commit/9831e85ea0dcc5fdddc83eed5e534225a1416204))
+- Add timeout fallback to prevent animation hang ([#156](https://github.com/untemps/svelte-use-tooltip/issues/156)) ([9831e85](https://github.com/untemps/svelte-use-tooltip/commit/9831e85ea0dcc5fdddc83eed5e534225a1416204))
 
 ## [3.3.4](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.3...v3.3.4) (2026-04-06)
 
-
 ### Bug Fixes
 
-* Hide tooltip immediately when disabled via update ([#154](https://github.com/untemps/svelte-use-tooltip/issues/154)) ([7cd696e](https://github.com/untemps/svelte-use-tooltip/commit/7cd696ea7f1085f8b29b6994a74f5adaf1cf515f))
+- Hide tooltip immediately when disabled via update ([#154](https://github.com/untemps/svelte-use-tooltip/issues/154)) ([7cd696e](https://github.com/untemps/svelte-use-tooltip/commit/7cd696ea7f1085f8b29b6994a74f5adaf1cf515f))
 
 ## [3.3.3](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.2...v3.3.3) (2026-04-06)
 
-
 ### Bug Fixes
 
-* Restore title attribute on destroy ([#153](https://github.com/untemps/svelte-use-tooltip/issues/153)) ([d87290c](https://github.com/untemps/svelte-use-tooltip/commit/d87290cc929c6e5e0cac41f4d91df200861ec8c9))
+- Restore title attribute on destroy ([#153](https://github.com/untemps/svelte-use-tooltip/issues/153)) ([d87290c](https://github.com/untemps/svelte-use-tooltip/commit/d87290cc929c6e5e0cac41f4d91df200861ec8c9))
 
 ## [3.3.2](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.1...v3.3.2) (2026-04-06)
 
-
 ### Bug Fixes
 
-* Use style.position instead of setAttribute to preserve consumer inline styles ([#151](https://github.com/untemps/svelte-use-tooltip/issues/151)) ([a8af271](https://github.com/untemps/svelte-use-tooltip/commit/a8af271b493ede9574a484a30aa5d7cf3857fe66))
+- Use style.position instead of setAttribute to preserve consumer inline styles ([#151](https://github.com/untemps/svelte-use-tooltip/issues/151)) ([a8af271](https://github.com/untemps/svelte-use-tooltip/commit/a8af271b493ede9574a484a30aa5d7cf3857fe66))
 
 ## [3.3.1](https://github.com/untemps/svelte-use-tooltip/compare/v3.3.0...v3.3.1) (2026-04-06)
 
