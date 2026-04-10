@@ -1099,7 +1099,9 @@ describe('useTooltip', () => {
 			action = createAction(target, options);
 			await _enter(target);
 			const tooltip = getElement('[role=\"tooltip\"]') as HTMLElement;
-			expect(tooltip.id).toMatch(/^tooltip-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+			expect(tooltip.id).toMatch(
+				/^tooltip-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+			);
 			expect(target.getAttribute('aria-describedby')).toBe(tooltip.id);
 		});
 
@@ -1144,6 +1146,64 @@ describe('useTooltip', () => {
 		test('Does not set aria-describedby before tooltip is shown', () => {
 			action = createAction(target, options);
 			expect(target).not.toHaveAttribute('aria-describedby');
+		});
+	});
+
+	describe('useTooltip aria-expanded', () => {
+		const interactiveOptions: TooltipOptions = {
+			contentSelector: '#template',
+			contentActions: {
+				'*': { eventType: 'click', callback: vi.fn(), callbackParams: [] }
+			}
+		};
+
+		test('Sets aria-expanded="false" on init when tooltip is interactive', () => {
+			action = createAction(target, interactiveOptions);
+			expect(target).toHaveAttribute('aria-expanded', 'false');
+		});
+
+		test('Sets aria-expanded="true" when interactive tooltip is shown', async () => {
+			action = createAction(target, interactiveOptions);
+			await _enter(target);
+			expect(target).toHaveAttribute('aria-expanded', 'true');
+		});
+
+		test('Sets aria-expanded="false" when interactive tooltip is hidden', async () => {
+			action = createAction(target, interactiveOptions);
+			await _enter(target);
+			await _leave(target);
+			expect(target).toHaveAttribute('aria-expanded', 'false');
+		});
+
+		test('Removes aria-expanded on destroy', async () => {
+			action = createAction(target, interactiveOptions);
+			await action.destroy();
+			expect(target).not.toHaveAttribute('aria-expanded');
+			action = null;
+		});
+
+		test('Does not set aria-expanded when tooltip has no contentActions', () => {
+			action = createAction(target, { content: 'Hello' });
+			expect(target).not.toHaveAttribute('aria-expanded');
+		});
+
+		test('Does not set aria-expanded when contentActions is empty', () => {
+			action = createAction(target, { content: 'Hello', contentActions: {} });
+			expect(target).not.toHaveAttribute('aria-expanded');
+		});
+
+		test('Adds aria-expanded when contentActions is added via update', () => {
+			action = createAction(target, { content: 'Hello' });
+			expect(target).not.toHaveAttribute('aria-expanded');
+			action.update(interactiveOptions);
+			expect(target).toHaveAttribute('aria-expanded', 'false');
+		});
+
+		test('Removes aria-expanded when contentActions is removed via update', () => {
+			action = createAction(target, interactiveOptions);
+			expect(target).toHaveAttribute('aria-expanded', 'false');
+			action.update({ ...interactiveOptions, contentActions: null });
+			expect(target).not.toHaveAttribute('aria-expanded');
 		});
 	});
 });
