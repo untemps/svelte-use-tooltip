@@ -69,6 +69,8 @@ class Tooltip {
 	#offset = 10;
 	#width = 'auto';
 
+	#id: string;
+
 	#originalTitle: string | null = null;
 
 	#open: boolean | undefined = undefined;
@@ -127,6 +129,8 @@ class Tooltip {
 		this.#offset = Math.max(offset ?? 10, 5);
 		this.#width = width ?? 'auto';
 
+		this.#id = `tooltip-${crypto.randomUUID()}`;
+
 		this.#observer = new DOMObserver();
 
 		this.#createTooltip();
@@ -134,7 +138,6 @@ class Tooltip {
 		this.#originalTitle = this.#target.getAttribute('title');
 		this.#target.removeAttribute('title');
 		this.#target.style.position = 'relative';
-		this.#target.setAttribute('aria-describedby', 'tooltip');
 
 		this.#open = open === true ? true : undefined;
 
@@ -338,7 +341,7 @@ class Tooltip {
 
 	#createTooltip() {
 		this.#tooltip = document.createElement('div');
-		this.#tooltip.setAttribute('id', 'tooltip');
+		this.#tooltip.setAttribute('id', this.#id);
 		this.#tooltip.setAttribute(
 			'class',
 			this.#containerClassName || `__tooltip __tooltip-${this.#position}`
@@ -510,6 +513,8 @@ class Tooltip {
 			await this.#transitionTooltip(true);
 		}
 
+		this.#target!.setAttribute('aria-describedby', this.#id);
+
 		this.#observer!.wait(this.#tooltip!, { events: [DOMObserver.ADD] }).then(() => {
 			if (this.#destroyed) return;
 			this.#positionTooltip();
@@ -543,6 +548,7 @@ class Tooltip {
 		}
 
 		this.#tooltip!.remove();
+		this.#target?.removeAttribute('aria-describedby');
 
 		if (!this.#containerClassName) {
 			this.#tooltip!.setAttribute('class', `__tooltip __tooltip-${this.#position}`);

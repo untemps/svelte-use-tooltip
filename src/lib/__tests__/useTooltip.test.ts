@@ -98,7 +98,7 @@ describe('useTooltip', () => {
 		});
 
 		test('Preserves existing inline styles on template child after cloning', async () => {
-			const template = document.querySelector('#template') as HTMLTemplateElement;
+			const template = getElement('#template') as HTMLTemplateElement;
 			const child = template.content.firstElementChild as HTMLElement;
 			child.style.fontSize = '14px';
 
@@ -939,32 +939,32 @@ describe('useTooltip', () => {
 		test('Shows tooltip programmatically on init when open is true', async () => {
 			action = createAction(target, { content: 'Hello', open: true });
 			await standby(1);
-			expect(getElement('#tooltip')).toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).toBeInTheDocument();
 		});
 
 		test('Does not show tooltip on init when open is false', async () => {
 			action = createAction(target, { content: 'Hello', open: false });
 			await standby(1);
-			expect(getElement('#tooltip')).not.toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).not.toBeInTheDocument();
 		});
 
 		test('Shows tooltip programmatically via update', async () => {
 			action = createAction(target, { content: 'Hello' });
-			expect(getElement('#tooltip')).not.toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).not.toBeInTheDocument();
 
 			action.update({ content: 'Hello', open: true });
 			await standby(1);
-			expect(getElement('#tooltip')).toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).toBeInTheDocument();
 		});
 
 		test('Hides tooltip programmatically via update', async () => {
 			action = createAction(target, { content: 'Hello', open: true });
 			await standby(1);
-			expect(getElement('#tooltip')).toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).toBeInTheDocument();
 
 			action.update({ content: 'Hello', open: false });
 			await standby(1);
-			expect(getElement('#tooltip')).not.toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).not.toBeInTheDocument();
 		});
 
 		test('Toggles tooltip via successive open updates', async () => {
@@ -972,34 +972,34 @@ describe('useTooltip', () => {
 
 			action.update({ content: 'Hello', open: true });
 			await standby(1);
-			expect(getElement('#tooltip')).toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).toBeInTheDocument();
 
 			action.update({ content: 'Hello', open: false });
 			await standby(1);
-			expect(getElement('#tooltip')).not.toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).not.toBeInTheDocument();
 
 			action.update({ content: 'Hello', open: true });
 			await standby(1);
-			expect(getElement('#tooltip')).toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).toBeInTheDocument();
 		});
 
 		test('Is a no-op when open is false and tooltip is already hidden', async () => {
 			action = createAction(target, { content: 'Hello' });
-			expect(getElement('#tooltip')).not.toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).not.toBeInTheDocument();
 
 			action.update({ content: 'Hello', open: false });
 			await standby(1);
-			expect(getElement('#tooltip')).not.toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).not.toBeInTheDocument();
 		});
 
 		test('Is a no-op when open is true and tooltip is already shown', async () => {
 			action = createAction(target, { content: 'Hello', open: true });
 			await standby(1);
-			expect(getElement('#tooltip')).toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).toBeInTheDocument();
 
 			action.update({ content: 'Hello', open: true });
 			await standby(1);
-			expect(getElement('#tooltip')).toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).toBeInTheDocument();
 		});
 
 		test('Preserves normal hover behavior alongside open prop', async () => {
@@ -1007,84 +1007,143 @@ describe('useTooltip', () => {
 
 			// open via hover
 			await _enter(target);
-			expect(getElement('#tooltip')).toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).toBeInTheDocument();
 
 			// close programmatically
 			action.update({ content: 'Hello', open: false });
 			await standby(1);
-			expect(getElement('#tooltip')).not.toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).not.toBeInTheDocument();
 
 			// open programmatically
 			action.update({ content: 'Hello', open: true });
 			await standby(1);
-			expect(getElement('#tooltip')).toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).toBeInTheDocument();
 
 			// release open lock — hover-away should close again
 			action.update({ content: 'Hello' });
 			await _leave(target);
-			expect(getElement('#tooltip')).not.toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).not.toBeInTheDocument();
 		});
 
 		test('Does not show tooltip on init when open is true and disabled is true', async () => {
 			action = createAction(target, { content: 'Hello', open: true, disabled: true });
 			await standby(1);
-			expect(getElement('#tooltip')).not.toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).not.toBeInTheDocument();
 		});
 
 		test('Does not show tooltip via update when open is true and disabled is true', async () => {
 			action = createAction(target, { content: 'Hello' });
 			action.update({ content: 'Hello', open: true, disabled: true });
 			await standby(1);
-			expect(getElement('#tooltip')).not.toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).not.toBeInTheDocument();
 		});
 
 		test('Restores hover after open: false (one-shot close, no lock)', async () => {
 			action = createAction(target, { content: 'Hello', open: true });
 			await standby(1);
-			expect(getElement('#tooltip')).toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).toBeInTheDocument();
 
 			action.update({ content: 'Hello', open: false });
 			await standby(1);
-			expect(getElement('#tooltip')).not.toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).not.toBeInTheDocument();
 
 			// hover must work again — no lock
 			await _enter(target);
-			expect(getElement('#tooltip')).toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).toBeInTheDocument();
 		});
 
 		test('Keeps tooltip open when open is true and user hovers away', async () => {
 			action = createAction(target, { content: 'Hello', open: true });
 			await standby(1);
-			expect(getElement('#tooltip')).toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).toBeInTheDocument();
 
 			await _leave(target);
-			expect(getElement('#tooltip')).toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).toBeInTheDocument();
 		});
 
 		test('Keeps tooltip open when open is true and Escape key is pressed', async () => {
 			action = createAction(target, { content: 'Hello', open: true });
 			await standby(1);
-			expect(getElement('#tooltip')).toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).toBeInTheDocument();
 
 			await _keyDown(target);
-			expect(getElement('#tooltip')).toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).toBeInTheDocument();
 		});
 
 		test('Allows hover after open is false (no lock)', async () => {
 			action = createAction(target, { content: 'Hello', open: false });
 			await _enter(target);
-			expect(getElement('#tooltip')).toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).toBeInTheDocument();
 		});
 
 		test('Re-shows tooltip after content update when open is true', async () => {
 			action = createAction(target, { content: 'Hello', open: true });
 			await standby(1);
-			expect(getElement('#tooltip')).toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).toBeInTheDocument();
 
 			// structure change + open: true — tooltip must still be visible after rebuild
 			action.update({ content: 'Updated', open: true });
 			await standby(1);
-			expect(getElement('#tooltip')).toBeInTheDocument();
+			expect(getElement('[role=\"tooltip\"]')).toBeInTheDocument();
+		});
+	});
+
+	describe('useTooltip aria-describedby', () => {
+		test('Sets aria-describedby on the target when tooltip is shown', async () => {
+			action = createAction(target, options);
+			await _enter(target);
+			expect(target).toHaveAttribute('aria-describedby');
+		});
+
+		test('aria-describedby value matches the tooltip id', async () => {
+			action = createAction(target, options);
+			await _enter(target);
+			const tooltip = getElement('[role=\"tooltip\"]') as HTMLElement;
+			expect(tooltip.id).toMatch(/^tooltip-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+			expect(target.getAttribute('aria-describedby')).toBe(tooltip.id);
+		});
+
+		test('Removes aria-describedby from target when tooltip is hidden', async () => {
+			action = createAction(target, options);
+			await _enter(target);
+			expect(target).toHaveAttribute('aria-describedby');
+			await _leave(target);
+			expect(target).not.toHaveAttribute('aria-describedby');
+		});
+
+		test('Re-adds aria-describedby when tooltip is shown again', async () => {
+			action = createAction(target, options);
+			await _enter(target);
+			await _leave(target);
+			await _enter(target);
+			expect(target).toHaveAttribute('aria-describedby');
+		});
+
+		test('Two tooltip instances have distinct IDs', async () => {
+			const target2 = createElement({
+				tag: 'div',
+				attributes: { id: 'target2' },
+				parent: document.body
+			});
+			const action2 = useTooltip(target2, { content: 'World' }) as FullAction;
+
+			action = createAction(target, options);
+			await _enter(target);
+			await _enter(target2);
+
+			const id1 = target.getAttribute('aria-describedby');
+			const id2 = target2.getAttribute('aria-describedby');
+			expect(id1).toBeTruthy();
+			expect(id2).toBeTruthy();
+			expect(id1).not.toBe(id2);
+
+			await action2.destroy();
+			removeElement('#target2');
+		});
+
+		test('Does not set aria-describedby before tooltip is shown', () => {
+			action = createAction(target, options);
+			expect(target).not.toHaveAttribute('aria-describedby');
 		});
 	});
 });
