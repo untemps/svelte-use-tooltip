@@ -142,6 +142,7 @@ class Tooltip {
 
 		if (this.#isInteractive()) {
 			this.#target.setAttribute('aria-expanded', 'false');
+			this.#target.setAttribute('aria-haspopup', 'dialog');
 		}
 
 		this.#open = open === true ? true : undefined;
@@ -275,8 +276,10 @@ class Tooltip {
 		if (hasInteractivityChanged) {
 			if (this.#isInteractive()) {
 				this.#target?.setAttribute('aria-expanded', this.#tooltip?.parentNode ? 'true' : 'false');
+				this.#target?.setAttribute('aria-haspopup', 'dialog');
 			} else {
 				this.#target?.removeAttribute('aria-expanded');
+				this.#target?.removeAttribute('aria-haspopup');
 			}
 		}
 	}
@@ -293,6 +296,7 @@ class Tooltip {
 		this.#target?.style.removeProperty('position');
 		this.#target?.removeAttribute('aria-describedby');
 		this.#target?.removeAttribute('aria-expanded');
+		this.#target?.removeAttribute('aria-haspopup');
 
 		await this.#removeTooltipFromTarget(true);
 
