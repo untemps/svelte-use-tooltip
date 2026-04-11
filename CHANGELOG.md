@@ -1,3 +1,10 @@
+## [3.8.2](https://github.com/untemps/svelte-use-tooltip/compare/v3.8.1...v3.8.2) (2026-04-11)
+
+
+### Bug Fixes
+
+* Close tooltip on scroll inside ancestor scroll containers ([#173](https://github.com/untemps/svelte-use-tooltip/issues/173)) ([03ba10a](https://github.com/untemps/svelte-use-tooltip/commit/03ba10af06833b233874da03cb94db6d70b31f9d))
+
 ## [3.8.1](https://github.com/untemps/svelte-use-tooltip/compare/v3.8.0...v3.8.1) (2026-04-11)
 
 
