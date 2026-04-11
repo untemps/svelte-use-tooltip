@@ -1333,8 +1333,11 @@ describe('useTooltip', () => {
 		});
 
 		test('Does not trap focus when tooltip has no focusable elements', async () => {
-			action = createAction(target, options);
-			await _enter(target);
+			trapAction = createAction(trapTarget, {
+				content: 'Hello',
+				contentActions: { '*': { eventType: 'click', callback: vi.fn(), callbackParams: [] } }
+			});
+			await _enter(trapTarget);
 			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
 			expect(tooltip.querySelector('button')).toBeNull();
 			expect(document.activeElement).not.toBeInstanceOf(HTMLButtonElement);
