@@ -116,7 +116,8 @@ class Tooltip {
 			offset,
 			width,
 			disabled,
-			open
+			open,
+			touchBehavior
 		} = options;
 
 		this.#target = target;
@@ -134,6 +135,7 @@ class Tooltip {
 		this.#onLeave = onLeave ?? null;
 		this.#offset = Math.max(offset ?? 10, 5);
 		this.#width = width ?? 'auto';
+		this.#touchBehavior = touchBehavior ?? null;
 
 		this.#id = `tooltip-${crypto.randomUUID()}`;
 

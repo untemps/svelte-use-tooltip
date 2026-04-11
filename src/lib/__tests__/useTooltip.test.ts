@@ -1057,6 +1057,108 @@ describe('useTooltip', () => {
 		});
 	});
 
+	describe('useTooltip props: touchBehavior', () => {
+		test('Does not register touch listeners when touchBehavior is not set', async () => {
+			const spy = vi.spyOn(target, 'addEventListener');
+			action = createAction(target, options);
+			const touchEvents = spy.mock.calls
+				.map(([event]) => event)
+				.filter((e) => e.startsWith('touch'));
+			expect(touchEvents).toHaveLength(0);
+			spy.mockRestore();
+		});
+
+		test('Shows tooltip on touchstart in hover mode', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'hover' });
+			await fireEvent.touchStart(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Hides tooltip on touchend in hover mode', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'hover' });
+			await fireEvent.touchStart(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+			await fireEvent.touchEnd(target);
+			await standby(1);
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
+		test('Hides tooltip on touchcancel in hover mode', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'hover' });
+			await fireEvent.touchStart(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+			await fireEvent.touchCancel(target);
+			await standby(1);
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
+		test('Shows tooltip on first touchend in toggle mode', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'toggle' });
+			await fireEvent.touchEnd(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Hides tooltip on second touchend on target in toggle mode', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'toggle' });
+			await fireEvent.touchEnd(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+			await fireEvent.touchEnd(target);
+			await standby(1);
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
+		test('Hides tooltip on touchstart outside target in toggle mode', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'toggle' });
+			await fireEvent.touchEnd(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+			await fireEvent.touchStart(document.body);
+			await standby(1);
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
+		test('Does not hide tooltip on touchstart on the target itself in toggle mode', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'toggle' });
+			await fireEvent.touchEnd(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+			await fireEvent.touchStart(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Removes touch listeners on destroy in hover mode', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'hover' });
+			const spy = vi.spyOn(target, 'removeEventListener');
+			await action.destroy();
+			const touchEvents = spy.mock.calls
+				.map(([event]) => event)
+				.filter((e) => e.startsWith('touch'));
+			expect(touchEvents).toContain('touchstart');
+			expect(touchEvents).toContain('touchend');
+			expect(touchEvents).toContain('touchcancel');
+			spy.mockRestore();
+			action = null;
+		});
+
+		test('Removes touch listeners on destroy in toggle mode', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'toggle' });
+			const spyTarget = vi.spyOn(target, 'removeEventListener');
+			const spyWindow = vi.spyOn(window, 'removeEventListener');
+			await action.destroy();
+			expect(spyTarget.mock.calls.map(([e]) => e)).toContain('touchend');
+			expect(spyWindow.mock.calls.map(([e]) => e)).toContain('touchstart');
+			spyTarget.mockRestore();
+			spyWindow.mockRestore();
+			action = null;
+		});
+	});
+
 	describe('useTooltip props: open', () => {
 		test('Shows tooltip programmatically on init when open is true', async () => {
 			action = createAction(target, { content: 'Hello', open: true });
