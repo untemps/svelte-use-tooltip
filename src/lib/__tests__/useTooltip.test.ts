@@ -132,7 +132,11 @@ describe('useTooltip', () => {
 		});
 
 		test('Removes tooltip on scroll inside a scrollable ancestor container', async () => {
-			const container = createElement({ tag: 'div', attributes: { id: 'container' }, parent: document.body });
+			const container = createElement({
+				tag: 'div',
+				attributes: { id: 'container' },
+				parent: document.body
+			});
 			container.style.overflowY = 'auto';
 			container.appendChild(target);
 
@@ -149,7 +153,11 @@ describe('useTooltip', () => {
 		});
 
 		test('Does not remove tooltip on scroll inside a non-scrollable ancestor container', async () => {
-			const container = createElement({ tag: 'div', attributes: { id: 'container' }, parent: document.body });
+			const container = createElement({
+				tag: 'div',
+				attributes: { id: 'container' },
+				parent: document.body
+			});
 			// No overflow set — default is visible on both axes, not a scroll container
 			container.appendChild(target);
 
@@ -166,7 +174,11 @@ describe('useTooltip', () => {
 		});
 
 		test('Removes ancestor scroll listeners on destroy', async () => {
-			const container = createElement({ tag: 'div', attributes: { id: 'container' }, parent: document.body });
+			const container = createElement({
+				tag: 'div',
+				attributes: { id: 'container' },
+				parent: document.body
+			});
 			container.style.overflowY = 'auto';
 			container.appendChild(target);
 
