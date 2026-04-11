@@ -617,7 +617,15 @@ class Tooltip {
 
 	#setupFocusTrap(): void {
 		const focusable = this.#tooltip!.querySelectorAll<HTMLElement>(
-			'a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+			[
+				'a[href]',
+				'button:not([disabled])',
+				'input:not([disabled]):not([type="hidden"])',
+				'select:not([disabled])',
+				'textarea:not([disabled])',
+				'[contenteditable]:not([contenteditable="false"])',
+				'[tabindex]:not([tabindex="-1"])'
+			].join(', ')
 		);
 		if (!focusable.length) return;
 
