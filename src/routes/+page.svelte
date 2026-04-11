@@ -88,11 +88,11 @@
 
 	:global(.tooltip__interactive__btn) {
 		width: 100%;
-		padding: 0.25rem 0.5rem;
+		padding: 0.5em 1em;
 		font-family: inherit;
 		font-size: inherit;
 		cursor: pointer;
-		border: 1px solid rgba(255, 255, 255, 0.5);
+		border: none;	
 		border-radius: 4px;
 		background-color: rgba(255, 255, 255, 0.15);
 		color: #fff;
@@ -100,7 +100,7 @@
 
 	:global(.tooltip__interactive__btn:focus) {
 		outline: 2px solid #fff;
-		outline-offset: 1px;
+		outline-offset: 0;
 	}
 
 	:global(.tooltip) {
@@ -265,6 +265,7 @@
 	<div class="tooltip__content">
 		<button class="tooltip__interactive__btn">Action 1</button>
 		<button class="tooltip__interactive__btn">Action 2</button>
+		<span style="font-style: italic;">(Use Tab)</span>
 	</div>
 </template>
 <main>
