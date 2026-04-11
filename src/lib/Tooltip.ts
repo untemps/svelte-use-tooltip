@@ -87,6 +87,7 @@ class Tooltip {
 	#boundLeaveHandler: ((e: Event) => void) | null = null;
 	#boundWindowChangeHandler: ((e: Event) => void) | null = null;
 	#trapHandler: ((e: KeyboardEvent) => void) | null = null;
+	#scrollableAncestors: Element[] = [];
 
 	static destroy() {
 		Tooltip.#instances.forEach((instance) => {
@@ -332,6 +333,27 @@ class Tooltip {
 		window.addEventListener('keydown', this.#boundWindowChangeHandler);
 		window.addEventListener('resize', this.#boundWindowChangeHandler);
 		window.addEventListener('scroll', this.#boundWindowChangeHandler);
+
+		this.#scrollableAncestors = this.#getScrollableAncestors();
+		this.#scrollableAncestors.forEach((ancestor) => {
+			ancestor.addEventListener('scroll', this.#boundWindowChangeHandler!);
+		});
+	}
+
+	#getScrollableAncestors(): Element[] {
+		const ancestors: Element[] = [];
+		let el: Element | null = this.#target?.parentElement ?? null;
+		while (el && el !== document.documentElement) {
+			const { overflowX, overflowY } = window.getComputedStyle(el);
+			if (
+				(overflowX !== 'visible' && overflowX !== 'clip') ||
+				(overflowY !== 'visible' && overflowY !== 'clip')
+			) {
+				ancestors.push(el);
+			}
+			el = el.parentElement;
+		}
+		return ancestors;
 	}
 
 	#disable() {
@@ -358,6 +380,11 @@ class Tooltip {
 			window.removeEventListener('keydown', this.#boundWindowChangeHandler);
 			window.removeEventListener('resize', this.#boundWindowChangeHandler);
 			window.removeEventListener('scroll', this.#boundWindowChangeHandler);
+
+			this.#scrollableAncestors.forEach((ancestor) => {
+				ancestor.removeEventListener('scroll', this.#boundWindowChangeHandler!);
+			});
+			this.#scrollableAncestors = [];
 		}
 
 		this.#boundWindowChangeHandler = null;
