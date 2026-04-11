@@ -341,14 +341,12 @@ class Tooltip {
 	}
 
 	#getScrollableAncestors(): Element[] {
+		const scrollable = ['auto', 'scroll'];
 		const ancestors: Element[] = [];
 		let el: Element | null = this.#target?.parentElement ?? null;
 		while (el && el !== document.documentElement) {
 			const { overflowX, overflowY } = window.getComputedStyle(el);
-			if (
-				(overflowX !== 'visible' && overflowX !== 'clip') ||
-				(overflowY !== 'visible' && overflowY !== 'clip')
-			) {
+			if (scrollable.includes(overflowX) || scrollable.includes(overflowY)) {
 				ancestors.push(el);
 			}
 			el = el.parentElement;

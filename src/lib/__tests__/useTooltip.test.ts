@@ -131,6 +131,55 @@ describe('useTooltip', () => {
 			spy.mockRestore();
 		});
 
+		test('Removes tooltip on scroll inside a scrollable ancestor container', async () => {
+			const container = createElement({ tag: 'div', attributes: { id: 'container' }, parent: document.body });
+			container.style.overflowY = 'auto';
+			container.appendChild(target);
+
+			action = createAction(target, options);
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+
+			await fireEvent.scroll(container);
+			expect(getElement('#content')).not.toBeInTheDocument();
+
+			await action.destroy();
+			action = null;
+			removeElement('#container');
+		});
+
+		test('Does not remove tooltip on scroll inside a non-scrollable ancestor container', async () => {
+			const container = createElement({ tag: 'div', attributes: { id: 'container' }, parent: document.body });
+			// No overflow set — default is visible on both axes, not a scroll container
+			container.appendChild(target);
+
+			action = createAction(target, options);
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+
+			await fireEvent.scroll(container);
+			expect(getElement('#content')).toBeInTheDocument();
+
+			await action.destroy();
+			action = null;
+			removeElement('#container');
+		});
+
+		test('Removes ancestor scroll listeners on destroy', async () => {
+			const container = createElement({ tag: 'div', attributes: { id: 'container' }, parent: document.body });
+			container.style.overflowY = 'auto';
+			container.appendChild(target);
+
+			action = createAction(target, options);
+			const spy = vi.spyOn(container, 'removeEventListener');
+			await action.destroy();
+			expect(spy).toHaveBeenCalledWith('scroll', expect.any(Function));
+			spy.mockRestore();
+
+			action = null;
+			removeElement('#container');
+		});
+
 		test('Restores original title attribute on destroy', async () => {
 			target.setAttribute('title', 'original title');
 			action = createAction(target, { content: 'tooltip' });
