@@ -49,27 +49,37 @@
 	border-color: transparent black transparent transparent;
 }
 
-.__tooltip-enter {
-	animation: fadeIn 0.2s linear forwards;
+@media (prefers-reduced-motion: no-preference) {
+	.__tooltip-enter {
+		animation: tooltipFadeIn 0.2s linear forwards;
+	}
+
+	.__tooltip-leave {
+		animation: tooltipFadeOut 0.2s linear forwards;
+	}
+
+	@keyframes tooltipFadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+
+	@keyframes tooltipFadeOut {
+		from {
+			opacity: 1;
+		}
+		to {
+			opacity: 0;
+		}
+	}
 }
 
-.__tooltip-leave {
-	animation: fadeOut 0.2s linear forwards;
-}
-
-@keyframes fadeIn {
-	from {
-		opacity: 0;
-	}
-	to {
-		opacity: 1;
-	}
-}
-@keyframes fadeOut {
-	from {
-		opacity: 1;
-	}
-	to {
-		opacity: 0;
+@media (prefers-reduced-motion: reduce) {
+	.__tooltip-enter,
+	.__tooltip-leave {
+		animation: none;
 	}
 }
