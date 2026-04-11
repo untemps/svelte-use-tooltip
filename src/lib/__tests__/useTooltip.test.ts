@@ -933,6 +933,67 @@ describe('useTooltip', () => {
 				vi.useRealTimers();
 			}
 		});
+
+		test('Removes tooltip immediately when prefers-reduced-motion: reduce is active (animationend fires via near-zero duration)', async () => {
+			// Simulate prefers-reduced-motion: reduce — the near-zero animation-duration
+			// (0.001ms) fires animationend immediately instead of suppressing it with
+			// animation: none, which would leave the tooltip stuck for 1 s (timeout fallback).
+			vi.useFakeTimers();
+			try {
+				action = createAction(target, { ...options, animated: true });
+
+				await fireEvent.mouseOver(target);
+				await fireEvent.mouseEnter(target);
+				await vi.advanceTimersByTimeAsync(10);
+
+				expect(getElement('#content')).toBeInTheDocument();
+
+				await fireEvent.mouseLeave(target);
+				await vi.advanceTimersByTimeAsync(10);
+
+				const tooltip = tooltipEl();
+
+				// Simulates the near-instant animationend that 0.001ms duration produces
+				await fireEvent.animationEnd(tooltip);
+
+				// Tooltip must be gone before the 1-second timeout fallback fires
+				expect(getElement('#content')).not.toBeInTheDocument();
+			} finally {
+				vi.useRealTimers();
+			}
+		});
+
+		test('Tooltip lingers for 1 s when animation: none suppresses animationend (regression guard)', async () => {
+			// Documents the broken behavior that animation: none would produce:
+			// animationend never fires so the tooltip only disappears after the timeout fallback.
+			// This test must continue to pass — it proves the fallback safety net is intact.
+			vi.useFakeTimers();
+			try {
+				action = createAction(target, { ...options, animated: true });
+
+				await fireEvent.mouseOver(target);
+				await fireEvent.mouseEnter(target);
+				await vi.advanceTimersByTimeAsync(10);
+
+				// The 1000ms fallback timer starts here, on mouseLeave
+				await fireEvent.mouseLeave(target);
+				// Advance 10ms to let the leave handler settle; 990ms remain on the fallback timer
+				await vi.advanceTimersByTimeAsync(10);
+
+				// animationend never fires (animation: none scenario)
+				expect(getElement('#content')).toBeInTheDocument();
+
+				// Still present 1ms before the fallback fires (total elapsed: 10 + 989 = 999ms)
+				await vi.advanceTimersByTimeAsync(989);
+				expect(getElement('#content')).toBeInTheDocument();
+
+				// Gone once the 1-second fallback fires (total elapsed: 10 + 989 + 1 = 1000ms)
+				await vi.advanceTimersByTimeAsync(1);
+				expect(getElement('#content')).not.toBeInTheDocument();
+			} finally {
+				vi.useRealTimers();
+			}
+		});
 	});
 
 	describe('useTooltip props: open', () => {

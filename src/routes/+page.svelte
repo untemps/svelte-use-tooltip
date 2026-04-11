@@ -92,7 +92,7 @@
 		font-family: inherit;
 		font-size: inherit;
 		cursor: pointer;
-		border: none;	
+		border: none;
 		border-radius: 4px;
 		background-color: rgba(255, 255, 255, 0.15);
 		color: #fff;
@@ -153,29 +153,39 @@
 		border-color: transparent #ee7008 transparent transparent;
 	}
 
-	:global(.tooltip-enter) {
-		animation: fadeIn 0.2s linear forwards;
-	}
-
-	:global(.tooltip-leave) {
-		animation: fadeOut 0.2s linear forwards;
-	}
-
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-			transform: translateX(50px);
+	@media (prefers-reduced-motion: no-preference) {
+		:global(.tooltip-enter) {
+			animation: fadeIn 0.2s linear forwards;
 		}
-		to {
-			opacity: 1;
-			transform: translateX(0);
+
+		:global(.tooltip-leave) {
+			animation: fadeOut 0.2s linear forwards;
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+				transform: translateX(50px);
+			}
+			to {
+				opacity: 1;
+				transform: translateX(0);
+			}
+		}
+
+		@keyframes fadeOut {
+			to {
+				opacity: 0;
+				transform: translateX(-50px);
+			}
 		}
 	}
 
-	@keyframes fadeOut {
-		to {
-			opacity: 0;
-			transform: translateX(-50px);
+	@media (prefers-reduced-motion: reduce) {
+		:global(.tooltip-enter),
+		:global(.tooltip-leave) {
+			animation-duration: 0.001ms;
+			animation-iteration-count: 1;
 		}
 	}
 
