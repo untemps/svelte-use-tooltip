@@ -184,8 +184,8 @@
 	@media (prefers-reduced-motion: reduce) {
 		:global(.tooltip-enter),
 		:global(.tooltip-leave) {
-			animation-duration: 0.001ms !important;
-			animation-iteration-count: 1 !important;
+			animation-duration: 0.001ms;
+			animation-iteration-count: 1;
 		}
 	}
 
