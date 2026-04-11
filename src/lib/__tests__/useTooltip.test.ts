@@ -1252,6 +1252,36 @@ describe('useTooltip', () => {
 		});
 	});
 
+	describe('useTooltip focusout guard', () => {
+		test('Does not close tooltip when focusout fires with relatedTarget inside the tooltip', async () => {
+			action = createAction(target, options);
+			await _enter(target);
+			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
+			const contentEl = getElement('#content') as HTMLElement;
+			await fireEvent.focusOut(target, { relatedTarget: contentEl });
+			await standby(1);
+			expect(tooltip).toBeInTheDocument();
+		});
+
+		test('Closes tooltip when focusout fires with relatedTarget outside the tooltip', async () => {
+			action = createAction(target, options);
+			await _enter(target);
+			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
+			await fireEvent.focusOut(target, { relatedTarget: document.body });
+			await standby(1);
+			expect(tooltip).not.toBeInTheDocument();
+		});
+
+		test('Closes tooltip when focusout fires with no relatedTarget', async () => {
+			action = createAction(target, options);
+			await _enter(target);
+			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
+			await fireEvent.focusOut(target, { relatedTarget: null });
+			await standby(1);
+			expect(tooltip).not.toBeInTheDocument();
+		});
+	});
+
 	describe('useTooltip focus trap', () => {
 		const TRAP_TEMPLATE_ID = 'trap-template';
 		const trapOptions: TooltipOptions = {
