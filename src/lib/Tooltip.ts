@@ -247,7 +247,7 @@ class Tooltip {
 		hasInteractivityChanged
 	}: ChangeSet) {
 		if (hasStructureChanged) {
-			this.#removeTooltipFromTarget();
+			this.#removeTooltipFromTarget(true);
 			this.#createTooltip();
 		}
 		if (hasStructureChanged || hasContainerClassNameChanged) {
