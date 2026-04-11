@@ -1,3 +1,10 @@
+## [3.8.1](https://github.com/untemps/svelte-use-tooltip/compare/v3.8.0...v3.8.1) (2026-04-11)
+
+
+### Bug Fixes
+
+* Skip leave animation on structural rebuild to prevent race condition ([#172](https://github.com/untemps/svelte-use-tooltip/issues/172)) ([1fbc56a](https://github.com/untemps/svelte-use-tooltip/commit/1fbc56af536e8be0f68aacd09cdde05f8c2c36a4))
+
 # [3.8.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.7.0...v3.8.0) (2026-04-11)
 
 
