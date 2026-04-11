@@ -1,3 +1,10 @@
+# [3.7.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.6.0...v3.7.0) (2026-04-11)
+
+
+### Features
+
+* Implement focus trap for interactive tooltip content ([#169](https://github.com/untemps/svelte-use-tooltip/issues/169)) ([08f3dcf](https://github.com/untemps/svelte-use-tooltip/commit/08f3dcfcfc9b6380bd87479d7878f2c410914038))
+
 # [3.6.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.5.0...v3.6.0) (2026-04-10)
 
 
