@@ -1,3 +1,10 @@
+# [3.8.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.7.0...v3.8.0) (2026-04-11)
+
+
+### Features
+
+* Respect prefers-reduced-motion in CSS animations ([#171](https://github.com/untemps/svelte-use-tooltip/issues/171)) ([70eee7b](https://github.com/untemps/svelte-use-tooltip/commit/70eee7b03a8512c4dbaaed0eac9b4a1004629184))
+
 # [3.7.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.6.0...v3.7.0) (2026-04-11)
 
 
