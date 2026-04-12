@@ -216,10 +216,18 @@
 			min-width: 420px;
 		}
 
-		.settings__form input,
-		.settings__form textarea,
-		.settings__form select {
-			max-width: 140px;
+		.settings__form label {
+			column-gap: 0.75rem;
+		}
+
+		.settings__form label > :last-child:not(input[type='checkbox']) {
+			flex: 1;
+			max-width: none;
+			width: 100%;
+		}
+
+		.settings__form label > :first-child {
+			flex-shrink: 0;
 		}
 	}
 
