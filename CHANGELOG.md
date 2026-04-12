@@ -1,3 +1,10 @@
+# [3.10.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.9.0...v3.10.0) (2026-04-12)
+
+
+### Features
+
+* Reposition tooltip on resize/scroll instead of hiding it ([#176](https://github.com/untemps/svelte-use-tooltip/issues/176)) ([94ce25f](https://github.com/untemps/svelte-use-tooltip/commit/94ce25f5ecb3c53eab980a2bf0b61860d14045f1))
+
 # [3.9.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.8.2...v3.9.0) (2026-04-12)
 
 
