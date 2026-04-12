@@ -219,7 +219,7 @@
 		.settings__form input:not([type='checkbox']),
 		.settings__form textarea,
 		.settings__form select {
-			flex: 1;
+			flex: 0 0 200px;
 			max-width: none;
 		}
 
