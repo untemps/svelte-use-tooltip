@@ -218,7 +218,7 @@
 
 		.settings__form label:not(:has(input[type='checkbox'])) {
 			display: grid;
-			grid-template-columns: 1fr 160px;
+			grid-template-columns: auto 1fr;
 			column-gap: 0.75rem;
 		}
 
