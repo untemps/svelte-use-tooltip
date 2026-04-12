@@ -380,7 +380,7 @@
 </template>
 <svelte:window
 	onkeydown={(e) => {
-		if (e.key === 'Escape') settingsOpen = false;
+		if (settingsOpen && e.key === 'Escape') settingsOpen = false;
 	}}
 />
 <main>
