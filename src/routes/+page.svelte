@@ -220,6 +220,7 @@
 			display: grid;
 			grid-template-columns: auto 1fr;
 			column-gap: 0.75rem;
+			width: 100%;
 		}
 
 		.settings__form input:not([type='checkbox']),
