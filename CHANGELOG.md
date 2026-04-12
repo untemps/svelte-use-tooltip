@@ -1,3 +1,10 @@
+# [3.9.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.8.2...v3.9.0) (2026-04-12)
+
+
+### Features
+
+* Add touchBehavior prop for touch/mobile support ([#174](https://github.com/untemps/svelte-use-tooltip/issues/174)) ([7e6fae7](https://github.com/untemps/svelte-use-tooltip/commit/7e6fae77548b16ee88e13fe55b13b317b45877b9))
+
 ## [3.8.2](https://github.com/untemps/svelte-use-tooltip/compare/v3.8.1...v3.8.2) (2026-04-11)
 
 
