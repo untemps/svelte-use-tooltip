@@ -222,11 +222,6 @@
 			flex: 0 0 200px;
 			max-width: none;
 		}
-
-		.settings__form fieldset:last-child {
-			display: flex;
-			justify-content: flex-end;
-		}
 	}
 
 	.burger {
@@ -330,6 +325,11 @@
 		border: none;
 		padding: 0;
 	}
+    
+    .settings__form fieldset:last-child {
+        display: flex;
+        justify-content: flex-end;
+    }
 
 	.settings__form label {
 		display: flex;
