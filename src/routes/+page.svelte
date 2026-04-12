@@ -330,6 +330,7 @@
 	.settings__form textarea {
 		margin: 0;
 		padding: 0.5em;
+		max-width: 100px;
 		font-family: inherit;
 		font-size: inherit;
 	}
