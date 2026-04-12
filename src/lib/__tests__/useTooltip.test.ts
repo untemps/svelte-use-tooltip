@@ -1157,6 +1157,54 @@ describe('useTooltip', () => {
 			spyWindow.mockRestore();
 			action = null;
 		});
+
+		test('Registers touch listeners after update from undefined to hover', async () => {
+			action = createAction(target, options);
+			const spy = vi.spyOn(target, 'addEventListener');
+			action.update({ ...options, touchBehavior: 'hover' });
+			const touchEvents = spy.mock.calls.map(([event]) => event).filter((e) => e.startsWith('touch'));
+			expect(touchEvents).toContain('touchstart');
+			expect(touchEvents).toContain('touchend');
+			spy.mockRestore();
+		});
+
+		test('Shows tooltip on touchstart after update to hover mode', async () => {
+			action = createAction(target, options);
+			action.update({ ...options, touchBehavior: 'hover' });
+			await fireEvent.touchStart(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Removes hover touch listeners after update from hover to undefined', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'hover' });
+			const spy = vi.spyOn(target, 'removeEventListener');
+			action.update({ ...options, touchBehavior: undefined });
+			const touchEvents = spy.mock.calls.map(([event]) => event).filter((e) => e.startsWith('touch'));
+			expect(touchEvents).toContain('touchstart');
+			expect(touchEvents).toContain('touchend');
+			spy.mockRestore();
+		});
+
+		test('Does not show tooltip on touchstart after update removes hover mode', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'hover' });
+			action.update({ ...options, touchBehavior: undefined });
+			await fireEvent.touchStart(target);
+			await standby(1);
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
+		test('Switches from hover to toggle mode via update', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'hover' });
+			const spyAdd = vi.spyOn(window, 'addEventListener');
+			action.update({ ...options, touchBehavior: 'toggle' });
+			expect(spyAdd.mock.calls.map(([e]) => e)).toContain('touchstart');
+			spyAdd.mockRestore();
+			// Toggle mode: touchend shows the tooltip
+			await fireEvent.touchEnd(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
 	});
 
 	describe('useTooltip props: open', () => {

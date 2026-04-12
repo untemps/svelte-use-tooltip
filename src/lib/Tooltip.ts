@@ -41,6 +41,7 @@ type ChangeSet = {
 	hasWidthChanged: boolean;
 	hasToDisableTarget: boolean;
 	hasToEnableTarget: boolean;
+	hasTouchBehaviorChanged: boolean;
 	hasToShow: boolean;
 	hasToHide: boolean;
 	hasInteractivityChanged: boolean;
@@ -179,7 +180,8 @@ class Tooltip {
 		offset,
 		width,
 		disabled,
-		open
+		open,
+		touchBehavior
 	}: TooltipOptions): ChangeSet {
 		const hasContentChanged =
 			(contentSelector !== undefined && contentSelector !== this.#contentSelector) ||
@@ -196,6 +198,7 @@ class Tooltip {
 			hasWidthChanged: width !== undefined && width !== this.#width,
 			hasToDisableTarget: !!disabled && Boolean(this.#boundEnterHandler),
 			hasToEnableTarget: !disabled && !Boolean(this.#boundEnterHandler),
+			hasTouchBehaviorChanged: (touchBehavior ?? null) !== this.#touchBehavior,
 			// Re-show when open:true is passed after a structure rebuild (tooltip removed from DOM),
 			// or when the tooltip is not yet visible. Guard with !disabled so open+disabled is a no-op.
 			hasToShow: open === true && !disabled && (!isCurrentlyShown || hasStructureChanged),
@@ -250,6 +253,7 @@ class Tooltip {
 		hasWidthChanged,
 		hasToDisableTarget,
 		hasToEnableTarget,
+		hasTouchBehaviorChanged,
 		hasToShow,
 		hasToHide,
 		hasInteractivityChanged
@@ -273,6 +277,11 @@ class Tooltip {
 			}
 			this.#disable();
 		} else if (hasToEnableTarget) {
+			this.#enable();
+		} else if (hasTouchBehaviorChanged) {
+			// Re-wire touch listeners without affecting mouse/focus/keyboard listeners.
+			// #applyState has already updated #touchBehavior, so #enable() picks up the new value.
+			this.#disable();
 			this.#enable();
 		}
 
