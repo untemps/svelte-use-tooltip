@@ -17,6 +17,7 @@
 	let isOpen = $state<boolean | undefined>(undefined);
 	let useInteractiveContent = $state(false);
 	let touchBehavior = $state<'hover' | 'toggle' | undefined>(undefined);
+	let settingsOpen = $state(false);
 
 	const _onTooltipEnter = () => {
 		if (triggerOnEnter) {
@@ -209,34 +210,90 @@
 		padding: 2rem;
 	}
 
+	.burger {
+		display: none;
+	}
+
+	.backdrop {
+		display: none;
+	}
+
+	.settings__close {
+		display: none;
+	}
+
 	@media screen and (max-width: 480px) {
-		main {
+		.burger {
+			display: flex;
 			flex-direction: column;
-			align-items: stretch;
+			justify-content: space-between;
+			position: fixed;
+			top: 1rem;
+			right: 1rem;
+			z-index: 200;
+			width: 2rem;
+			height: 1.5rem;
+			padding: 0;
+			background: none;
+			border: none;
+			cursor: pointer;
 		}
 
-		.content {
-			min-height: 50vh;
-			min-height: 50svh;
+		.burger span {
+			display: block;
+			width: 100%;
+			height: 2px;
+			background-color: white;
+			border-radius: 2px;
+		}
+
+		.backdrop {
+			display: block;
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.5);
+			z-index: 300;
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity 0.25s ease;
+		}
+
+		.backdrop.open {
+			opacity: 1;
+			pointer-events: auto;
 		}
 
 		.settings {
-			display: flex;
-			width: 100%;
+			position: fixed;
+			top: 0;
+			right: 0;
+			width: min(320px, 90vw);
 			min-width: 0;
 			min-height: 0;
-			max-height: 50vh;
-			max-height: 50svh;
-			padding: 1rem 1.5rem;
+			height: 100vh;
+			height: 100svh;
+			z-index: 400;
+			transform: translateX(100%);
+			transition: transform 0.25s ease;
 			overflow-y: auto;
+			padding: 1.5rem;
 		}
 
-		.settings h1 {
-			margin-bottom: 0.75rem;
+		.settings.open {
+			transform: translateX(0);
 		}
 
-		.settings__form {
-			row-gap: 0.75rem;
+		.settings__close {
+			display: flex;
+			align-self: flex-end;
+			background: none;
+			border: none;
+			color: white;
+			font-size: 1.25rem;
+			cursor: pointer;
+			padding: 0;
+			margin-bottom: 0.5rem;
+			line-height: 1;
 		}
 	}
 
@@ -307,6 +364,18 @@
 	</div>
 </template>
 <main>
+	<button
+		class="burger"
+		aria-label="Open settings"
+		aria-expanded={settingsOpen}
+		onclick={() => (settingsOpen = true)}
+	>
+		<span></span>
+		<span></span>
+		<span></span>
+	</button>
+	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+	<div class="backdrop" class:open={settingsOpen} onclick={() => (settingsOpen = false)}></div>
 	<div class="content">
 		<div
 			use:useTooltip={{
@@ -353,7 +422,8 @@
 			{touchBehavior ? 'Touch me' : 'Hover me'}
 		</div>
 	</div>
-	<div class="settings">
+	<div class="settings" class:open={settingsOpen}>
+		<button class="settings__close" aria-label="Close settings" onclick={() => (settingsOpen = false)}>✕</button>
 		<h1>Settings</h1>
 		<form class="settings__form">
 			<fieldset>
