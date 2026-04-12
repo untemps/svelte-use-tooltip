@@ -42,7 +42,7 @@
 		position: relative;
 		display: flex;
 		justify-content: center;
-		align-items: center;
+		align-items: stretch;
 		margin: 0;
 		padding: 0;
 		min-height: 100vh;
@@ -60,6 +60,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		justify-content: center;
 		width: 100%;
 	}
 
@@ -202,7 +203,6 @@
 		overflow: hidden auto;
 		width: 320px;
 		min-width: 320px;
-		min-height: 100%;
 		display: flex;
 		flex-direction: column;
 		color: white;
@@ -423,7 +423,11 @@
 		</div>
 	</div>
 	<div class="settings" class:open={settingsOpen}>
-		<button class="settings__close" aria-label="Close settings" onclick={() => (settingsOpen = false)}>✕</button>
+		<button
+			class="settings__close"
+			aria-label="Close settings"
+			onclick={() => (settingsOpen = false)}>✕</button
+		>
 		<h1>Settings</h1>
 		<form class="settings__form">
 			<fieldset>
