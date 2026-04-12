@@ -1162,7 +1162,9 @@ describe('useTooltip', () => {
 			action = createAction(target, options);
 			const spy = vi.spyOn(target, 'addEventListener');
 			action.update({ ...options, touchBehavior: 'hover' });
-			const touchEvents = spy.mock.calls.map(([event]) => event).filter((e) => e.startsWith('touch'));
+			const touchEvents = spy.mock.calls
+				.map(([event]) => event)
+				.filter((e) => e.startsWith('touch'));
 			expect(touchEvents).toContain('touchstart');
 			expect(touchEvents).toContain('touchend');
 			spy.mockRestore();
@@ -1176,22 +1178,24 @@ describe('useTooltip', () => {
 			expect(getElement('#content')).toBeInTheDocument();
 		});
 
-		test('Removes hover touch listeners after update from hover to undefined', async () => {
+		test('Does not re-wire listeners when touchBehavior is omitted from update', async () => {
 			action = createAction(target, { ...options, touchBehavior: 'hover' });
-			const spy = vi.spyOn(target, 'removeEventListener');
-			action.update({ ...options, touchBehavior: undefined });
-			const touchEvents = spy.mock.calls.map(([event]) => event).filter((e) => e.startsWith('touch'));
-			expect(touchEvents).toContain('touchstart');
-			expect(touchEvents).toContain('touchend');
-			spy.mockRestore();
-		});
-
-		test('Does not show tooltip on touchstart after update removes hover mode', async () => {
-			action = createAction(target, { ...options, touchBehavior: 'hover' });
-			action.update({ ...options, touchBehavior: undefined });
+			const spyAdd = vi.spyOn(target, 'addEventListener');
+			const spyRemove = vi.spyOn(target, 'removeEventListener');
+			// update() without touchBehavior key — must not touch the existing listeners
+			action.update({ ...options });
+			const addedTouchEvents = spyAdd.mock.calls.map(([e]) => e).filter((e) => e.startsWith('touch'));
+			const removedTouchEvents = spyRemove.mock.calls
+				.map(([e]) => e)
+				.filter((e) => e.startsWith('touch'));
+			expect(addedTouchEvents).toHaveLength(0);
+			expect(removedTouchEvents).toHaveLength(0);
+			spyAdd.mockRestore();
+			spyRemove.mockRestore();
+			// Hover mode still functional
 			await fireEvent.touchStart(target);
 			await standby(1);
-			expect(getElement('#content')).not.toBeInTheDocument();
+			expect(getElement('#content')).toBeInTheDocument();
 		});
 
 		test('Switches from hover to toggle mode via update', async () => {

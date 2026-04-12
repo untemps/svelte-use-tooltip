@@ -198,7 +198,7 @@ class Tooltip {
 			hasWidthChanged: width !== undefined && width !== this.#width,
 			hasToDisableTarget: !!disabled && Boolean(this.#boundEnterHandler),
 			hasToEnableTarget: !disabled && !Boolean(this.#boundEnterHandler),
-			hasTouchBehaviorChanged: (touchBehavior ?? null) !== this.#touchBehavior,
+			hasTouchBehaviorChanged: touchBehavior !== undefined && (touchBehavior ?? null) !== this.#touchBehavior,
 			// Re-show when open:true is passed after a structure rebuild (tooltip removed from DOM),
 			// or when the tooltip is not yet visible. Guard with !disabled so open+disabled is a no-op.
 			hasToShow: open === true && !disabled && (!isCurrentlyShown || hasStructureChanged),
@@ -244,7 +244,9 @@ class Tooltip {
 		this.#width = width ?? 'auto';
 		// false is treated as a one-shot close — no lock. Only true locks the tooltip open.
 		this.#open = open === true ? true : undefined;
-		this.#touchBehavior = touchBehavior ?? null;
+		if (touchBehavior !== undefined) {
+			this.#touchBehavior = touchBehavior ?? null;
+		}
 	}
 
 	#applyChanges({
