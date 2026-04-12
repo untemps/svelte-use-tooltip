@@ -144,8 +144,11 @@ describe('useTooltip', () => {
 			await _enter(target);
 			expect(getElement('#content')).toBeInTheDocument();
 
+			const spy = vi.spyOn(target, 'getBoundingClientRect');
 			await fireEvent.scroll(container);
 			expect(getElement('#content')).toBeInTheDocument();
+			expect(spy).toHaveBeenCalled();
+			spy.mockRestore();
 
 			await action.destroy();
 			action = null;
@@ -178,8 +181,11 @@ describe('useTooltip', () => {
 			await _enter(target);
 			expect(getElement('#content')).toBeInTheDocument();
 
+			const spy = vi.spyOn(target, 'getBoundingClientRect');
 			await fireEvent.resize(window);
 			expect(getElement('#content')).toBeInTheDocument();
+			expect(spy).toHaveBeenCalled();
+			spy.mockRestore();
 		});
 
 		test('Repositions tooltip on window scroll', async () => {
@@ -187,8 +193,11 @@ describe('useTooltip', () => {
 			await _enter(target);
 			expect(getElement('#content')).toBeInTheDocument();
 
+			const spy = vi.spyOn(target, 'getBoundingClientRect');
 			await fireEvent.scroll(window);
 			expect(getElement('#content')).toBeInTheDocument();
+			expect(spy).toHaveBeenCalled();
+			spy.mockRestore();
 		});
 
 		test('Removes ancestor scroll listeners on destroy', async () => {
