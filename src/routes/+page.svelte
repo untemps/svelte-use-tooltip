@@ -326,7 +326,7 @@
 		padding: 0;
 	}
 
-	.settings__form fieldset:last-child {
+	.settings__form__actions {
 		display: flex;
 		justify-content: flex-end;
 	}
@@ -378,6 +378,11 @@
 		<span style="font-style: italic;">(Use Tab)</span>
 	</div>
 </template>
+<svelte:window
+	onkeydown={(e) => {
+		if (e.key === 'Escape') settingsOpen = false;
+	}}
+/>
 <main>
 	<button
 		class="burger"
@@ -389,8 +394,12 @@
 		<span></span>
 		<span></span>
 	</button>
-	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-	<div class="backdrop" class:open={settingsOpen} onclick={() => (settingsOpen = false)}></div>
+	<div
+		class="backdrop"
+		class:open={settingsOpen}
+		onclick={() => (settingsOpen = false)}
+		role="presentation"
+	></div>
 	<div class="content">
 		<div
 			use:useTooltip={{
@@ -544,7 +553,7 @@
 					<input type="checkbox" bind:checked={isDisabled} />
 				</label>
 			</fieldset>
-			<fieldset>
+			<fieldset class="settings__form__actions">
 				<button type="button" onclick={() => (isOpen = !isOpen)} disabled={isDisabled}>
 					{isOpen === true ? 'Masquer la tooltip' : 'Afficher la tooltip'}
 				</button>
