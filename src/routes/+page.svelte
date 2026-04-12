@@ -344,31 +344,26 @@
 		column-gap: 1rem;
 	}
 
-	.settings__form input {
+	.settings__form input:not([type='checkbox']),
+	.settings__form textarea,
+	.settings__form select {
 		margin: 0;
-		max-width: 100px;
-		height: 30px;
+		width: 100px;
 		font-family: inherit;
 		font-size: inherit;
+	}
+
+	.settings__form input:not([type='checkbox']),
+	.settings__form select {
+		height: 30px;
 	}
 
 	.settings__form textarea {
-		margin: 0;
 		padding: 0.5em;
-		max-width: 100px;
-		font-family: inherit;
-		font-size: inherit;
-	}
-
-	.settings__form select {
-		margin: 0;
-		max-width: 80px;
-		height: 30px;
-		font-family: inherit;
-		font-size: inherit;
 	}
 
 	.settings__form input[type='checkbox'] {
+		margin: 0;
 		padding: 0;
 	}
 
