@@ -29,6 +29,7 @@ export type TooltipOptions = {
 	width?: string;
 	disabled?: boolean;
 	open?: boolean;
+	touchBehavior?: 'hover' | 'toggle';
 };
 
 type SpaceMap = Record<TooltipPosition, number>;
@@ -40,6 +41,7 @@ type ChangeSet = {
 	hasWidthChanged: boolean;
 	hasToDisableTarget: boolean;
 	hasToEnableTarget: boolean;
+	hasTouchBehaviorChanged: boolean;
 	hasToShow: boolean;
 	hasToHide: boolean;
 	hasInteractivityChanged: boolean;
@@ -69,6 +71,7 @@ class Tooltip {
 	#onLeave: (() => void) | null = null;
 	#offset = 10;
 	#width = 'auto';
+	#touchBehavior: 'hover' | 'toggle' | null = null;
 
 	#id: string;
 
@@ -85,6 +88,7 @@ class Tooltip {
 
 	#boundEnterHandler: ((e: Event) => void) | null = null;
 	#boundLeaveHandler: ((e: Event) => void) | null = null;
+	#boundTouchToggleHandler: ((e: Event) => void) | null = null;
 	#boundWindowChangeHandler: ((e: Event) => void) | null = null;
 	#trapHandler: ((e: KeyboardEvent) => void) | null = null;
 	#scrollableAncestors: Element[] = [];
@@ -113,7 +117,8 @@ class Tooltip {
 			offset,
 			width,
 			disabled,
-			open
+			open,
+			touchBehavior
 		} = options;
 
 		this.#target = target;
@@ -131,6 +136,7 @@ class Tooltip {
 		this.#onLeave = onLeave ?? null;
 		this.#offset = Math.max(offset ?? 10, 5);
 		this.#width = width ?? 'auto';
+		this.#touchBehavior = touchBehavior ?? null;
 
 		this.#id = `tooltip-${crypto.randomUUID()}`;
 
@@ -174,7 +180,8 @@ class Tooltip {
 		offset,
 		width,
 		disabled,
-		open
+		open,
+		touchBehavior
 	}: TooltipOptions): ChangeSet {
 		const hasContentChanged =
 			(contentSelector !== undefined && contentSelector !== this.#contentSelector) ||
@@ -191,6 +198,7 @@ class Tooltip {
 			hasWidthChanged: width !== undefined && width !== this.#width,
 			hasToDisableTarget: !!disabled && Boolean(this.#boundEnterHandler),
 			hasToEnableTarget: !disabled && !Boolean(this.#boundEnterHandler),
+			hasTouchBehaviorChanged: touchBehavior !== undefined && touchBehavior !== this.#touchBehavior,
 			// Re-show when open:true is passed after a structure rebuild (tooltip removed from DOM),
 			// or when the tooltip is not yet visible. Guard with !disabled so open+disabled is a no-op.
 			hasToShow: open === true && !disabled && (!isCurrentlyShown || hasStructureChanged),
@@ -217,7 +225,8 @@ class Tooltip {
 		onLeave,
 		offset,
 		width,
-		open
+		open,
+		touchBehavior
 	}: TooltipOptions) {
 		this.#content = content ?? null;
 		this.#contentSelector = contentSelector ?? null;
@@ -235,6 +244,9 @@ class Tooltip {
 		this.#width = width ?? 'auto';
 		// false is treated as a one-shot close — no lock. Only true locks the tooltip open.
 		this.#open = open === true ? true : undefined;
+		if (touchBehavior !== undefined) {
+			this.#touchBehavior = touchBehavior;
+		}
 	}
 
 	#applyChanges({
@@ -243,6 +255,7 @@ class Tooltip {
 		hasWidthChanged,
 		hasToDisableTarget,
 		hasToEnableTarget,
+		hasTouchBehaviorChanged,
 		hasToShow,
 		hasToHide,
 		hasInteractivityChanged
@@ -266,6 +279,10 @@ class Tooltip {
 			}
 			this.#disable();
 		} else if (hasToEnableTarget) {
+			this.#enable();
+		} else if (hasTouchBehaviorChanged) {
+			// Full listener cycle so #enableTarget/#enableWindow pick up the new #touchBehavior.
+			this.#disable();
 			this.#enable();
 		}
 
@@ -325,6 +342,15 @@ class Tooltip {
 		this.#target?.addEventListener('mouseleave', this.#boundLeaveHandler);
 		this.#target?.addEventListener('focusin', this.#boundEnterHandler);
 		this.#target?.addEventListener('focusout', this.#boundLeaveHandler);
+
+		if (this.#touchBehavior === 'hover') {
+			this.#target?.addEventListener('touchstart', this.#boundEnterHandler, { passive: true });
+			this.#target?.addEventListener('touchend', this.#boundLeaveHandler, { passive: true });
+			this.#target?.addEventListener('touchcancel', this.#boundLeaveHandler, { passive: true });
+		} else if (this.#touchBehavior === 'toggle') {
+			this.#boundTouchToggleHandler = this.#onTouchToggle.bind(this);
+			this.#target?.addEventListener('touchend', this.#boundTouchToggleHandler, { passive: true });
+		}
 	}
 
 	#enableWindow() {
@@ -338,6 +364,10 @@ class Tooltip {
 		this.#scrollableAncestors.forEach((ancestor) => {
 			ancestor.addEventListener('scroll', this.#boundWindowChangeHandler!);
 		});
+
+		if (this.#touchBehavior === 'toggle') {
+			window.addEventListener('touchstart', this.#boundWindowChangeHandler, { passive: true });
+		}
 	}
 
 	#getScrollableAncestors(): Element[] {
@@ -363,10 +393,17 @@ class Tooltip {
 		if (this.#boundEnterHandler) {
 			this.#target?.removeEventListener('mouseenter', this.#boundEnterHandler);
 			this.#target?.removeEventListener('focusin', this.#boundEnterHandler);
+			this.#target?.removeEventListener('touchstart', this.#boundEnterHandler);
 		}
 		if (this.#boundLeaveHandler) {
 			this.#target?.removeEventListener('mouseleave', this.#boundLeaveHandler);
 			this.#target?.removeEventListener('focusout', this.#boundLeaveHandler);
+			this.#target?.removeEventListener('touchend', this.#boundLeaveHandler);
+			this.#target?.removeEventListener('touchcancel', this.#boundLeaveHandler);
+		}
+		if (this.#boundTouchToggleHandler) {
+			this.#target?.removeEventListener('touchend', this.#boundTouchToggleHandler);
+			this.#boundTouchToggleHandler = null;
 		}
 
 		this.#boundEnterHandler = null;
@@ -383,6 +420,8 @@ class Tooltip {
 				ancestor.removeEventListener('scroll', this.#boundWindowChangeHandler!);
 			});
 			this.#scrollableAncestors = [];
+
+			window.removeEventListener('touchstart', this.#boundWindowChangeHandler);
 		}
 
 		this.#boundWindowChangeHandler = null;
@@ -741,9 +780,24 @@ class Tooltip {
 		if (
 			this.#tooltip &&
 			this.#tooltip.parentNode &&
-			(e.type !== 'keydown' || ke.key === 'Escape' || ke.key === 'Esc')
+			(e.type !== 'keydown' || ke.key === 'Escape' || ke.key === 'Esc') &&
+			(e.type !== 'touchstart' || !this.#target?.contains(e.target as Node))
 		) {
 			await this.#removeTooltipFromTarget();
+		}
+	}
+
+	async #onTouchToggle(_e: Event) {
+		if (this.#tooltip?.parentNode) {
+			await this.#waitForDelay(this.#leaveDelay);
+			await this.#removeTooltipFromTarget();
+			await standby(0);
+			this.#onLeave?.();
+		} else {
+			await this.#waitForDelay(this.#enterDelay);
+			await this.#appendTooltipToTarget();
+			await standby(0);
+			this.#onEnter?.();
 		}
 	}
 }
