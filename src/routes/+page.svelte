@@ -17,6 +17,7 @@
 	let isOpen = $state<boolean | undefined>(undefined);
 	let useInteractiveContent = $state(false);
 	let touchBehavior = $state<'hover' | 'toggle' | undefined>(undefined);
+	let settingsOpen = $state(false);
 
 	const _onTooltipEnter = () => {
 		if (triggerOnEnter) {
@@ -41,10 +42,11 @@
 		position: relative;
 		display: flex;
 		justify-content: center;
-		align-items: center;
+		align-items: stretch;
 		margin: 0;
 		padding: 0;
-		height: 100%;
+		min-height: 100vh;
+		min-height: 100svh;
 		background-color: #617899;
 		font-family:
 			monospace,
@@ -54,9 +56,11 @@
 	}
 
 	.content {
+		flex: 1;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		justify-content: center;
 		width: 100%;
 	}
 
@@ -199,7 +203,6 @@
 		overflow: hidden auto;
 		width: 320px;
 		min-width: 320px;
-		min-height: 100%;
 		display: flex;
 		flex-direction: column;
 		color: white;
@@ -207,9 +210,104 @@
 		padding: 2rem;
 	}
 
-	@media screen and (max-width: 480px) {
+	@media screen and (min-width: 1024px) {
 		.settings {
-			display: none;
+			width: 420px;
+			min-width: 420px;
+		}
+
+		.settings__form input:not([type='checkbox']),
+		.settings__form textarea,
+		.settings__form select {
+			flex: 0 0 200px;
+			max-width: none;
+		}
+	}
+
+	.burger {
+		display: none;
+	}
+
+	.backdrop {
+		display: none;
+	}
+
+	.settings__close {
+		display: none;
+	}
+
+	@media screen and (max-width: 480px) {
+		.burger {
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+			position: fixed;
+			top: 1rem;
+			right: 1rem;
+			z-index: 200;
+			width: 1rem;
+			height: 1rem;
+			padding: 0;
+			background: none;
+			border: none;
+			cursor: pointer;
+		}
+
+		.burger span {
+			display: block;
+			width: 100%;
+			height: 2px;
+			background-color: white;
+			border-radius: 2px;
+		}
+
+		.backdrop {
+			display: block;
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.5);
+			z-index: 300;
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity 0.25s ease;
+		}
+
+		.backdrop.open {
+			opacity: 1;
+			pointer-events: auto;
+		}
+
+		.settings {
+			position: fixed;
+			top: 0;
+			right: 0;
+			width: min(320px, 90vw);
+			min-width: 0;
+			min-height: 0;
+			height: 100vh;
+			height: 100svh;
+			z-index: 400;
+			transform: translateX(100%);
+			transition: transform 0.25s ease;
+			overflow-y: auto;
+			padding: 1.5rem;
+		}
+
+		.settings.open {
+			transform: translateX(0);
+		}
+
+		.settings__close {
+			display: flex;
+			align-self: flex-end;
+			background: none;
+			border: none;
+			color: white;
+			font-size: 1.25rem;
+			cursor: pointer;
+			padding: 0;
+			margin-bottom: 0.5rem;
+			line-height: 1;
 		}
 	}
 
@@ -228,6 +326,11 @@
 		padding: 0;
 	}
 
+	.settings__form__actions {
+		display: flex;
+		justify-content: flex-end;
+	}
+
 	.settings__form label {
 		display: flex;
 		align-items: center;
@@ -235,30 +338,26 @@
 		column-gap: 1rem;
 	}
 
-	.settings__form input {
+	.settings__form input:not([type='checkbox']),
+	.settings__form textarea,
+	.settings__form select {
 		margin: 0;
-		max-width: 100px;
-		height: 30px;
+		width: 100px;
 		font-family: inherit;
 		font-size: inherit;
+	}
+
+	.settings__form input:not([type='checkbox']),
+	.settings__form select {
+		height: 30px;
 	}
 
 	.settings__form textarea {
-		margin: 0;
 		padding: 0.5em;
-		font-family: inherit;
-		font-size: inherit;
-	}
-
-	.settings__form select {
-		margin: 0;
-		max-width: 80px;
-		height: 30px;
-		font-family: inherit;
-		font-size: inherit;
 	}
 
 	.settings__form input[type='checkbox'] {
+		margin: 0;
 		padding: 0;
 	}
 
@@ -279,7 +378,28 @@
 		<span style="font-style: italic;">(Use Tab)</span>
 	</div>
 </template>
+<svelte:window
+	onkeydown={(e) => {
+		if (settingsOpen && e.key === 'Escape') settingsOpen = false;
+	}}
+/>
 <main>
+	<button
+		class="burger"
+		aria-label="Open settings"
+		aria-expanded={settingsOpen}
+		onclick={() => (settingsOpen = true)}
+	>
+		<span></span>
+		<span></span>
+		<span></span>
+	</button>
+	<div
+		class="backdrop"
+		class:open={settingsOpen}
+		onclick={() => (settingsOpen = false)}
+		role="presentation"
+	></div>
 	<div class="content">
 		<div
 			use:useTooltip={{
@@ -323,10 +443,15 @@
 			}}
 			class="target"
 		>
-			Hover me
+			{touchBehavior ? 'Touch me' : 'Hover me'}
 		</div>
 	</div>
-	<div class="settings">
+	<div class="settings" class:open={settingsOpen}>
+		<button
+			class="settings__close"
+			aria-label="Close settings"
+			onclick={() => (settingsOpen = false)}>✕</button
+		>
 		<h1>Settings</h1>
 		<form class="settings__form">
 			<fieldset>
@@ -428,7 +553,7 @@
 					<input type="checkbox" bind:checked={isDisabled} />
 				</label>
 			</fieldset>
-			<fieldset>
+			<fieldset class="settings__form__actions">
 				<button type="button" onclick={() => (isOpen = !isOpen)} disabled={isDisabled}>
 					{isOpen === true ? 'Masquer la tooltip' : 'Afficher la tooltip'}
 				</button>
