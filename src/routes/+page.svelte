@@ -245,8 +245,8 @@
 			top: 1rem;
 			right: 1rem;
 			z-index: 200;
-			width: 2rem;
-			height: 1.5rem;
+			width: 1rem;
+			height: 1rem;
 			padding: 0;
 			background: none;
 			border: none;
@@ -325,11 +325,11 @@
 		border: none;
 		padding: 0;
 	}
-    
-    .settings__form fieldset:last-child {
-        display: flex;
-        justify-content: flex-end;
-    }
+
+	.settings__form fieldset:last-child {
+		display: flex;
+		justify-content: flex-end;
+	}
 
 	.settings__form label {
 		display: flex;
