@@ -776,10 +776,15 @@ class Tooltip {
 
 	async #onWindowChange(e: Event) {
 		if (this.#open) return;
+		if (!this.#tooltip || !this.#tooltip.parentNode) return;
+
+		if (e.type === 'resize' || e.type === 'scroll') {
+			this.#positionTooltip();
+			return;
+		}
+
 		const ke = e as KeyboardEvent;
 		if (
-			this.#tooltip &&
-			this.#tooltip.parentNode &&
 			(e.type !== 'keydown' || ke.key === 'Escape' || ke.key === 'Esc') &&
 			(e.type !== 'touchstart' || !this.#target?.contains(e.target as Node))
 		) {

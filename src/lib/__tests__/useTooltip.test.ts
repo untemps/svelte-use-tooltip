@@ -131,7 +131,7 @@ describe('useTooltip', () => {
 			spy.mockRestore();
 		});
 
-		test('Removes tooltip on scroll inside a scrollable ancestor container', async () => {
+		test('Repositions tooltip on scroll inside a scrollable ancestor container', async () => {
 			const container = createElement({
 				tag: 'div',
 				attributes: { id: 'container' },
@@ -144,8 +144,11 @@ describe('useTooltip', () => {
 			await _enter(target);
 			expect(getElement('#content')).toBeInTheDocument();
 
+			const spy = vi.spyOn(target, 'getBoundingClientRect');
 			await fireEvent.scroll(container);
-			expect(getElement('#content')).not.toBeInTheDocument();
+			expect(getElement('#content')).toBeInTheDocument();
+			expect(spy).toHaveBeenCalled();
+			spy.mockRestore();
 
 			await action.destroy();
 			action = null;
@@ -171,6 +174,30 @@ describe('useTooltip', () => {
 			await action.destroy();
 			action = null;
 			removeElement('#container');
+		});
+
+		test('Repositions tooltip on window resize', async () => {
+			action = createAction(target, options);
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+
+			const spy = vi.spyOn(target, 'getBoundingClientRect');
+			await fireEvent.resize(window);
+			expect(getElement('#content')).toBeInTheDocument();
+			expect(spy).toHaveBeenCalled();
+			spy.mockRestore();
+		});
+
+		test('Repositions tooltip on window scroll', async () => {
+			action = createAction(target, options);
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+
+			const spy = vi.spyOn(target, 'getBoundingClientRect');
+			await fireEvent.scroll(window);
+			expect(getElement('#content')).toBeInTheDocument();
+			expect(spy).toHaveBeenCalled();
+			spy.mockRestore();
 		});
 
 		test('Removes ancestor scroll listeners on destroy', async () => {
