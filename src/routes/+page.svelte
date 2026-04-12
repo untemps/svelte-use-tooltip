@@ -210,6 +210,19 @@
 		padding: 2rem;
 	}
 
+	@media screen and (min-width: 1024px) {
+		.settings {
+			width: 420px;
+			min-width: 420px;
+		}
+
+		.settings__form input,
+		.settings__form textarea,
+		.settings__form select {
+			max-width: 140px;
+		}
+	}
+
 	.burger {
 		display: none;
 	}
