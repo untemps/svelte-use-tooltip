@@ -216,18 +216,22 @@
 			min-width: 420px;
 		}
 
-		.settings__form label {
+		.settings__form label:not(:has(input[type='checkbox'])) {
+			display: grid;
+			grid-template-columns: 1fr 160px;
 			column-gap: 0.75rem;
 		}
 
-		.settings__form label > :last-child:not(input[type='checkbox']) {
-			flex: 1;
+		.settings__form input:not([type='checkbox']),
+		.settings__form textarea,
+		.settings__form select {
 			max-width: none;
 			width: 100%;
 		}
 
-		.settings__form label > :first-child {
-			flex-shrink: 0;
+		.settings__form fieldset:last-child {
+			display: flex;
+			justify-content: flex-end;
 		}
 	}
 
