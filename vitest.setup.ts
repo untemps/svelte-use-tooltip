@@ -11,6 +11,9 @@ declare global {
 	function _blur(trigger: Element): Promise<void>;
 	function _focusAndBlur(trigger: Element): Promise<void>;
 	function _keyDown(trigger: Element, key?: object): Promise<void>;
+	function _touchStart(trigger: Element): Promise<void>;
+	function _touchEnd(trigger: Element): Promise<void>;
+	function _touchCancel(trigger: Element): Promise<void>;
 }
 
 global._enter = async (trigger: Element) =>
@@ -59,6 +62,27 @@ global._focusAndBlur = async (trigger: Element) =>
 global._keyDown = async (trigger: Element, key?: object) =>
 	new Promise<void>(async (resolve) => {
 		await fireEvent.keyDown(trigger, key || { key: 'Escape', code: 'Escape', charCode: 27 });
+		await standby(1);
+		resolve();
+	});
+
+global._touchStart = async (trigger: Element) =>
+	new Promise<void>(async (resolve) => {
+		await fireEvent.touchStart(trigger);
+		await standby(1);
+		resolve();
+	});
+
+global._touchEnd = async (trigger: Element) =>
+	new Promise<void>(async (resolve) => {
+		await fireEvent.touchEnd(trigger);
+		await standby(1);
+		resolve();
+	});
+
+global._touchCancel = async (trigger: Element) =>
+	new Promise<void>(async (resolve) => {
+		await fireEvent.touchCancel(trigger);
 		await standby(1);
 		resolve();
 	});

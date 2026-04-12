@@ -1057,6 +1057,154 @@ describe('useTooltip', () => {
 		});
 	});
 
+	describe('useTooltip props: touchBehavior', () => {
+		test('Does not register touch listeners when touchBehavior is not set', async () => {
+			const spy = vi.spyOn(target, 'addEventListener');
+			action = createAction(target, options);
+			const touchEvents = spy.mock.calls
+				.map(([event]) => event)
+				.filter((e) => e.startsWith('touch'));
+			expect(touchEvents).toHaveLength(0);
+			spy.mockRestore();
+		});
+
+		test('Shows tooltip on touchstart in hover mode', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'hover' });
+			await _touchStart(target);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Hides tooltip on touchend in hover mode', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'hover' });
+			await _touchStart(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			await _touchEnd(target);
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
+		test('Hides tooltip on touchcancel in hover mode', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'hover' });
+			await _touchStart(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			await _touchCancel(target);
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
+		test('Shows tooltip on first touchend in toggle mode', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'toggle' });
+			await _touchEnd(target);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Hides tooltip on second touchend on target in toggle mode', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'toggle' });
+			await _touchEnd(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			await _touchEnd(target);
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
+		test('Hides tooltip on touchstart outside target in toggle mode', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'toggle' });
+			await _touchEnd(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			await _touchStart(document.body);
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
+		test('Does not hide tooltip on touchstart on the target itself in toggle mode', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'toggle' });
+			await _touchEnd(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			await _touchStart(target);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Removes touch listeners on destroy in hover mode', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'hover' });
+			const spy = vi.spyOn(target, 'removeEventListener');
+			await action.destroy();
+			const touchEvents = spy.mock.calls
+				.map(([event]) => event)
+				.filter((e) => e.startsWith('touch'));
+			expect(touchEvents).toContain('touchstart');
+			expect(touchEvents).toContain('touchend');
+			expect(touchEvents).toContain('touchcancel');
+			spy.mockRestore();
+			action = null;
+		});
+
+		test('Removes touch listeners on destroy in toggle mode', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'toggle' });
+			const spyTarget = vi.spyOn(target, 'removeEventListener');
+			const spyWindow = vi.spyOn(window, 'removeEventListener');
+			await action.destroy();
+			expect(spyTarget.mock.calls.map(([e]) => e)).toContain('touchend');
+			expect(spyWindow.mock.calls.map(([e]) => e)).toContain('touchstart');
+			spyTarget.mockRestore();
+			spyWindow.mockRestore();
+			action = null;
+		});
+
+		test('Registers touch listeners after update from undefined to hover', async () => {
+			action = createAction(target, options);
+			const spy = vi.spyOn(target, 'addEventListener');
+			action.update({ ...options, touchBehavior: 'hover' });
+			const touchEvents = spy.mock.calls
+				.map(([event]) => event)
+				.filter((e) => e.startsWith('touch'));
+			expect(touchEvents).toContain('touchstart');
+			expect(touchEvents).toContain('touchend');
+			spy.mockRestore();
+		});
+
+		test('Shows tooltip on touchstart after update to hover mode', async () => {
+			action = createAction(target, options);
+			action.update({ ...options, touchBehavior: 'hover' });
+			await _touchStart(target);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Does not re-wire listeners when touchBehavior is omitted from update', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'hover' });
+			const spyAdd = vi.spyOn(target, 'addEventListener');
+			const spyRemove = vi.spyOn(target, 'removeEventListener');
+			// update() without touchBehavior key — must not touch the existing listeners
+			action.update({ ...options });
+			const addedTouchEvents = spyAdd.mock.calls
+				.map(([e]) => e)
+				.filter((e) => e.startsWith('touch'));
+			const removedTouchEvents = spyRemove.mock.calls
+				.map(([e]) => e)
+				.filter((e) => e.startsWith('touch'));
+			expect(addedTouchEvents).toHaveLength(0);
+			expect(removedTouchEvents).toHaveLength(0);
+			spyAdd.mockRestore();
+			spyRemove.mockRestore();
+			// Hover mode still functional
+			await _touchStart(target);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Switches from hover to toggle mode via update', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'hover' });
+			const spyAdd = vi.spyOn(window, 'addEventListener');
+			action.update({ ...options, touchBehavior: 'toggle' });
+			expect(spyAdd.mock.calls.map(([e]) => e)).toContain('touchstart');
+			spyAdd.mockRestore();
+			await _touchEnd(target);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Removes window touchstart listener when switching from toggle to hover mode', async () => {
+			action = createAction(target, { ...options, touchBehavior: 'toggle' });
+			const spyRemove = vi.spyOn(window, 'removeEventListener');
+			action.update({ ...options, touchBehavior: 'hover' });
+			expect(spyRemove.mock.calls.map(([e]) => e)).toContain('touchstart');
+			spyRemove.mockRestore();
+		});
+	});
+
 	describe('useTooltip props: open', () => {
 		test('Shows tooltip programmatically on init when open is true', async () => {
 			action = createAction(target, { content: 'Hello', open: true });

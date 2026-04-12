@@ -16,6 +16,7 @@
 	let width = $state('auto');
 	let isOpen = $state<boolean | undefined>(undefined);
 	let useInteractiveContent = $state(false);
+	let touchBehavior = $state<'hover' | 'toggle' | undefined>(undefined);
 
 	const _onTooltipEnter = () => {
 		if (triggerOnEnter) {
@@ -317,7 +318,8 @@
 				offset: offset,
 				width: width,
 				disabled: isDisabled,
-				open: isOpen
+				open: isOpen,
+				touchBehavior: touchBehavior
 			}}
 			class="target"
 		>
@@ -408,6 +410,16 @@
 				<label>
 					Interactive Content (focus trap):
 					<input type="checkbox" bind:checked={useInteractiveContent} />
+				</label>
+			</fieldset>
+			<fieldset>
+				<label>
+					Touch Behavior:
+					<select bind:value={touchBehavior}>
+						<option value={undefined}>None</option>
+						<option value="hover">Hover</option>
+						<option value="toggle">Toggle</option>
+					</select>
 				</label>
 			</fieldset>
 			<fieldset>
