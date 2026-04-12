@@ -44,7 +44,8 @@
 		align-items: center;
 		margin: 0;
 		padding: 0;
-		height: 100%;
+		min-height: 100vh;
+		min-height: 100svh;
 		background-color: #617899;
 		font-family:
 			monospace,
@@ -54,6 +55,7 @@
 	}
 
 	.content {
+		flex: 1;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -208,8 +210,33 @@
 	}
 
 	@media screen and (max-width: 480px) {
+		main {
+			flex-direction: column;
+			align-items: stretch;
+		}
+
+		.content {
+			min-height: 50vh;
+			min-height: 50svh;
+		}
+
 		.settings {
-			display: none;
+			display: flex;
+			width: 100%;
+			min-width: 0;
+			min-height: 0;
+			max-height: 50vh;
+			max-height: 50svh;
+			padding: 1rem 1.5rem;
+			overflow-y: auto;
+		}
+
+		.settings h1 {
+			margin-bottom: 0.75rem;
+		}
+
+		.settings__form {
+			row-gap: 0.75rem;
 		}
 	}
 
@@ -323,7 +350,7 @@
 			}}
 			class="target"
 		>
-			Hover me
+			{touchBehavior ? 'Touch me' : 'Hover me'}
 		</div>
 	</div>
 	<div class="settings">
