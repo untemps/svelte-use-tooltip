@@ -198,8 +198,7 @@ class Tooltip {
 			hasWidthChanged: width !== undefined && width !== this.#width,
 			hasToDisableTarget: !!disabled && Boolean(this.#boundEnterHandler),
 			hasToEnableTarget: !disabled && !Boolean(this.#boundEnterHandler),
-			hasTouchBehaviorChanged:
-				touchBehavior !== undefined && touchBehavior !== this.#touchBehavior,
+			hasTouchBehaviorChanged: touchBehavior !== undefined && touchBehavior !== this.#touchBehavior,
 			// Re-show when open:true is passed after a structure rebuild (tooltip removed from DOM),
 			// or when the tooltip is not yet visible. Guard with !disabled so open+disabled is a no-op.
 			hasToShow: open === true && !disabled && (!isCurrentlyShown || hasStructureChanged),
@@ -246,7 +245,7 @@ class Tooltip {
 		// false is treated as a one-shot close — no lock. Only true locks the tooltip open.
 		this.#open = open === true ? true : undefined;
 		if (touchBehavior !== undefined) {
-			this.#touchBehavior = touchBehavior ?? null;
+			this.#touchBehavior = touchBehavior;
 		}
 	}
 
@@ -282,8 +281,7 @@ class Tooltip {
 		} else if (hasToEnableTarget) {
 			this.#enable();
 		} else if (hasTouchBehaviorChanged) {
-			// Re-wire touch listeners without affecting mouse/focus/keyboard listeners.
-			// #applyState has already updated #touchBehavior, so #enable() picks up the new value.
+			// Full listener cycle so #enableTarget/#enableWindow pick up the new #touchBehavior.
 			this.#disable();
 			this.#enable();
 		}
@@ -423,9 +421,7 @@ class Tooltip {
 			});
 			this.#scrollableAncestors = [];
 
-			if (this.#touchBehavior === 'toggle') {
-				window.removeEventListener('touchstart', this.#boundWindowChangeHandler);
-			}
+			window.removeEventListener('touchstart', this.#boundWindowChangeHandler);
 		}
 
 		this.#boundWindowChangeHandler = null;
