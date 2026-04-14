@@ -53,6 +53,15 @@ class Tooltip {
 	// Below this threshold the tooltip switches to a different position instead.
 	static #MIN_WIDTH = 80;
 	static #ANIMATION_TIMEOUT_MS = 1000;
+	static #FOCUSABLE_SELECTOR = [
+		'a[href]',
+		'button:not([disabled])',
+		'input:not([disabled]):not([type="hidden"])',
+		'select:not([disabled])',
+		'textarea:not([disabled])',
+		'[contenteditable]:not([contenteditable="false"])',
+		'[tabindex]:not([tabindex="-1"])'
+	].join(', ');
 
 	#tooltip: HTMLDivElement | null = null;
 
@@ -152,7 +161,9 @@ class Tooltip {
 		if (this.#isInteractive()) {
 			this.#target.setAttribute('aria-expanded', 'false');
 			this.#target.setAttribute('aria-haspopup', 'dialog');
-			this.#applyTabIndex();
+			if (this.#contentHasFocusableElements()) {
+				this.#applyTabIndex();
+			}
 		}
 
 		this.#open = open === true ? true : undefined;
@@ -298,7 +309,9 @@ class Tooltip {
 			if (this.#isInteractive()) {
 				this.#target?.setAttribute('aria-expanded', this.#tooltip?.parentNode ? 'true' : 'false');
 				this.#target?.setAttribute('aria-haspopup', 'dialog');
-				this.#applyTabIndex();
+				if (this.#contentHasFocusableElements()) {
+					this.#applyTabIndex();
+				}
 			} else {
 				this.#target?.removeAttribute('aria-expanded');
 				this.#target?.removeAttribute('aria-haspopup');
@@ -684,18 +697,16 @@ class Tooltip {
 		return Object.keys(this.#contentActions ?? {}).length > 0;
 	}
 
+	#contentHasFocusableElements(): boolean {
+		if (!this.#contentSelector) return false;
+		const el = document.querySelector(this.#contentSelector);
+		if (!el) return false;
+		const root = el instanceof HTMLTemplateElement ? el.content : el;
+		return root.querySelector(Tooltip.#FOCUSABLE_SELECTOR) !== null;
+	}
+
 	#setupFocusTrap(): void {
-		const focusable = this.#tooltip!.querySelectorAll<HTMLElement>(
-			[
-				'a[href]',
-				'button:not([disabled])',
-				'input:not([disabled]):not([type="hidden"])',
-				'select:not([disabled])',
-				'textarea:not([disabled])',
-				'[contenteditable]:not([contenteditable="false"])',
-				'[tabindex]:not([tabindex="-1"])'
-			].join(', ')
-		);
+		const focusable = this.#tooltip!.querySelectorAll<HTMLElement>(Tooltip.#FOCUSABLE_SELECTOR);
 		if (!focusable.length) return;
 
 		const first = focusable[0];
