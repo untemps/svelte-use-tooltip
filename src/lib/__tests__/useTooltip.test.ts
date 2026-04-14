@@ -1556,7 +1556,7 @@ describe('useTooltip', () => {
 		const focusableOptions: TooltipOptions = {
 			contentSelector: `#${FOCUSABLE_TEMPLATE_ID}`,
 			contentActions: {
-				'button': { eventType: 'click', callback: vi.fn(), callbackParams: [] }
+				button: { eventType: 'click', callback: vi.fn(), callbackParams: [] }
 			}
 		};
 
@@ -1619,6 +1619,20 @@ describe('useTooltip', () => {
 			expect(target).not.toHaveAttribute('tabindex');
 			action.update(focusableOptions);
 			expect(target).toHaveAttribute('tabindex', '0');
+		});
+
+		test('Adds tabindex when switching to a template with focusable elements while contentActions stays set', () => {
+			action = createAction(target, nonFocusableInteractiveOptions);
+			expect(target).not.toHaveAttribute('tabindex');
+			action.update(focusableOptions);
+			expect(target).toHaveAttribute('tabindex', '0');
+		});
+
+		test('Removes tabindex when switching to a template without focusable elements while contentActions stays set', () => {
+			action = createAction(target, focusableOptions);
+			expect(target).toHaveAttribute('tabindex', '0');
+			action.update(nonFocusableInteractiveOptions);
+			expect(target).not.toHaveAttribute('tabindex');
 		});
 
 		test('Removes added tabindex when contentActions is removed via update', () => {

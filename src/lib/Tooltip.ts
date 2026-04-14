@@ -276,6 +276,14 @@ class Tooltip {
 		if (hasStructureChanged) {
 			this.#removeTooltipFromTarget(true);
 			this.#createTooltip();
+			// Re-evaluate tabindex: the template may now have or lack focusable elements.
+			if (this.#isInteractive()) {
+				if (this.#contentHasFocusableElements()) {
+					this.#applyTabIndex();
+				} else {
+					this.#restoreTabIndex();
+				}
+			}
 		}
 		if (hasStructureChanged || hasContainerClassNameChanged) {
 			this.#tooltip!.setAttribute(
