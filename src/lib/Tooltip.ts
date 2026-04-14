@@ -76,6 +76,7 @@ class Tooltip {
 	#id: string;
 
 	#originalTitle: string | null = null;
+	#addedTabIndex = false;
 
 	#open: boolean | undefined = undefined;
 
@@ -151,6 +152,10 @@ class Tooltip {
 		if (this.#isInteractive()) {
 			this.#target.setAttribute('aria-expanded', 'false');
 			this.#target.setAttribute('aria-haspopup', 'dialog');
+			if (!this.#target.hasAttribute('tabindex')) {
+				this.#target.setAttribute('tabindex', '0');
+				this.#addedTabIndex = true;
+			}
 		}
 
 		this.#open = open === true ? true : undefined;
@@ -296,9 +301,17 @@ class Tooltip {
 			if (this.#isInteractive()) {
 				this.#target?.setAttribute('aria-expanded', this.#tooltip?.parentNode ? 'true' : 'false');
 				this.#target?.setAttribute('aria-haspopup', 'dialog');
+				if (this.#target && !this.#target.hasAttribute('tabindex')) {
+					this.#target.setAttribute('tabindex', '0');
+					this.#addedTabIndex = true;
+				}
 			} else {
 				this.#target?.removeAttribute('aria-expanded');
 				this.#target?.removeAttribute('aria-haspopup');
+				if (this.#addedTabIndex) {
+					this.#target?.removeAttribute('tabindex');
+					this.#addedTabIndex = false;
+				}
 			}
 		}
 	}
@@ -316,6 +329,10 @@ class Tooltip {
 		this.#target?.removeAttribute('aria-describedby');
 		this.#target?.removeAttribute('aria-expanded');
 		this.#target?.removeAttribute('aria-haspopup');
+		if (this.#addedTabIndex) {
+			this.#target?.removeAttribute('tabindex');
+			this.#addedTabIndex = false;
+		}
 
 		await this.#removeTooltipFromTarget(true);
 

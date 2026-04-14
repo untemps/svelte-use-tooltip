@@ -1549,6 +1549,63 @@ describe('useTooltip', () => {
 		});
 	});
 
+	describe('useTooltip tabindex', () => {
+		const interactiveOptions: TooltipOptions = {
+			contentSelector: '#template',
+			contentActions: {
+				'*': { eventType: 'click', callback: vi.fn(), callbackParams: [] }
+			}
+		};
+
+		test('Adds tabindex="0" on init when tooltip is interactive and target has no tabindex', () => {
+			action = createAction(target, interactiveOptions);
+			expect(target).toHaveAttribute('tabindex', '0');
+		});
+
+		test('Does not overwrite existing tabindex when tooltip is interactive', () => {
+			target.setAttribute('tabindex', '-1');
+			action = createAction(target, interactiveOptions);
+			expect(target).toHaveAttribute('tabindex', '-1');
+			target.removeAttribute('tabindex');
+		});
+
+		test('Removes added tabindex on destroy', async () => {
+			action = createAction(target, interactiveOptions);
+			expect(target).toHaveAttribute('tabindex', '0');
+			await action.destroy();
+			expect(target).not.toHaveAttribute('tabindex');
+			action = null;
+		});
+
+		test('Does not set tabindex when tooltip has no contentActions', () => {
+			action = createAction(target, { content: 'Hello' });
+			expect(target).not.toHaveAttribute('tabindex');
+		});
+
+		test('Adds tabindex when contentActions is added via update', () => {
+			action = createAction(target, { content: 'Hello' });
+			expect(target).not.toHaveAttribute('tabindex');
+			action.update(interactiveOptions);
+			expect(target).toHaveAttribute('tabindex', '0');
+		});
+
+		test('Removes added tabindex when contentActions is removed via update', () => {
+			action = createAction(target, interactiveOptions);
+			expect(target).toHaveAttribute('tabindex', '0');
+			action.update({ ...interactiveOptions, contentActions: null });
+			expect(target).not.toHaveAttribute('tabindex');
+		});
+
+		test('Does not remove pre-existing tabindex when contentActions is removed via update', () => {
+			target.setAttribute('tabindex', '-1');
+			action = createAction(target, interactiveOptions);
+			expect(target).toHaveAttribute('tabindex', '-1');
+			action.update({ ...interactiveOptions, contentActions: null });
+			expect(target).toHaveAttribute('tabindex', '-1');
+			target.removeAttribute('tabindex');
+		});
+	});
+
 	describe('useTooltip focusout guard', () => {
 		test('Does not close tooltip when focusout fires with relatedTarget inside the tooltip', async () => {
 			action = createAction(target, options);
