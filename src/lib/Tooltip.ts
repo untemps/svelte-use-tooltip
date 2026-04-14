@@ -596,7 +596,7 @@ class Tooltip {
 		}
 	}
 
-	async #appendTooltipToTarget() {
+	async #appendTooltipToTarget(triggerEvent?: Event) {
 		if (this.#animated) {
 			await this.#transitionTooltip(true);
 		}
@@ -629,7 +629,7 @@ class Tooltip {
 					}
 				}
 			);
-			this.#setupFocusTrap();
+			this.#setupFocusTrap(triggerEvent);
 		}
 	}
 
@@ -679,7 +679,7 @@ class Tooltip {
 		return Object.keys(this.#contentActions ?? {}).length > 0;
 	}
 
-	#setupFocusTrap(): void {
+	#setupFocusTrap(triggerEvent?: Event): void {
 		const focusable = this.#tooltip!.querySelectorAll<HTMLElement>(
 			[
 				'a[href]',
@@ -712,7 +712,9 @@ class Tooltip {
 		};
 
 		this.#tooltip!.addEventListener('keydown', this.#trapHandler);
-		first.focus();
+		if (triggerEvent instanceof FocusEvent) {
+			first.focus();
+		}
 	}
 
 	#teardownFocusTrap(): void {
@@ -756,7 +758,7 @@ class Tooltip {
 	async #onTargetEnter(e: Event) {
 		if (this.#target === e.target) {
 			await this.#waitForDelay(this.#enterDelay);
-			await this.#appendTooltipToTarget();
+			await this.#appendTooltipToTarget(e);
 			await standby(0);
 			this.#onEnter?.();
 		}
