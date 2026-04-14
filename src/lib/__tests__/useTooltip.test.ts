@@ -1672,11 +1672,11 @@ describe('useTooltip', () => {
 			removeElement(`#${TRAP_TEMPLATE_ID}`);
 		});
 
-		test('Moves focus to first focusable element when tooltip opens via keyboard', async () => {
+		test('Does not move focus to first focusable element when tooltip opens via keyboard', async () => {
 			trapAction = createAction(trapTarget, trapOptions);
 			await _focus(trapTarget);
 			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
-			expect(document.activeElement).toBe(tooltip.querySelector('button'));
+			expect(document.activeElement).not.toBe(tooltip.querySelector('button'));
 		});
 
 		test('Does not move focus to first focusable element when tooltip opens via mouse', async () => {
