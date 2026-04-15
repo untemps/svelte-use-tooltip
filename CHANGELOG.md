@@ -1,3 +1,10 @@
+# [3.11.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.10.0...v3.11.0) (2026-04-15)
+
+
+### Features
+
+* Make interactive tooltip keyboard-accessible without auto-focus glitch ([#177](https://github.com/untemps/svelte-use-tooltip/issues/177)) ([cbf150a](https://github.com/untemps/svelte-use-tooltip/commit/cbf150a75825a8d4ed5f0768b5c392ef226dfe73))
+
 # [3.10.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.9.0...v3.10.0) (2026-04-12)
 
 
