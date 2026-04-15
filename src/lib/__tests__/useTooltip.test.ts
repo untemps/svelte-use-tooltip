@@ -1652,6 +1652,61 @@ describe('useTooltip', () => {
 		});
 	});
 
+	describe('useTooltip dev warnings', () => {
+		let warnSpy: ReturnType<typeof vi.spyOn>;
+
+		beforeEach(() => {
+			warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		});
+
+		afterEach(() => {
+			warnSpy.mockRestore();
+		});
+
+		test('Warns when neither content nor contentSelector is provided', () => {
+			action = createAction(target, {});
+			expect(warnSpy).toHaveBeenCalledWith(
+				'[useTooltip] No content provided. Set either `content` or `contentSelector`.'
+			);
+		});
+
+		test('Does not warn when content is provided', () => {
+			action = createAction(target, { content: 'Hello' });
+			expect(warnSpy).not.toHaveBeenCalled();
+		});
+
+		test('Does not warn when contentSelector resolves to an existing element', () => {
+			action = createAction(target, { contentSelector: '#template' });
+			expect(warnSpy).not.toHaveBeenCalled();
+		});
+
+		test('Warns when contentSelector resolves to no element', () => {
+			action = createAction(target, { contentSelector: '#does-not-exist' });
+			expect(warnSpy).toHaveBeenCalledWith(
+				'[useTooltip] contentSelector "#does-not-exist" matched no element in the DOM.'
+			);
+		});
+
+		test('Re-warns on update when content is removed', () => {
+			action = createAction(target, { content: 'Hello' });
+			expect(warnSpy).not.toHaveBeenCalled();
+			action.update({ content: null, contentSelector: null });
+			expect(warnSpy).toHaveBeenCalledWith(
+				'[useTooltip] No content provided. Set either `content` or `contentSelector`.'
+			);
+		});
+
+		test('Re-warns on update when contentSelector becomes unresolvable', () => {
+			action = createAction(target, { contentSelector: '#template' });
+			expect(warnSpy).not.toHaveBeenCalled();
+			action.update({ contentSelector: '#gone' });
+			expect(warnSpy).toHaveBeenCalledWith(
+				'[useTooltip] contentSelector "#gone" matched no element in the DOM.'
+			);
+		});
+
+	});
+
 	describe('useTooltip focusout guard', () => {
 		test('Does not close tooltip when focusout fires with relatedTarget inside the tooltip', async () => {
 			action = createAction(target, options);
