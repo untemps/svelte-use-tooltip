@@ -1549,6 +1549,109 @@ describe('useTooltip', () => {
 		});
 	});
 
+	describe('useTooltip tabindex', () => {
+		const FOCUSABLE_TEMPLATE_ID = 'focusable-template';
+
+		// Options pointing to a template that contains a focusable button.
+		const focusableOptions: TooltipOptions = {
+			contentSelector: `#${FOCUSABLE_TEMPLATE_ID}`,
+			contentActions: {
+				button: { eventType: 'click', callback: vi.fn(), callbackParams: [] }
+			}
+		};
+
+		// Options pointing to the default template that has no focusable elements.
+		const nonFocusableInteractiveOptions: TooltipOptions = {
+			contentSelector: '#template',
+			contentActions: {
+				'*': { eventType: 'click', callback: vi.fn(), callbackParams: [] }
+			}
+		};
+
+		beforeEach(() => {
+			const tmpl = createElement({
+				tag: 'template',
+				attributes: { id: FOCUSABLE_TEMPLATE_ID },
+				parent: document.body
+			});
+			createElement({
+				tag: 'button',
+				parent: (tmpl as HTMLTemplateElement).content as unknown as HTMLElement
+			});
+		});
+
+		afterEach(() => {
+			removeElement(`#${FOCUSABLE_TEMPLATE_ID}`);
+		});
+
+		test('Adds tabindex="0" on init when tooltip has focusable elements and target has no tabindex', () => {
+			action = createAction(target, focusableOptions);
+			expect(target).toHaveAttribute('tabindex', '0');
+		});
+
+		test('Does not set tabindex when contentActions is set but tooltip has no focusable elements', () => {
+			action = createAction(target, nonFocusableInteractiveOptions);
+			expect(target).not.toHaveAttribute('tabindex');
+		});
+
+		test('Does not overwrite existing tabindex when tooltip has focusable elements', () => {
+			target.setAttribute('tabindex', '-1');
+			action = createAction(target, focusableOptions);
+			expect(target).toHaveAttribute('tabindex', '-1');
+			target.removeAttribute('tabindex');
+		});
+
+		test('Removes added tabindex on destroy', async () => {
+			action = createAction(target, focusableOptions);
+			expect(target).toHaveAttribute('tabindex', '0');
+			await action.destroy();
+			expect(target).not.toHaveAttribute('tabindex');
+			action = null;
+		});
+
+		test('Does not set tabindex when tooltip has no contentActions', () => {
+			action = createAction(target, { content: 'Hello' });
+			expect(target).not.toHaveAttribute('tabindex');
+		});
+
+		test('Adds tabindex when contentActions is added via update and tooltip has focusable elements', () => {
+			action = createAction(target, { content: 'Hello' });
+			expect(target).not.toHaveAttribute('tabindex');
+			action.update(focusableOptions);
+			expect(target).toHaveAttribute('tabindex', '0');
+		});
+
+		test('Adds tabindex when switching to a template with focusable elements while contentActions stays set', () => {
+			action = createAction(target, nonFocusableInteractiveOptions);
+			expect(target).not.toHaveAttribute('tabindex');
+			action.update(focusableOptions);
+			expect(target).toHaveAttribute('tabindex', '0');
+		});
+
+		test('Removes tabindex when switching to a template without focusable elements while contentActions stays set', () => {
+			action = createAction(target, focusableOptions);
+			expect(target).toHaveAttribute('tabindex', '0');
+			action.update(nonFocusableInteractiveOptions);
+			expect(target).not.toHaveAttribute('tabindex');
+		});
+
+		test('Removes added tabindex when contentActions is removed via update', () => {
+			action = createAction(target, focusableOptions);
+			expect(target).toHaveAttribute('tabindex', '0');
+			action.update({ ...focusableOptions, contentActions: null });
+			expect(target).not.toHaveAttribute('tabindex');
+		});
+
+		test('Does not remove pre-existing tabindex when contentActions is removed via update', () => {
+			target.setAttribute('tabindex', '-1');
+			action = createAction(target, focusableOptions);
+			expect(target).toHaveAttribute('tabindex', '-1');
+			action.update({ ...focusableOptions, contentActions: null });
+			expect(target).toHaveAttribute('tabindex', '-1');
+			target.removeAttribute('tabindex');
+		});
+	});
+
 	describe('useTooltip focusout guard', () => {
 		test('Does not close tooltip when focusout fires with relatedTarget inside the tooltip', async () => {
 			action = createAction(target, options);
@@ -1615,11 +1718,18 @@ describe('useTooltip', () => {
 			removeElement(`#${TRAP_TEMPLATE_ID}`);
 		});
 
-		test('Moves focus to first focusable element when tooltip opens', async () => {
+		test('Does not move focus to first focusable element when tooltip opens via keyboard', async () => {
+			trapAction = createAction(trapTarget, trapOptions);
+			await _focus(trapTarget);
+			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
+			expect(document.activeElement).not.toBe(tooltip.querySelector('button'));
+		});
+
+		test('Does not move focus to first focusable element when tooltip opens via mouse', async () => {
 			trapAction = createAction(trapTarget, trapOptions);
 			await _enter(trapTarget);
 			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
-			expect(document.activeElement).toBe(tooltip.querySelector('button'));
+			expect(document.activeElement).not.toBe(tooltip.querySelector('button'));
 		});
 
 		test('Traps Tab: wraps focus from last element to first', async () => {
