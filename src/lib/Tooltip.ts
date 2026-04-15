@@ -161,9 +161,7 @@ class Tooltip {
 		if (this.#isInteractive()) {
 			this.#target.setAttribute('aria-expanded', 'false');
 			this.#target.setAttribute('aria-haspopup', 'dialog');
-			if (this.#contentHasFocusableElements()) {
-				this.#applyTabIndex();
-			}
+			this.#syncTabIndex();
 		}
 
 		this.#open = open === true ? true : undefined;
@@ -277,13 +275,7 @@ class Tooltip {
 			this.#removeTooltipFromTarget(true);
 			this.#createTooltip();
 			// Re-evaluate tabindex: the template may now have or lack focusable elements.
-			if (this.#isInteractive()) {
-				if (this.#contentHasFocusableElements()) {
-					this.#applyTabIndex();
-				} else {
-					this.#restoreTabIndex();
-				}
-			}
+			this.#syncTabIndex();
 		}
 		if (hasStructureChanged || hasContainerClassNameChanged) {
 			this.#tooltip!.setAttribute(
@@ -317,9 +309,7 @@ class Tooltip {
 			if (this.#isInteractive()) {
 				this.#target?.setAttribute('aria-expanded', this.#tooltip?.parentNode ? 'true' : 'false');
 				this.#target?.setAttribute('aria-haspopup', 'dialog');
-				if (this.#contentHasFocusableElements()) {
-					this.#applyTabIndex();
-				}
+				this.#syncTabIndex();
 			} else {
 				this.#target?.removeAttribute('aria-expanded');
 				this.#target?.removeAttribute('aria-haspopup');
@@ -736,6 +726,14 @@ class Tooltip {
 		};
 
 		this.#tooltip!.addEventListener('keydown', this.#trapHandler);
+	}
+
+	#syncTabIndex(): void {
+		if (this.#isInteractive() && this.#contentHasFocusableElements()) {
+			this.#applyTabIndex();
+		} else {
+			this.#restoreTabIndex();
+		}
 	}
 
 	#applyTabIndex(): void {
