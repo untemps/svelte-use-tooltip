@@ -53,6 +53,15 @@ class Tooltip {
 	// Below this threshold the tooltip switches to a different position instead.
 	static #MIN_WIDTH = 80;
 	static #ANIMATION_TIMEOUT_MS = 1000;
+	static #FOCUSABLE_SELECTOR = [
+		'a[href]',
+		'button:not([disabled])',
+		'input:not([disabled]):not([type="hidden"])',
+		'select:not([disabled])',
+		'textarea:not([disabled])',
+		'[contenteditable]:not([contenteditable="false"])',
+		'[tabindex]:not([tabindex="-1"])'
+	].join(', ');
 
 	#tooltip: HTMLDivElement | null = null;
 
@@ -76,6 +85,7 @@ class Tooltip {
 	#id: string;
 
 	#originalTitle: string | null = null;
+	#addedTabIndex = false;
 
 	#open: boolean | undefined = undefined;
 
@@ -151,6 +161,7 @@ class Tooltip {
 		if (this.#isInteractive()) {
 			this.#target.setAttribute('aria-expanded', 'false');
 			this.#target.setAttribute('aria-haspopup', 'dialog');
+			this.#syncTabIndex();
 		}
 
 		this.#open = open === true ? true : undefined;
@@ -263,6 +274,8 @@ class Tooltip {
 		if (hasStructureChanged) {
 			this.#removeTooltipFromTarget(true);
 			this.#createTooltip();
+			// Re-evaluate tabindex: the template may now have or lack focusable elements.
+			this.#syncTabIndex();
 		}
 		if (hasStructureChanged || hasContainerClassNameChanged) {
 			this.#tooltip!.setAttribute(
@@ -296,9 +309,11 @@ class Tooltip {
 			if (this.#isInteractive()) {
 				this.#target?.setAttribute('aria-expanded', this.#tooltip?.parentNode ? 'true' : 'false');
 				this.#target?.setAttribute('aria-haspopup', 'dialog');
+				this.#syncTabIndex();
 			} else {
 				this.#target?.removeAttribute('aria-expanded');
 				this.#target?.removeAttribute('aria-haspopup');
+				this.#restoreTabIndex();
 			}
 		}
 	}
@@ -316,6 +331,7 @@ class Tooltip {
 		this.#target?.removeAttribute('aria-describedby');
 		this.#target?.removeAttribute('aria-expanded');
 		this.#target?.removeAttribute('aria-haspopup');
+		this.#restoreTabIndex();
 
 		await this.#removeTooltipFromTarget(true);
 
@@ -679,18 +695,16 @@ class Tooltip {
 		return Object.keys(this.#contentActions ?? {}).length > 0;
 	}
 
+	#contentHasFocusableElements(): boolean {
+		if (!this.#contentSelector) return false;
+		const el = document.querySelector(this.#contentSelector);
+		if (!el) return false;
+		const root = el instanceof HTMLTemplateElement ? el.content : el;
+		return root.querySelector(Tooltip.#FOCUSABLE_SELECTOR) !== null;
+	}
+
 	#setupFocusTrap(): void {
-		const focusable = this.#tooltip!.querySelectorAll<HTMLElement>(
-			[
-				'a[href]',
-				'button:not([disabled])',
-				'input:not([disabled]):not([type="hidden"])',
-				'select:not([disabled])',
-				'textarea:not([disabled])',
-				'[contenteditable]:not([contenteditable="false"])',
-				'[tabindex]:not([tabindex="-1"])'
-			].join(', ')
-		);
+		const focusable = this.#tooltip!.querySelectorAll<HTMLElement>(Tooltip.#FOCUSABLE_SELECTOR);
 		if (!focusable.length) return;
 
 		const first = focusable[0];
@@ -712,7 +726,28 @@ class Tooltip {
 		};
 
 		this.#tooltip!.addEventListener('keydown', this.#trapHandler);
-		first.focus();
+	}
+
+	#syncTabIndex(): void {
+		if (this.#isInteractive() && this.#contentHasFocusableElements()) {
+			this.#applyTabIndex();
+		} else {
+			this.#restoreTabIndex();
+		}
+	}
+
+	#applyTabIndex(): void {
+		if (this.#target && !this.#target.hasAttribute('tabindex')) {
+			this.#target.setAttribute('tabindex', '0');
+			this.#addedTabIndex = true;
+		}
+	}
+
+	#restoreTabIndex(): void {
+		if (this.#addedTabIndex) {
+			this.#target?.removeAttribute('tabindex');
+			this.#addedTabIndex = false;
+		}
 	}
 
 	#teardownFocusTrap(): void {
