@@ -1705,6 +1705,14 @@ describe('useTooltip', () => {
 			);
 		});
 
+		test('Warns when contentSelector is unresolvable even if content is also provided', () => {
+			// contentSelector takes precedence over content — if the selector resolves to nothing
+			// the tooltip will be empty regardless of content, so the warning is correct.
+			action = createAction(target, { content: 'Hello', contentSelector: '#does-not-exist' });
+			expect(warnSpy).toHaveBeenCalledWith(
+				'[useTooltip] contentSelector "#does-not-exist" matched no element in the DOM.'
+			);
+		});
 	});
 
 	describe('useTooltip focusout guard', () => {
