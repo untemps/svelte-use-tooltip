@@ -1,5 +1,6 @@
 import { DOMObserver, type WaitResult } from '@untemps/dom-observer';
 import { standby } from '@untemps/utils/async/standby';
+import { DEV } from 'esm-env';
 
 export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right';
 
@@ -164,6 +165,8 @@ class Tooltip {
 			this.#syncTabIndex();
 		}
 
+		this.#warnIfNoContent();
+
 		this.#open = open === true ? true : undefined;
 
 		disabled ? this.#disable() : this.#enable();
@@ -276,6 +279,7 @@ class Tooltip {
 			this.#createTooltip();
 			// Re-evaluate tabindex: the template may now have or lack focusable elements.
 			this.#syncTabIndex();
+			this.#warnIfNoContent();
 		}
 		if (hasStructureChanged || hasContainerClassNameChanged) {
 			this.#tooltip!.setAttribute(
@@ -693,6 +697,17 @@ class Tooltip {
 
 	#isInteractive() {
 		return Object.keys(this.#contentActions ?? {}).length > 0;
+	}
+
+	#warnIfNoContent(): void {
+		if (!DEV) return;
+		if (!this.#content && !this.#contentSelector) {
+			console.warn('[useTooltip] No content provided. Set either `content` or `contentSelector`.');
+		} else if (this.#contentSelector && !document.querySelector(this.#contentSelector)) {
+			console.warn(
+				`[useTooltip] contentSelector "${this.#contentSelector}" matched no element in the DOM.`
+			);
+		}
 	}
 
 	#contentHasFocusableElements(): boolean {
