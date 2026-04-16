@@ -1,3 +1,10 @@
+# [3.12.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.11.0...v3.12.0) (2026-04-16)
+
+
+### Features
+
+* Add dev-mode warnings for missing or unresolvable content ([#178](https://github.com/untemps/svelte-use-tooltip/issues/178)) ([2bbfc9e](https://github.com/untemps/svelte-use-tooltip/commit/2bbfc9eb9795296d032ddc6dfcd7b20042872bc7))
+
 # [3.11.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.10.0...v3.11.0) (2026-04-15)
 
 
