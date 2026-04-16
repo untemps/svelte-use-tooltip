@@ -68,7 +68,8 @@
 	},
 	"dependencies": {
 		"@untemps/dom-observer": "^4.0.0",
-		"@untemps/utils": "^3.0.0"
+		"@untemps/utils": "^3.0.0",
+		"esm-env": "^1.0.0"
 	},
 	"release": {
 		"branches": [
