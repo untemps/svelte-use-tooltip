@@ -36,6 +36,7 @@
 
 	const _onTooltipLeave = () => {
 		isTooltipVisible = false;
+		isOpen = undefined;
 		if (triggerOnLeave) {
 			alert("You've left the target");
 		}
@@ -608,7 +609,11 @@
 				</label>
 			</fieldset>
 			<fieldset class="settings__form__actions">
-				<button type="button" onclick={() => (isOpen = isTooltipVisible ? false : true)} disabled={isDisabled}>
+				<button
+					type="button"
+					onclick={() => (isOpen = isTooltipVisible ? false : true)}
+					disabled={isDisabled}
+				>
 					{isTooltipVisible ? 'Masquer la tooltip' : 'Afficher la tooltip'}
 				</button>
 			</fieldset>
