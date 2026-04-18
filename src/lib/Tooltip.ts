@@ -637,9 +637,10 @@ class Tooltip {
 
 		if (this.#contentActions) {
 			Object.entries(this.#contentActions).forEach(([key, actionValue]) => {
-				const trigger = key === '*' ? this.#tooltip! : this.#tooltip!.querySelector(key);
-				if (trigger) {
-					const actions = Array.isArray(actionValue) ? actionValue : [actionValue];
+				const triggers =
+					key === '*' ? [this.#tooltip!] : Array.from(this.#tooltip!.querySelectorAll(key));
+				const actions = Array.isArray(actionValue) ? actionValue : [actionValue];
+				for (const trigger of triggers) {
 					for (const { eventType, callback, callbackParams, closeOnCallback } of actions) {
 						const listener: EventListener = (event) => {
 							callback?.apply(null, [...(callbackParams || []), event]);

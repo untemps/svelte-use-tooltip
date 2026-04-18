@@ -403,7 +403,12 @@ describe('useTooltip', () => {
 				...options,
 				contentActions: {
 					'*': [
-						{ eventType: 'click', callback: closeCallback, callbackParams: [], closeOnCallback: true },
+						{
+							eventType: 'click',
+							callback: closeCallback,
+							callbackParams: [],
+							closeOnCallback: true
+						},
 						{ eventType: 'mouseenter', callback: otherCallback, callbackParams: [] }
 					]
 				}
@@ -434,6 +439,71 @@ describe('useTooltip', () => {
 			const content = getElement('#content');
 			await fireEvent.click(content as Element);
 			expect(clickCallback).toHaveBeenCalledTimes(1);
+		});
+
+		test('Attaches listeners to all elements matching a class selector, not just the first', async () => {
+			// Template: two buttons inside a wrapper (Tooltip clones firstElementChild, so the
+			// wrapper carries both buttons into the tooltip DOM).
+			const multiTemplate = createElement({
+				tag: 'template',
+				attributes: { id: 'multi-template' },
+				parent: document.body
+			});
+			const wrapper = createElement({
+				tag: 'div',
+				parent: (multiTemplate as HTMLTemplateElement).content as unknown as HTMLElement
+			});
+			createElement({ tag: 'button', attributes: { class: 'btn' }, parent: wrapper });
+			createElement({ tag: 'button', attributes: { class: 'btn' }, parent: wrapper });
+
+			const clickCallback = vi.fn();
+			action = createAction(target, {
+				contentSelector: '#multi-template',
+				contentActions: {
+					'.btn': { eventType: 'click', callback: clickCallback, callbackParams: [] }
+				}
+			});
+			await _enter(target);
+			const tooltip = target.querySelector<HTMLElement>('[role="tooltip"]')!;
+			const buttons = tooltip.querySelectorAll<HTMLElement>('.btn');
+			expect(buttons).toHaveLength(2);
+			await fireEvent.click(buttons[0]);
+			await fireEvent.click(buttons[1]);
+			// Both buttons must have triggered the callback
+			expect(clickCallback).toHaveBeenCalledTimes(2);
+
+			removeElement('#multi-template');
+		});
+
+		test('Triggers mouseenter on each element individually when using a class selector', async () => {
+			const multiTemplate = createElement({
+				tag: 'template',
+				attributes: { id: 'multi-template' },
+				parent: document.body
+			});
+			const wrapper = createElement({
+				tag: 'div',
+				parent: (multiTemplate as HTMLTemplateElement).content as unknown as HTMLElement
+			});
+			createElement({ tag: 'button', attributes: { class: 'btn' }, parent: wrapper });
+			createElement({ tag: 'button', attributes: { class: 'btn' }, parent: wrapper });
+
+			const mouseenterCallback = vi.fn();
+			action = createAction(target, {
+				contentSelector: '#multi-template',
+				contentActions: {
+					'.btn': { eventType: 'mouseenter', callback: mouseenterCallback, callbackParams: [] }
+				}
+			});
+			await _enter(target);
+			const tooltip = target.querySelector<HTMLElement>('[role="tooltip"]')!;
+			const buttons = tooltip.querySelectorAll<HTMLElement>('.btn');
+			// Fire mouseenter directly on each button (mouseenter does not bubble)
+			await fireEvent.mouseEnter(buttons[0]);
+			await fireEvent.mouseEnter(buttons[1]);
+			expect(mouseenterCallback).toHaveBeenCalledTimes(2);
+
+			removeElement('#multi-template');
 		});
 	});
 
