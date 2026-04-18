@@ -33,6 +33,8 @@ export type TooltipOptions = {
 	disabled?: boolean;
 	open?: boolean;
 	touchBehavior?: 'hover' | 'toggle';
+	showOn?: string[];
+	hideOn?: string[];
 };
 
 type SpaceMap = Record<TooltipPosition, number>;
@@ -45,6 +47,7 @@ type ChangeSet = {
 	hasToDisableTarget: boolean;
 	hasToEnableTarget: boolean;
 	hasTouchBehaviorChanged: boolean;
+	hasShowHideConfigChanged: boolean;
 	hasToShow: boolean;
 	hasToHide: boolean;
 	hasInteractivityChanged: boolean;
@@ -56,6 +59,8 @@ class Tooltip {
 	// Below this threshold the tooltip switches to a different position instead.
 	static #MIN_WIDTH = 80;
 	static #ANIMATION_TIMEOUT_MS = 1000;
+	static #DEFAULT_SHOW_ON = ['mouseenter', 'focusin'];
+	static #DEFAULT_HIDE_ON = ['mouseleave', 'focusout'];
 	static #FOCUSABLE_SELECTOR = [
 		'a[href]',
 		'button:not([disabled])',
@@ -84,6 +89,8 @@ class Tooltip {
 	#offset = 10;
 	#width = 'auto';
 	#touchBehavior: 'hover' | 'toggle' | null = null;
+	#showOn: string[] = Tooltip.#DEFAULT_SHOW_ON;
+	#hideOn: string[] = Tooltip.#DEFAULT_HIDE_ON;
 
 	#id: string;
 
@@ -101,6 +108,7 @@ class Tooltip {
 
 	#boundEnterHandler: ((e: Event) => void) | null = null;
 	#boundLeaveHandler: ((e: Event) => void) | null = null;
+	#boundToggleHandler: ((e: Event) => void) | null = null;
 	#boundTouchToggleHandler: ((e: Event) => void) | null = null;
 	#boundWindowChangeHandler: ((e: Event) => void) | null = null;
 	#trapHandler: ((e: KeyboardEvent) => void) | null = null;
@@ -131,7 +139,9 @@ class Tooltip {
 			width,
 			disabled,
 			open,
-			touchBehavior
+			touchBehavior,
+			showOn,
+			hideOn
 		} = options;
 
 		this.#target = target;
@@ -150,6 +160,8 @@ class Tooltip {
 		this.#offset = Math.max(offset ?? 10, 5);
 		this.#width = width ?? 'auto';
 		this.#touchBehavior = touchBehavior ?? null;
+		this.#showOn = showOn ?? Tooltip.#DEFAULT_SHOW_ON;
+		this.#hideOn = hideOn ?? Tooltip.#DEFAULT_HIDE_ON;
 
 		this.#id = `tooltip-${crypto.randomUUID()}`;
 
@@ -184,7 +196,7 @@ class Tooltip {
 		if (this.#destroyed) return;
 		const changes = this.#detectChanges(options);
 		this.#applyState(options);
-		this.#applyChanges(changes);
+		this.#applyChanges(changes, options);
 	}
 
 	#detectChanges({
@@ -197,7 +209,9 @@ class Tooltip {
 		width,
 		disabled,
 		open,
-		touchBehavior
+		touchBehavior,
+		showOn,
+		hideOn
 	}: TooltipOptions): ChangeSet {
 		const hasContentChanged =
 			(contentSelector !== undefined && contentSelector !== this.#contentSelector) ||
@@ -215,6 +229,9 @@ class Tooltip {
 			hasToDisableTarget: !!disabled && Boolean(this.#boundEnterHandler),
 			hasToEnableTarget: !disabled && !Boolean(this.#boundEnterHandler),
 			hasTouchBehaviorChanged: touchBehavior !== undefined && touchBehavior !== this.#touchBehavior,
+			hasShowHideConfigChanged:
+				(showOn !== undefined && showOn.join(',') !== this.#showOn.join(',')) ||
+				(hideOn !== undefined && hideOn.join(',') !== this.#hideOn.join(',')),
 			// Re-show when open:true is passed after a structure rebuild (tooltip removed from DOM),
 			// or when the tooltip is not yet visible. Guard with !disabled so open+disabled is a no-op.
 			hasToShow: open === true && !disabled && (!isCurrentlyShown || hasStructureChanged),
@@ -263,19 +280,26 @@ class Tooltip {
 		if (touchBehavior !== undefined) {
 			this.#touchBehavior = touchBehavior;
 		}
+		// #showOn / #hideOn are intentionally NOT updated here: they must be applied between
+		// #disable() and #enable() in #applyChanges so that #disableTarget removes the OLD
+		// listeners before #enableTarget registers the NEW ones.
 	}
 
-	#applyChanges({
-		hasStructureChanged,
-		hasContainerClassNameChanged,
-		hasWidthChanged,
-		hasToDisableTarget,
-		hasToEnableTarget,
-		hasTouchBehaviorChanged,
-		hasToShow,
-		hasToHide,
-		hasInteractivityChanged
-	}: ChangeSet) {
+	#applyChanges(
+		{
+			hasStructureChanged,
+			hasContainerClassNameChanged,
+			hasWidthChanged,
+			hasToDisableTarget,
+			hasToEnableTarget,
+			hasTouchBehaviorChanged,
+			hasShowHideConfigChanged,
+			hasToShow,
+			hasToHide,
+			hasInteractivityChanged
+		}: ChangeSet,
+		options: TooltipOptions = {}
+	) {
 		if (hasStructureChanged) {
 			this.#removeTooltipFromTarget(true);
 			this.#createTooltip();
@@ -299,16 +323,18 @@ class Tooltip {
 			this.#disable();
 		} else if (hasToEnableTarget) {
 			this.#enable();
-		} else if (hasTouchBehaviorChanged) {
-			// Full listener cycle so #enableTarget/#enableWindow pick up the new #touchBehavior.
+		} else if (hasTouchBehaviorChanged || hasShowHideConfigChanged) {
+			// #disable() uses the OLD #showOn/#hideOn to remove the correct listeners.
 			this.#disable();
+			if (options.showOn !== undefined) this.#showOn = options.showOn;
+			if (options.hideOn !== undefined) this.#hideOn = options.hideOn;
 			this.#enable();
 		}
 
 		if (hasToShow) {
-			this.#appendTooltipToTarget();
+			this.#appendTooltipToTarget().then(() => this.#onEnter?.());
 		} else if (hasToHide) {
-			this.#removeTooltipFromTarget();
+			this.#removeTooltipFromTarget().then(() => this.#onLeave?.());
 		}
 
 		if (hasInteractivityChanged) {
@@ -356,14 +382,30 @@ class Tooltip {
 		this.#enableWindow();
 	}
 
+	#partitionEvents(): {
+		toggleEvents: string[];
+		showOnlyEvents: string[];
+		hideOnlyEvents: string[];
+	} {
+		return {
+			toggleEvents: this.#showOn.filter((evt) => this.#hideOn.includes(evt)),
+			showOnlyEvents: this.#showOn.filter((evt) => !this.#hideOn.includes(evt)),
+			hideOnlyEvents: this.#hideOn.filter((evt) => !this.#showOn.includes(evt))
+		};
+	}
+
 	#enableTarget() {
 		this.#boundEnterHandler = this.#onTargetEnter.bind(this);
 		this.#boundLeaveHandler = this.#onTargetLeave.bind(this);
 
-		this.#target?.addEventListener('mouseenter', this.#boundEnterHandler);
-		this.#target?.addEventListener('mouseleave', this.#boundLeaveHandler);
-		this.#target?.addEventListener('focusin', this.#boundEnterHandler);
-		this.#target?.addEventListener('focusout', this.#boundLeaveHandler);
+		const { toggleEvents, showOnlyEvents, hideOnlyEvents } = this.#partitionEvents();
+
+		if (toggleEvents.length) {
+			this.#boundToggleHandler = this.#onTargetToggle.bind(this);
+			toggleEvents.forEach((evt) => this.#target?.addEventListener(evt, this.#boundToggleHandler!));
+		}
+		showOnlyEvents.forEach((evt) => this.#target?.addEventListener(evt, this.#boundEnterHandler!));
+		hideOnlyEvents.forEach((evt) => this.#target?.addEventListener(evt, this.#boundLeaveHandler!));
 
 		if (this.#touchBehavior === 'hover') {
 			this.#target?.addEventListener('touchstart', this.#boundEnterHandler, { passive: true });
@@ -412,14 +454,26 @@ class Tooltip {
 	}
 
 	#disableTarget() {
+		const { toggleEvents, showOnlyEvents, hideOnlyEvents } = this.#partitionEvents();
+
+		if (this.#boundToggleHandler) {
+			toggleEvents.forEach((evt) =>
+				this.#target?.removeEventListener(evt, this.#boundToggleHandler!)
+			);
+			this.#boundToggleHandler = null;
+		}
 		if (this.#boundEnterHandler) {
-			this.#target?.removeEventListener('mouseenter', this.#boundEnterHandler);
-			this.#target?.removeEventListener('focusin', this.#boundEnterHandler);
+			showOnlyEvents.forEach((evt) =>
+				this.#target?.removeEventListener(evt, this.#boundEnterHandler!)
+			);
+			// Touch events from touchBehavior are always cleaned up regardless of showOn.
 			this.#target?.removeEventListener('touchstart', this.#boundEnterHandler);
 		}
 		if (this.#boundLeaveHandler) {
-			this.#target?.removeEventListener('mouseleave', this.#boundLeaveHandler);
-			this.#target?.removeEventListener('focusout', this.#boundLeaveHandler);
+			hideOnlyEvents.forEach((evt) =>
+				this.#target?.removeEventListener(evt, this.#boundLeaveHandler!)
+			);
+			// Touch events from touchBehavior are always cleaned up regardless of hideOn.
 			this.#target?.removeEventListener('touchend', this.#boundLeaveHandler);
 			this.#target?.removeEventListener('touchcancel', this.#boundLeaveHandler);
 		}
@@ -773,14 +827,29 @@ class Tooltip {
 		if (this.#trapHandler) {
 			this.#tooltip?.removeEventListener('keydown', this.#trapHandler);
 			this.#trapHandler = null;
-			// Temporarily remove the focusin listener so that returning focus to the trigger
+			// Temporarily remove show-event listeners so that returning focus to the trigger
 			// does not re-open the tooltip.
+			const { toggleEvents, showOnlyEvents } = this.#partitionEvents();
 			if (this.#boundEnterHandler) {
-				this.#target?.removeEventListener('focusin', this.#boundEnterHandler);
+				showOnlyEvents.forEach((evt) =>
+					this.#target?.removeEventListener(evt, this.#boundEnterHandler!)
+				);
+			}
+			if (this.#boundToggleHandler) {
+				toggleEvents.forEach((evt) =>
+					this.#target?.removeEventListener(evt, this.#boundToggleHandler!)
+				);
 			}
 			this.#target?.focus();
 			if (this.#boundEnterHandler) {
-				this.#target?.addEventListener('focusin', this.#boundEnterHandler);
+				showOnlyEvents.forEach((evt) =>
+					this.#target?.addEventListener(evt, this.#boundEnterHandler!)
+				);
+			}
+			if (this.#boundToggleHandler) {
+				toggleEvents.forEach((evt) =>
+					this.#target?.addEventListener(evt, this.#boundToggleHandler!)
+				);
 			}
 		}
 	}
@@ -825,6 +894,14 @@ class Tooltip {
 			await this.#removeTooltipFromTarget();
 			await standby(0);
 			this.#onLeave?.();
+		}
+	}
+
+	async #onTargetToggle(e: Event) {
+		if (this.#tooltip?.parentNode) {
+			await this.#onTargetLeave(e);
+		} else {
+			await this.#onTargetEnter(e);
 		}
 	}
 
