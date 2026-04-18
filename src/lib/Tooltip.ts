@@ -385,7 +385,11 @@ class Tooltip {
 		this.#enableWindow();
 	}
 
-	#partitionEvents(): { toggleEvents: string[]; showOnlyEvents: string[]; hideOnlyEvents: string[] } {
+	#partitionEvents(): {
+		toggleEvents: string[];
+		showOnlyEvents: string[];
+		hideOnlyEvents: string[];
+	} {
 		return {
 			toggleEvents: this.#showOn.filter((evt) => this.#hideOn.includes(evt)),
 			showOnlyEvents: this.#showOn.filter((evt) => !this.#hideOn.includes(evt)),
@@ -898,22 +902,9 @@ class Tooltip {
 
 	async #onTargetToggle(e: Event) {
 		if (this.#tooltip?.parentNode) {
-			if (this.#open) return;
-			if (e.type === 'focusout' && this.#target?.contains((e as FocusEvent).relatedTarget as Node))
-				return;
-			if (this.#target === e.target || !this.#target?.contains(e.target as Node)) {
-				await this.#waitForDelay(this.#leaveDelay);
-				await this.#removeTooltipFromTarget();
-				await standby(0);
-				this.#onLeave?.();
-			}
+			await this.#onTargetLeave(e);
 		} else {
-			if (this.#target === e.target) {
-				await this.#waitForDelay(this.#enterDelay);
-				await this.#appendTooltipToTarget();
-				await standby(0);
-				this.#onEnter?.();
-			}
+			await this.#onTargetEnter(e);
 		}
 	}
 
