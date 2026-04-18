@@ -373,8 +373,8 @@
 </template>
 <template id="tooltip__interactive__template">
 	<div class="tooltip__content">
-		<button class="tooltip__interactive__btn">Action 1</button>
-		<button class="tooltip__interactive__btn">Action 2</button>
+		<button id="action_1" class="tooltip__interactive__btn">Action 1</button>
+		<button id="action_2" class="tooltip__interactive__btn">Action 2</button>
 		<span style="font-style: italic;">(Use Tab)</span>
 	</div>
 </template>
@@ -413,18 +413,19 @@
 				contentActions: useInteractiveContent
 					? {
 							'.tooltip__interactive__btn': [
-										{
-											eventType: 'click',
-											callback: () => alert("You've clicked a button inside the tooltip"),
-											callbackParams: ['ok'],
-											closeOnCallback: false
-										},
-										{
-											eventType: 'mouseenter',
-											callback: () => console.log("You've hovered a button inside the tooltip"),
-											callbackParams: []
-										}
-									]
+								{
+									eventType: 'click',
+									callback: (_, e) =>
+										alert(`You've clicked a button (${e.target.id}) inside the tooltip`),
+									callbackParams: ['ok'],
+									closeOnCallback: false
+								},
+								{
+									eventType: 'mouseenter',
+									callback: () => console.log("You've hovered a button inside the tooltip"),
+									callbackParams: []
+								}
+							]
 						}
 					: {
 							'*': {
