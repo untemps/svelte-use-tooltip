@@ -16,7 +16,6 @@
 	let width = $state('auto');
 	let isOpen = $state<boolean | undefined>(undefined);
 	let useInteractiveContent = $state(false);
-	let useMultipleActions = $state(false);
 	let touchBehavior = $state<'hover' | 'toggle' | undefined>(undefined);
 	let settingsOpen = $state(false);
 
@@ -413,26 +412,19 @@
 						: null,
 				contentActions: useInteractiveContent
 					? {
-							'.tooltip__interactive__btn': useMultipleActions
-								? [
+							'.tooltip__interactive__btn': [
 										{
 											eventType: 'click',
-											callback: _onTooltipClick,
+											callback: () => alert("You've clicked a button inside the tooltip"),
 											callbackParams: ['ok'],
 											closeOnCallback: false
 										},
 										{
 											eventType: 'mouseenter',
-											callback: () => console.log('Hovered a button'),
+											callback: () => console.log("You've hovered a button inside the tooltip"),
 											callbackParams: []
 										}
 									]
-								: {
-										eventType: 'click',
-										callback: _onTooltipClick,
-										callbackParams: ['ok'],
-										closeOnCallback: false
-									}
 						}
 					: {
 							'*': {
@@ -548,18 +540,8 @@
 			</fieldset>
 			<fieldset>
 				<label>
-					Interactive Content (focus trap):
+					Interactive Content:
 					<input type="checkbox" bind:checked={useInteractiveContent} />
-				</label>
-			</fieldset>
-			<fieldset>
-				<label>
-					Multiple actions per element:
-					<input
-						type="checkbox"
-						bind:checked={useMultipleActions}
-						disabled={!useInteractiveContent}
-					/>
 				</label>
 			</fieldset>
 			<fieldset>
