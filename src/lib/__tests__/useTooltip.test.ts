@@ -373,6 +373,68 @@ describe('useTooltip', () => {
 				expect.any(Event)
 			);
 		});
+
+		test('Triggers all callbacks when an array of actions is provided for a selector', async () => {
+			const clickCallback = vi.fn();
+			const mouseenterCallback = vi.fn();
+			action = createAction(target, {
+				...options,
+				contentActions: {
+					// '*' attaches listeners directly on the tooltip container
+					'*': [
+						{ eventType: 'click', callback: clickCallback, callbackParams: [] },
+						{ eventType: 'mouseenter', callback: mouseenterCallback, callbackParams: [] }
+					]
+				}
+			});
+			await _enter(target);
+			const tooltip = tooltipEl();
+			await fireEvent.click(tooltip);
+			expect(clickCallback).toHaveBeenCalledTimes(1);
+			expect(mouseenterCallback).not.toHaveBeenCalled();
+			await fireEvent.mouseEnter(tooltip);
+			expect(mouseenterCallback).toHaveBeenCalledTimes(1);
+		});
+
+		test('Closes tooltip on closeOnCallback in array when triggered', async () => {
+			const closeCallback = vi.fn();
+			const otherCallback = vi.fn();
+			action = createAction(target, {
+				...options,
+				contentActions: {
+					'*': [
+						{ eventType: 'click', callback: closeCallback, callbackParams: [], closeOnCallback: true },
+						{ eventType: 'mouseenter', callback: otherCallback, callbackParams: [] }
+					]
+				}
+			});
+			await _enter(target);
+			const content = getElement('#content');
+			await fireEvent.click(content as Element);
+			expect(closeCallback).toHaveBeenCalledTimes(1);
+			expect(content).not.toBeInTheDocument();
+		});
+
+		test('Removes all listeners from array actions on tooltip close', async () => {
+			const clickCallback = vi.fn();
+			const mouseenterCallback = vi.fn();
+			action = createAction(target, {
+				...options,
+				contentActions: {
+					'*': [
+						{ eventType: 'click', callback: clickCallback, callbackParams: [] },
+						{ eventType: 'mouseenter', callback: mouseenterCallback, callbackParams: [] }
+					]
+				}
+			});
+			await _enter(target);
+			await _leave(target);
+			// After tooltip closes, re-open and check callbacks are fresh (not double-registered)
+			await _enter(target);
+			const content = getElement('#content');
+			await fireEvent.click(content as Element);
+			expect(clickCallback).toHaveBeenCalledTimes(1);
+		});
 	});
 
 	describe('useTooltip props: containerClassName', () => {

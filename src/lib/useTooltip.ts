@@ -6,6 +6,7 @@ import type { TooltipOptions } from './Tooltip';
 import './useTooltip.css';
 
 export type { TooltipOptions };
+export type { ContentAction, ContentActionValue, ContentActions } from './Tooltip';
 
 const useTooltip: Action<HTMLElement, TooltipOptions> = (node, options = {}) => {
 	const tooltip = new Tooltip(node, options);
