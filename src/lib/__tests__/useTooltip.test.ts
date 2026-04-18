@@ -497,6 +497,61 @@ describe('useTooltip', () => {
 		});
 	});
 
+	describe('useTooltip props: contentActions semantics', () => {
+		test('Non-"*" contentActions without contentSelector are cleared and a warning is emitted', async () => {
+			const callback = vi.fn();
+			const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+			action = createAction(target, {
+				contentActions: { '#btn': { eventType: 'click', callback, callbackParams: [] } }
+			});
+			await _enter(target);
+			const tooltip = target.querySelector('[role="tooltip"]')!;
+			await fireEvent.click(tooltip);
+			expect(callback).not.toHaveBeenCalled();
+			expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('"*"'));
+			warnSpy.mockRestore();
+		});
+
+		test('"*" contentActions without contentSelector works normally', async () => {
+			const callback = vi.fn();
+			action = createAction(target, {
+				content: 'Hello',
+				contentActions: { '*': { eventType: 'click', callback, callbackParams: [] } }
+			});
+			await _enter(target);
+			const tooltip = target.querySelector('[role="tooltip"]')!;
+			await fireEvent.click(tooltip);
+			expect(callback).toHaveBeenCalledTimes(1);
+		});
+
+		test('update() without contentActions preserves existing actions', async () => {
+			const callback = vi.fn();
+			action = createAction(target, {
+				contentSelector: '#template',
+				contentActions: { '*': { eventType: 'click', callback, callbackParams: [] } }
+			});
+			// Partial update — contentActions intentionally absent (undefined)
+			action.update({ contentSelector: '#template' });
+			await _enter(target);
+			const tooltip = target.querySelector('[role="tooltip"]')!;
+			await fireEvent.click(tooltip);
+			expect(callback).toHaveBeenCalledTimes(1);
+		});
+
+		test('update({ contentActions: null }) explicitly clears actions', async () => {
+			const callback = vi.fn();
+			action = createAction(target, {
+				...options,
+				contentActions: { '*': { eventType: 'click', callback, callbackParams: [] } }
+			});
+			action.update({ ...options, contentActions: null });
+			await _enter(target);
+			const tooltip = target.querySelector('[role="tooltip"]')!;
+			await fireEvent.click(tooltip);
+			expect(callback).not.toHaveBeenCalled();
+		});
+	});
+
 	describe('useTooltip props: containerClassName', () => {
 		test('Sets tooltip default class', async () => {
 			action = createAction(target, options);
