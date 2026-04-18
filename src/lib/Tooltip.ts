@@ -385,13 +385,19 @@ class Tooltip {
 		this.#enableWindow();
 	}
 
+	#partitionEvents(): { toggleEvents: string[]; showOnlyEvents: string[]; hideOnlyEvents: string[] } {
+		return {
+			toggleEvents: this.#showOn.filter((evt) => this.#hideOn.includes(evt)),
+			showOnlyEvents: this.#showOn.filter((evt) => !this.#hideOn.includes(evt)),
+			hideOnlyEvents: this.#hideOn.filter((evt) => !this.#showOn.includes(evt))
+		};
+	}
+
 	#enableTarget() {
 		this.#boundEnterHandler = this.#onTargetEnter.bind(this);
 		this.#boundLeaveHandler = this.#onTargetLeave.bind(this);
 
-		const toggleEvents = this.#showOn.filter((evt) => this.#hideOn.includes(evt));
-		const showOnlyEvents = this.#showOn.filter((evt) => !this.#hideOn.includes(evt));
-		const hideOnlyEvents = this.#hideOn.filter((evt) => !this.#showOn.includes(evt));
+		const { toggleEvents, showOnlyEvents, hideOnlyEvents } = this.#partitionEvents();
 
 		if (toggleEvents.length) {
 			this.#boundToggleHandler = this.#onTargetToggle.bind(this);
@@ -447,9 +453,7 @@ class Tooltip {
 	}
 
 	#disableTarget() {
-		const toggleEvents = this.#showOn.filter((evt) => this.#hideOn.includes(evt));
-		const showOnlyEvents = this.#showOn.filter((evt) => !this.#hideOn.includes(evt));
-		const hideOnlyEvents = this.#hideOn.filter((evt) => !this.#showOn.includes(evt));
+		const { toggleEvents, showOnlyEvents, hideOnlyEvents } = this.#partitionEvents();
 
 		if (this.#boundToggleHandler) {
 			toggleEvents.forEach((evt) =>
@@ -824,8 +828,7 @@ class Tooltip {
 			this.#trapHandler = null;
 			// Temporarily remove show-event listeners so that returning focus to the trigger
 			// does not re-open the tooltip.
-			const toggleEvents = this.#showOn.filter((evt) => this.#hideOn.includes(evt));
-			const showOnlyEvents = this.#showOn.filter((evt) => !this.#hideOn.includes(evt));
+			const { toggleEvents, showOnlyEvents } = this.#partitionEvents();
 			if (this.#boundEnterHandler) {
 				showOnlyEvents.forEach((evt) =>
 					this.#target?.removeEventListener(evt, this.#boundEnterHandler!)
