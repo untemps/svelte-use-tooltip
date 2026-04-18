@@ -1,3 +1,10 @@
+# [3.15.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.14.0...v3.15.0) (2026-04-18)
+
+
+### Features
+
+* Enforce contentSelector constraint and preserve actions on partial update ([#181](https://github.com/untemps/svelte-use-tooltip/issues/181)) ([3fb67db](https://github.com/untemps/svelte-use-tooltip/commit/3fb67db10125a9712b9daf070acb545fd96321f6))
+
 # [3.14.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.13.0...v3.14.0) (2026-04-18)
 
 
