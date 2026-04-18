@@ -17,7 +17,14 @@
 	let isOpen = $state<boolean | undefined>(undefined);
 	let useInteractiveContent = $state(false);
 	let touchBehavior = $state<'hover' | 'toggle' | undefined>(undefined);
+	let showOn = $state<string[]>(['mouseenter', 'focusin']);
+	let hideOn = $state<string[]>(['mouseleave', 'focusout']);
 	let settingsOpen = $state(false);
+
+	const EVENT_OPTIONS = ['mouseenter', 'mouseleave', 'focusin', 'focusout', 'click', 'dblclick'];
+
+	const toggleEvent = (list: string[], event: string): string[] =>
+		list.includes(event) ? list.filter((e) => e !== event) : [...list, event];
 
 	const _onTooltipEnter = () => {
 		if (triggerOnEnter) {
@@ -447,7 +454,9 @@
 				width: width,
 				disabled: isDisabled,
 				open: isOpen,
-				touchBehavior: touchBehavior
+				touchBehavior: touchBehavior,
+				showOn: showOn,
+				hideOn: hideOn
 			}}
 			class="target"
 		>
@@ -553,6 +562,40 @@
 						<option value="hover">Hover</option>
 						<option value="toggle">Toggle</option>
 					</select>
+				</label>
+			</fieldset>
+			<fieldset>
+				<label style="align-items: flex-start;">
+					Show On:
+					<div style="display: flex; flex-direction: column; gap: 0.25rem;">
+						{#each EVENT_OPTIONS as evt}
+							<label style="justify-content: flex-start; column-gap: 0.5rem;">
+								<input
+									type="checkbox"
+									checked={showOn.includes(evt)}
+									onchange={() => (showOn = toggleEvent(showOn, evt))}
+								/>
+								{evt}
+							</label>
+						{/each}
+					</div>
+				</label>
+			</fieldset>
+			<fieldset>
+				<label style="align-items: flex-start;">
+					Hide On:
+					<div style="display: flex; flex-direction: column; gap: 0.25rem;">
+						{#each EVENT_OPTIONS as evt}
+							<label style="justify-content: flex-start; column-gap: 0.5rem;">
+								<input
+									type="checkbox"
+									checked={hideOn.includes(evt)}
+									onchange={() => (hideOn = toggleEvent(hideOn, evt))}
+								/>
+								{evt}
+							</label>
+						{/each}
+					</div>
 				</label>
 			</fieldset>
 			<fieldset>
