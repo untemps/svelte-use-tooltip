@@ -259,9 +259,7 @@ class Tooltip {
 		offset,
 		width,
 		open,
-		touchBehavior,
-		showOn,
-		hideOn
+		touchBehavior
 	}: TooltipOptions) {
 		this.#content = content ?? null;
 		this.#contentSelector = contentSelector ?? null;
@@ -328,7 +326,6 @@ class Tooltip {
 		} else if (hasTouchBehaviorChanged || hasShowHideConfigChanged) {
 			// #disable() uses the OLD #showOn/#hideOn to remove the correct listeners.
 			this.#disable();
-			// Update show/hide config between cycles so #enableTarget registers the new events.
 			if (options.showOn !== undefined) this.#showOn = options.showOn;
 			if (options.hideOn !== undefined) this.#hideOn = options.hideOn;
 			this.#enable();
