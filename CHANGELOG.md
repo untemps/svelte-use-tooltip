@@ -1,3 +1,10 @@
+# [3.13.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.12.0...v3.13.0) (2026-04-18)
+
+
+### Features
+
+* Support array of actions per selector in contentActions ([#179](https://github.com/untemps/svelte-use-tooltip/issues/179)) ([0e71b1e](https://github.com/untemps/svelte-use-tooltip/commit/0e71b1e45d9b8aadacdc2def4ce6cd96563d489e))
+
 # [3.12.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.11.0...v3.12.0) (2026-04-16)
 
 
