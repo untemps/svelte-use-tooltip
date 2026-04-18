@@ -335,9 +335,9 @@ class Tooltip {
 		}
 
 		if (hasToShow) {
-			this.#appendTooltipToTarget();
+			this.#appendTooltipToTarget().then(() => this.#onEnter?.());
 		} else if (hasToHide) {
-			this.#removeTooltipFromTarget();
+			this.#removeTooltipFromTarget().then(() => this.#onLeave?.());
 		}
 
 		if (hasInteractivityChanged) {
