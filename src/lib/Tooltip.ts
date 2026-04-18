@@ -239,13 +239,12 @@ class Tooltip {
 			// Skip explicit hide when structure already removed the tooltip from the DOM.
 			hasToHide: open === false && isCurrentlyShown && !hasStructureChanged,
 			hasInteractivityChanged: (() => {
-				// Simulate what #applyState will produce: preserve on undefined, then enforce constraint.
+				// Predict what #applyState will produce without mutating state.
 				const nextActions =
 					contentActions !== undefined ? (contentActions ?? null) : this.#contentActions;
 				const nextSelector =
 					contentSelector !== undefined ? (contentSelector ?? null) : this.#contentSelector;
-				const effectiveActions =
-					!nextSelector && nextActions && !('*' in nextActions) ? null : nextActions;
+				const effectiveActions = this.#computeEffectiveActions(nextActions, nextSelector);
 				const nextIsInteractive = !!effectiveActions && Object.keys(effectiveActions).length > 0;
 				return nextIsInteractive !== this.#isInteractive();
 			})()
@@ -769,8 +768,16 @@ class Tooltip {
 		return Object.keys(this.#contentActions ?? {}).length > 0;
 	}
 
+	#computeEffectiveActions(
+		actions: ContentActions | null,
+		selector: string | null
+	): ContentActions | null {
+		return !selector && actions && !('*' in actions) ? null : actions;
+	}
+
 	#enforceContentActionsConstraint(): void {
-		if (!this.#contentSelector && this.#contentActions && !('*' in this.#contentActions)) {
+		const effective = this.#computeEffectiveActions(this.#contentActions, this.#contentSelector);
+		if (effective !== this.#contentActions) {
 			console.warn(
 				'[useTooltip] contentActions keys other than "*" require contentSelector. ' +
 					'Non-"*" actions have been cleared.'
