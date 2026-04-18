@@ -15,6 +15,7 @@
 	let offset = $state(10);
 	let width = $state('auto');
 	let isOpen = $state<boolean | undefined>(undefined);
+	let isTooltipVisible = $state(false);
 	let useInteractiveContent = $state(false);
 	let touchBehavior = $state<'hover' | 'toggle' | undefined>(undefined);
 	let showOn = $state<string[]>(['mouseenter', 'focusin']);
@@ -27,12 +28,14 @@
 		list.includes(event) ? list.filter((e) => e !== event) : [...list, event];
 
 	const _onTooltipEnter = () => {
+		isTooltipVisible = true;
 		if (triggerOnEnter) {
 			alert("You've entered the target");
 		}
 	};
 
 	const _onTooltipLeave = () => {
+		isTooltipVisible = false;
 		if (triggerOnLeave) {
 			alert("You've left the target");
 		}
@@ -605,8 +608,8 @@
 				</label>
 			</fieldset>
 			<fieldset class="settings__form__actions">
-				<button type="button" onclick={() => (isOpen = !isOpen)} disabled={isDisabled}>
-					{isOpen === true ? 'Masquer la tooltip' : 'Afficher la tooltip'}
+				<button type="button" onclick={() => (isOpen = isTooltipVisible ? false : true)} disabled={isDisabled}>
+					{isTooltipVisible ? 'Masquer la tooltip' : 'Afficher la tooltip'}
 				</button>
 			</fieldset>
 		</form>
