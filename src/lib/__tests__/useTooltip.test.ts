@@ -31,7 +31,12 @@ const initTemplate = (id: string, contentId: string): void => {
 
 // Creates a <template> whose firstElementChild is a <div> wrapper containing `count` elements
 // of `childTag` with class `childClass`. Used to test querySelectorAll-based listener binding.
-const initMultiTemplate = (id: string, childTag: string, childClass: string, count: number): void => {
+const initMultiTemplate = (
+	id: string,
+	childTag: string,
+	childClass: string,
+	count: number
+): void => {
 	const template = createElement({ tag: 'template', attributes: { id }, parent: document.body });
 	const wrapper = createElement({
 		tag: 'div',
@@ -1958,6 +1963,89 @@ describe('useTooltip', () => {
 			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
 			expect(tooltip.querySelector('button')).toBeNull();
 			expect(document.activeElement).not.toBeInstanceOf(HTMLButtonElement);
+		});
+	});
+
+	describe('useTooltip props: showOn / hideOn', () => {
+		test('Shows tooltip on a custom showOn event', async () => {
+			action = createAction(target, { ...options, showOn: ['click'] });
+			await fireEvent.click(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Does not show tooltip on default mouseenter when showOn is overridden', async () => {
+			action = createAction(target, { ...options, showOn: ['click'] });
+			await _enter(target);
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
+		test('Hides tooltip on a custom hideOn event', async () => {
+			action = createAction(target, { ...options, hideOn: ['dblclick'] });
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			await fireEvent.dblClick(target);
+			await standby(1);
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
+		test('Does not hide tooltip on default mouseleave when hideOn is overridden', async () => {
+			action = createAction(target, { ...options, hideOn: ['dblclick'] });
+			await _enter(target);
+			await _leave(target);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Keeps tooltip visible with hideOn: []', async () => {
+			action = createAction(target, { ...options, hideOn: [] });
+			await _enter(target);
+			await _leave(target);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Closes tooltip with hideOn: [] via Escape key', async () => {
+			action = createAction(target, { ...options, hideOn: [] });
+			await _enter(target);
+			await _keyDown(target);
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
+		test('Default behaviour unchanged when showOn/hideOn are not provided', async () => {
+			action = createAction(target, options);
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			await _leave(target);
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
+		test('Updates showOn reactively via action.update()', async () => {
+			action = createAction(target, options);
+			// First confirm default mouseenter shows tooltip
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			await _leave(target);
+
+			// Switch to click-only
+			action.update({ ...options, showOn: ['click'] });
+			await _enter(target);
+			expect(getElement('#content')).not.toBeInTheDocument();
+			await fireEvent.click(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Updates hideOn reactively via action.update()', async () => {
+			action = createAction(target, options);
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+
+			// Switch to dblclick-only dismiss
+			action.update({ ...options, hideOn: ['dblclick'] });
+			await _leave(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			await fireEvent.dblClick(target);
+			await standby(1);
+			expect(getElement('#content')).not.toBeInTheDocument();
 		});
 	});
 });
