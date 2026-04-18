@@ -2047,5 +2047,57 @@ describe('useTooltip', () => {
 			await standby(1);
 			expect(getElement('#content')).not.toBeInTheDocument();
 		});
+
+		test('Toggles tooltip when the same event is in both showOn and hideOn', async () => {
+			action = createAction(target, { ...options, showOn: ['click'], hideOn: ['click'] });
+			// First click: show
+			await fireEvent.click(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+			// Second click: hide
+			await fireEvent.click(target);
+			await standby(1);
+			expect(getElement('#content')).not.toBeInTheDocument();
+			// Third click: show again
+			await fireEvent.click(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Toggle respects open lock — does not hide when open: true', async () => {
+			action = createAction(target, {
+				...options,
+				showOn: ['click'],
+				hideOn: ['click'],
+				open: true
+			});
+			await fireEvent.click(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+			// Click should NOT hide while open is locked
+			await fireEvent.click(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Toggle events and exclusive events can coexist', async () => {
+			// click toggles, mouseenter shows only (no mouseleave in hideOn)
+			action = createAction(target, {
+				...options,
+				showOn: ['click', 'mouseenter'],
+				hideOn: ['click']
+			});
+			// mouseenter shows
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			// click hides (toggle → visible → hide)
+			await fireEvent.click(target);
+			await standby(1);
+			expect(getElement('#content')).not.toBeInTheDocument();
+			// click shows (toggle → hidden → show)
+			await fireEvent.click(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
 	});
 });

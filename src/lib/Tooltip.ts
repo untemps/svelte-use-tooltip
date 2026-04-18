@@ -108,6 +108,7 @@ class Tooltip {
 
 	#boundEnterHandler: ((e: Event) => void) | null = null;
 	#boundLeaveHandler: ((e: Event) => void) | null = null;
+	#boundToggleHandler: ((e: Event) => void) | null = null;
 	#boundTouchToggleHandler: ((e: Event) => void) | null = null;
 	#boundWindowChangeHandler: ((e: Event) => void) | null = null;
 	#trapHandler: ((e: KeyboardEvent) => void) | null = null;
@@ -388,8 +389,16 @@ class Tooltip {
 		this.#boundEnterHandler = this.#onTargetEnter.bind(this);
 		this.#boundLeaveHandler = this.#onTargetLeave.bind(this);
 
-		this.#showOn.forEach((evt) => this.#target?.addEventListener(evt, this.#boundEnterHandler!));
-		this.#hideOn.forEach((evt) => this.#target?.addEventListener(evt, this.#boundLeaveHandler!));
+		const toggleEvents = this.#showOn.filter((evt) => this.#hideOn.includes(evt));
+		const showOnlyEvents = this.#showOn.filter((evt) => !this.#hideOn.includes(evt));
+		const hideOnlyEvents = this.#hideOn.filter((evt) => !this.#showOn.includes(evt));
+
+		if (toggleEvents.length) {
+			this.#boundToggleHandler = this.#onTargetToggle.bind(this);
+			toggleEvents.forEach((evt) => this.#target?.addEventListener(evt, this.#boundToggleHandler!));
+		}
+		showOnlyEvents.forEach((evt) => this.#target?.addEventListener(evt, this.#boundEnterHandler!));
+		hideOnlyEvents.forEach((evt) => this.#target?.addEventListener(evt, this.#boundLeaveHandler!));
 
 		if (this.#touchBehavior === 'hover') {
 			this.#target?.addEventListener('touchstart', this.#boundEnterHandler, { passive: true });
@@ -438,15 +447,25 @@ class Tooltip {
 	}
 
 	#disableTarget() {
+		const toggleEvents = this.#showOn.filter((evt) => this.#hideOn.includes(evt));
+		const showOnlyEvents = this.#showOn.filter((evt) => !this.#hideOn.includes(evt));
+		const hideOnlyEvents = this.#hideOn.filter((evt) => !this.#showOn.includes(evt));
+
+		if (this.#boundToggleHandler) {
+			toggleEvents.forEach((evt) =>
+				this.#target?.removeEventListener(evt, this.#boundToggleHandler!)
+			);
+			this.#boundToggleHandler = null;
+		}
 		if (this.#boundEnterHandler) {
-			this.#showOn.forEach((evt) =>
+			showOnlyEvents.forEach((evt) =>
 				this.#target?.removeEventListener(evt, this.#boundEnterHandler!)
 			);
 			// Touch events from touchBehavior are always cleaned up regardless of showOn.
 			this.#target?.removeEventListener('touchstart', this.#boundEnterHandler);
 		}
 		if (this.#boundLeaveHandler) {
-			this.#hideOn.forEach((evt) =>
+			hideOnlyEvents.forEach((evt) =>
 				this.#target?.removeEventListener(evt, this.#boundLeaveHandler!)
 			);
 			// Touch events from touchBehavior are always cleaned up regardless of hideOn.
@@ -805,15 +824,27 @@ class Tooltip {
 			this.#trapHandler = null;
 			// Temporarily remove show-event listeners so that returning focus to the trigger
 			// does not re-open the tooltip.
+			const toggleEvents = this.#showOn.filter((evt) => this.#hideOn.includes(evt));
+			const showOnlyEvents = this.#showOn.filter((evt) => !this.#hideOn.includes(evt));
 			if (this.#boundEnterHandler) {
-				this.#showOn.forEach((evt) =>
+				showOnlyEvents.forEach((evt) =>
 					this.#target?.removeEventListener(evt, this.#boundEnterHandler!)
+				);
+			}
+			if (this.#boundToggleHandler) {
+				toggleEvents.forEach((evt) =>
+					this.#target?.removeEventListener(evt, this.#boundToggleHandler!)
 				);
 			}
 			this.#target?.focus();
 			if (this.#boundEnterHandler) {
-				this.#showOn.forEach((evt) =>
+				showOnlyEvents.forEach((evt) =>
 					this.#target?.addEventListener(evt, this.#boundEnterHandler!)
+				);
+			}
+			if (this.#boundToggleHandler) {
+				toggleEvents.forEach((evt) =>
+					this.#target?.addEventListener(evt, this.#boundToggleHandler!)
 				);
 			}
 		}
@@ -859,6 +890,27 @@ class Tooltip {
 			await this.#removeTooltipFromTarget();
 			await standby(0);
 			this.#onLeave?.();
+		}
+	}
+
+	async #onTargetToggle(e: Event) {
+		if (this.#tooltip?.parentNode) {
+			if (this.#open) return;
+			if (e.type === 'focusout' && this.#target?.contains((e as FocusEvent).relatedTarget as Node))
+				return;
+			if (this.#target === e.target || !this.#target?.contains(e.target as Node)) {
+				await this.#waitForDelay(this.#leaveDelay);
+				await this.#removeTooltipFromTarget();
+				await standby(0);
+				this.#onLeave?.();
+			}
+		} else {
+			if (this.#target === e.target) {
+				await this.#waitForDelay(this.#enterDelay);
+				await this.#appendTooltipToTarget();
+				await standby(0);
+				this.#onEnter?.();
+			}
 		}
 	}
 
