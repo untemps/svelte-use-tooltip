@@ -223,8 +223,8 @@ Each value in the `contentActions` object can be either a single action object (
 | Props             | Type     | Default | Description                                                                                              |
 | ----------------- | -------- | ------- | -------------------------------------------------------------------------------------------------------- |
 | `eventType`       | string   | null    | Type of the event. All available [events](https://developer.mozilla.org/fr/docs/Web/Events) can be used. |
-| `callback`        | function | null    | Function to be used as event handler.                                                                    |
-| `callbackParams`  | array    | null    | List of arguments to pass to the event handler in.                                                       |
+| `callback`        | function | null    | Function to be used as event handler. The callback always receives the items of `callbackParams` as leading arguments, followed by the native `Event` object as the last argument: `callback(...callbackParams, event)`. Use `event.target` or `event.currentTarget` to identify the element that triggered the interaction. |
+| `callbackParams`  | array    | null    | List of arguments to pass to the event handler as leading arguments, before the native `Event` object.   |
 | `closeOnCallback` | boolean  | false   | Flag to automatically close the tooltip when the event handler is triggered.                             |
 
 #### Multiple events per element
