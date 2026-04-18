@@ -138,7 +138,7 @@ npm i @untemps/svelte-use-tooltip
 | ------------------------- | ------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `content`                 | string  | null                | Text content to display in the tooltip. In development, a `console.warn` is emitted if neither `content` nor `contentSelector` is provided.                                                                                                                                                                                          |
 | `contentSelector`         | string  | null                | Selector of the content to display in the tooltip. Takes precedence over `content` when both are provided. In development, a `console.warn` is emitted if the selector matches no element in the DOM.                                                                                                                                 |
-| `contentActions`          | object  | null                | Configuration of the tooltip actions (see [Content Actions](#content-actions)). When set and the tooltip content (pointed to by `contentSelector`) contains focusable elements, the trigger automatically receives `tabindex="0"` (if it does not already have one) so it is reachable via keyboard — Tab focuses the trigger, then Tab again enters the tooltip content. The `tabindex` is removed when `contentActions` is unset or `destroy()` is called. |
+| `contentActions`          | object  | null                | Configuration of the tooltip actions (see [Content Actions](#content-actions)). Each key is a CSS selector; each value is a `ContentAction` object or an array of `ContentAction` objects, allowing multiple listeners per element. When set and the tooltip content (pointed to by `contentSelector`) contains focusable elements, the trigger automatically receives `tabindex="0"` (if it does not already have one) so it is reachable via keyboard — Tab focuses the trigger, then Tab again enters the tooltip content. The `tabindex` is removed when `contentActions` is unset or `destroy()` is called. |
 | `containerClassName`      | string  | null                | Class name to apply to the tooltip container. When not set, the tooltip receives the auto-generated classes `__tooltip __tooltip-{position}`.                                                                                                                                                                                         |
 | `position`                | string  | 'top'               | Position of the tooltip. Available values: 'top', 'bottom', 'left', 'right'. If the tooltip would overflow the viewport, it automatically switches to the position with the most available space. For `'left'`/`'right'`, when `width` is `'auto'`, the width shrinks to fit before switching positions (down to a minimum of 80 px). |
 | `animated`                | boolean | false               | Flag to animate tooltip transitions. The default classes `__tooltip-enter` / `__tooltip-leave` (from `useTooltip.css`) are already wrapped in `@media (prefers-reduced-motion: no-preference)`. If you supply custom `animationEnterClassName` / `animationLeaveClassName`, wrap your own keyframes in the same media query. **Do not use `animation: none` for the `reduce` case** — it suppresses `animationend`, causing the tooltip to linger for up to 1 s before the timeout fallback fires. Use `animation-duration: 0.001ms` instead so the event fires immediately. |
@@ -163,6 +163,7 @@ import type {
 	TooltipOptions,
 	TooltipPosition,
 	ContentAction,
+	ContentActionValue,
 	ContentActions
 } from '@untemps/svelte-use-tooltip';
 ```
@@ -185,7 +186,7 @@ The `contentActions` prop allows to handle interactions within the tooltip conte
 
 Each element inside the content parent may configure its own action since it can be queried using the key-selector.
 
-One event by element is possible so far as elements are referenced by selector. The last one declared in the `contentActions` object has precedence over the previous ones.
+Each value in the `contentActions` object can be either a single action object (`ContentAction`) or an array of action objects (`ContentAction[]`), allowing you to attach multiple events to the same element.
 
 ```svelte
 <script lang="ts">
@@ -225,6 +226,39 @@ One event by element is possible so far as elements are referenced by selector. 
 | `callback`        | function | null    | Function to be used as event handler.                                                                    |
 | `callbackParams`  | array    | null    | List of arguments to pass to the event handler in.                                                       |
 | `closeOnCallback` | boolean  | false   | Flag to automatically close the tooltip when the event handler is triggered.                             |
+
+#### Multiple events per element
+
+Pass an array of action objects to attach multiple listeners to the same element:
+
+```svelte
+<div
+	use:useTooltip={{
+		contentSelector: '#content',
+		contentActions: {
+			'#button1': [
+				{
+					eventType: 'click',
+					callback: (arg) => console.log('clicked', arg),
+					callbackParams: ['button 1'],
+					closeOnCallback: true
+				},
+				{
+					eventType: 'mouseenter',
+					callback: () => console.log('hovered button 1')
+				}
+			]
+		}
+	}}
+>
+	Hover me
+</div>
+<span id="content">
+	<button id="button1">Action 1</button>
+</span>
+```
+
+All listeners attached this way are automatically removed when the tooltip is hidden or destroyed.
 
 #### `*` selector
 
