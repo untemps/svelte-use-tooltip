@@ -1,3 +1,10 @@
+# [3.14.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.13.0...v3.14.0) (2026-04-18)
+
+
+### Features
+
+* Make trigger and dismiss events configurable, with toggle support ([#180](https://github.com/untemps/svelte-use-tooltip/issues/180)) ([75e3282](https://github.com/untemps/svelte-use-tooltip/commit/75e328211cfb958492df3b94e5224f58672ffd2f))
+
 # [3.13.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.12.0...v3.13.0) (2026-04-18)
 
 
