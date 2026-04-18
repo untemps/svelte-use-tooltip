@@ -15,17 +15,28 @@
 	let offset = $state(10);
 	let width = $state('auto');
 	let isOpen = $state<boolean | undefined>(undefined);
+	let isTooltipVisible = $state(false);
 	let useInteractiveContent = $state(false);
 	let touchBehavior = $state<'hover' | 'toggle' | undefined>(undefined);
+	let showOn = $state<string[]>(['mouseenter', 'focusin']);
+	let hideOn = $state<string[]>(['mouseleave', 'focusout']);
 	let settingsOpen = $state(false);
 
+	const EVENT_OPTIONS = ['mouseenter', 'mouseleave', 'focusin', 'focusout', 'click', 'dblclick'];
+
+	const toggleEvent = (list: string[], event: string): string[] =>
+		list.includes(event) ? list.filter((e) => e !== event) : [...list, event];
+
 	const _onTooltipEnter = () => {
+		isTooltipVisible = true;
 		if (triggerOnEnter) {
 			alert("You've entered the target");
 		}
 	};
 
 	const _onTooltipLeave = () => {
+		isTooltipVisible = false;
+		isOpen = undefined;
 		if (triggerOnLeave) {
 			alert("You've left the target");
 		}
@@ -447,7 +458,9 @@
 				width: width,
 				disabled: isDisabled,
 				open: isOpen,
-				touchBehavior: touchBehavior
+				touchBehavior: touchBehavior,
+				showOn: showOn,
+				hideOn: hideOn
 			}}
 			class="target"
 		>
@@ -556,14 +569,52 @@
 				</label>
 			</fieldset>
 			<fieldset>
+				<label style="align-items: flex-start;">
+					Show On:
+					<div style="display: flex; flex-direction: column; gap: 0.25rem;">
+						{#each EVENT_OPTIONS as evt}
+							<label style="justify-content: flex-start; column-gap: 0.5rem;">
+								<input
+									type="checkbox"
+									checked={showOn.includes(evt)}
+									onchange={() => (showOn = toggleEvent(showOn, evt))}
+								/>
+								{evt}
+							</label>
+						{/each}
+					</div>
+				</label>
+			</fieldset>
+			<fieldset>
+				<label style="align-items: flex-start;">
+					Hide On:
+					<div style="display: flex; flex-direction: column; gap: 0.25rem;">
+						{#each EVENT_OPTIONS as evt}
+							<label style="justify-content: flex-start; column-gap: 0.5rem;">
+								<input
+									type="checkbox"
+									checked={hideOn.includes(evt)}
+									onchange={() => (hideOn = toggleEvent(hideOn, evt))}
+								/>
+								{evt}
+							</label>
+						{/each}
+					</div>
+				</label>
+			</fieldset>
+			<fieldset>
 				<label>
 					Disable:
 					<input type="checkbox" bind:checked={isDisabled} />
 				</label>
 			</fieldset>
 			<fieldset class="settings__form__actions">
-				<button type="button" onclick={() => (isOpen = !isOpen)} disabled={isDisabled}>
-					{isOpen === true ? 'Masquer la tooltip' : 'Afficher la tooltip'}
+				<button
+					type="button"
+					onclick={() => (isOpen = isTooltipVisible ? false : true)}
+					disabled={isDisabled}
+				>
+					{isTooltipVisible ? 'Masquer la tooltip' : 'Afficher la tooltip'}
 				</button>
 			</fieldset>
 		</form>
