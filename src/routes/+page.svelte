@@ -23,6 +23,9 @@
 
 	const EVENT_OPTIONS = ['mouseenter', 'mouseleave', 'focusin', 'focusout', 'click', 'dblclick'];
 
+	const toggleEvent = (list: string[], event: string): string[] =>
+		list.includes(event) ? list.filter((e) => e !== event) : [...list, event];
+
 	const _onTooltipEnter = () => {
 		if (triggerOnEnter) {
 			alert("You've entered the target");
@@ -352,12 +355,8 @@
 	}
 
 	.settings__form input:not([type='checkbox']),
-	.settings__form select:not([multiple]) {
+	.settings__form select {
 		height: 30px;
-	}
-
-	.settings__form select[multiple] {
-		height: auto;
 	}
 
 	.settings__form textarea {
@@ -568,31 +567,35 @@
 			<fieldset>
 				<label style="align-items: flex-start;">
 					Show On:
-					<select
-						multiple
-						size={EVENT_OPTIONS.length}
-						onchange={(e) =>
-							(showOn = Array.from(e.currentTarget.selectedOptions).map((o) => o.value))}
-					>
+					<div style="display: flex; flex-direction: column; gap: 0.25rem;">
 						{#each EVENT_OPTIONS as evt}
-							<option value={evt} selected={showOn.includes(evt)}>{evt}</option>
+							<label style="justify-content: flex-start; column-gap: 0.5rem;">
+								<input
+									type="checkbox"
+									checked={showOn.includes(evt)}
+									onchange={() => (showOn = toggleEvent(showOn, evt))}
+								/>
+								{evt}
+							</label>
 						{/each}
-					</select>
+					</div>
 				</label>
 			</fieldset>
 			<fieldset>
 				<label style="align-items: flex-start;">
 					Hide On:
-					<select
-						multiple
-						size={EVENT_OPTIONS.length}
-						onchange={(e) =>
-							(hideOn = Array.from(e.currentTarget.selectedOptions).map((o) => o.value))}
-					>
+					<div style="display: flex; flex-direction: column; gap: 0.25rem;">
 						{#each EVENT_OPTIONS as evt}
-							<option value={evt} selected={hideOn.includes(evt)}>{evt}</option>
+							<label style="justify-content: flex-start; column-gap: 0.5rem;">
+								<input
+									type="checkbox"
+									checked={hideOn.includes(evt)}
+									onchange={() => (hideOn = toggleEvent(hideOn, evt))}
+								/>
+								{evt}
+							</label>
 						{/each}
-					</select>
+					</div>
 				</label>
 			</fieldset>
 			<fieldset>
