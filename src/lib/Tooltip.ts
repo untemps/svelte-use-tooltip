@@ -148,6 +148,7 @@ class Tooltip {
 		this.#content = content ?? null;
 		this.#contentSelector = contentSelector ?? null;
 		this.#contentActions = contentActions ?? null;
+		this.#enforceContentActionsConstraint();
 		this.#containerClassName = containerClassName ?? null;
 		this.#position = position ?? 'top';
 		this.#animated = animated ?? false;
@@ -237,9 +238,17 @@ class Tooltip {
 			hasToShow: open === true && !disabled && (!isCurrentlyShown || hasStructureChanged),
 			// Skip explicit hide when structure already removed the tooltip from the DOM.
 			hasToHide: open === false && isCurrentlyShown && !hasStructureChanged,
-			hasInteractivityChanged:
-				contentActions !== undefined &&
-				Object.keys(contentActions ?? {}).length > 0 !== this.#isInteractive()
+			hasInteractivityChanged: (() => {
+				// Simulate what #applyState will produce: preserve on undefined, then enforce constraint.
+				const nextActions =
+					contentActions !== undefined ? (contentActions ?? null) : this.#contentActions;
+				const nextSelector =
+					contentSelector !== undefined ? (contentSelector ?? null) : this.#contentSelector;
+				const effectiveActions =
+					!nextSelector && nextActions && !('*' in nextActions) ? null : nextActions;
+				const nextIsInteractive = !!effectiveActions && Object.keys(effectiveActions).length > 0;
+				return nextIsInteractive !== this.#isInteractive();
+			})()
 		};
 	}
 
@@ -263,7 +272,10 @@ class Tooltip {
 	}: TooltipOptions) {
 		this.#content = content ?? null;
 		this.#contentSelector = contentSelector ?? null;
-		this.#contentActions = contentActions ?? null;
+		if (contentActions !== undefined) {
+			this.#contentActions = contentActions ?? null;
+		}
+		this.#enforceContentActionsConstraint();
 		this.#containerClassName = containerClassName ?? null;
 		this.#position = position ?? 'top';
 		this.#animated = animated ?? false;
@@ -755,6 +767,16 @@ class Tooltip {
 
 	#isInteractive() {
 		return Object.keys(this.#contentActions ?? {}).length > 0;
+	}
+
+	#enforceContentActionsConstraint(): void {
+		if (!this.#contentSelector && this.#contentActions && !('*' in this.#contentActions)) {
+			console.warn(
+				'[useTooltip] contentActions keys other than "*" require contentSelector. ' +
+					'Non-"*" actions have been cleared.'
+			);
+			this.#contentActions = null;
+		}
 	}
 
 	#warnIfNoContent(): void {
