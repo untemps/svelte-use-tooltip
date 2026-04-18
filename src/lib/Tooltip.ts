@@ -11,7 +11,9 @@ export type ContentAction = {
 	closeOnCallback?: boolean;
 };
 
-export type ContentActions = Record<string, ContentAction>;
+export type ContentActionValue = ContentAction | ContentAction[];
+
+export type ContentActions = Record<string, ContentActionValue>;
 
 export type TooltipOptions = {
 	content?: string | null;
@@ -634,10 +636,12 @@ class Tooltip {
 		this.#target!.appendChild(this.#tooltip!);
 
 		if (this.#contentActions) {
-			Object.entries(this.#contentActions).forEach(
-				([key, { eventType, callback, callbackParams, closeOnCallback }]) => {
-					const trigger = key === '*' ? this.#tooltip! : this.#tooltip!.querySelector(key);
-					if (trigger) {
+			Object.entries(this.#contentActions).forEach(([key, actionValue]) => {
+				const triggers =
+					key === '*' ? [this.#tooltip!] : Array.from(this.#tooltip!.querySelectorAll(key));
+				const actions = Array.isArray(actionValue) ? actionValue : [actionValue];
+				for (const trigger of triggers) {
+					for (const { eventType, callback, callbackParams, closeOnCallback } of actions) {
 						const listener: EventListener = (event) => {
 							callback?.apply(null, [...(callbackParams || []), event]);
 							if (closeOnCallback) {
@@ -648,7 +652,7 @@ class Tooltip {
 						this.#events.push({ trigger, eventType, listener });
 					}
 				}
-			);
+			});
 			this.#setupFocusTrap();
 		}
 	}
