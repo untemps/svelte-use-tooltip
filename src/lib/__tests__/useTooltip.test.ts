@@ -2228,10 +2228,8 @@ describe('useTooltip', () => {
 			action.update({ ...options, disabled: true, showOn: ['click'] });
 			// Re-enable without changing showOn — new value must have been stored
 			action.update({ ...options, disabled: false });
-			// mouseenter should NOT show (new showOn is click-only)
 			await _enter(target);
 			expect(getElement('#content')).not.toBeInTheDocument();
-			// click SHOULD show
 			await fireEvent.click(target);
 			await standby(1);
 			expect(getElement('#content')).toBeInTheDocument();
@@ -2242,10 +2240,8 @@ describe('useTooltip', () => {
 			action = createAction(target, { ...options, disabled: true });
 			// Re-enable and switch to click trigger at the same time
 			action.update({ ...options, disabled: false, showOn: ['click'] });
-			// mouseenter should NOT show (new showOn is click-only)
 			await _enter(target);
 			expect(getElement('#content')).not.toBeInTheDocument();
-			// click SHOULD show
 			await fireEvent.click(target);
 			await standby(1);
 			expect(getElement('#content')).toBeInTheDocument();
