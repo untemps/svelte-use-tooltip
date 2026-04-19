@@ -329,8 +329,15 @@ class Tooltip {
 			if (this.#tooltip?.parentNode) {
 				this.#removeTooltipFromTarget();
 			}
+			// #disable() uses the OLD #showOn/#hideOn to remove the correct listeners.
 			this.#disable();
+			// Update after disable so the new values are ready for the next #enable().
+			if (options.showOn !== undefined) this.#showOn = options.showOn;
+			if (options.hideOn !== undefined) this.#hideOn = options.hideOn;
 		} else if (hasToEnableTarget) {
+			// Update before #enable() so the new listeners are registered with the new config.
+			if (options.showOn !== undefined) this.#showOn = options.showOn;
+			if (options.hideOn !== undefined) this.#hideOn = options.hideOn;
 			this.#enable();
 		} else if (hasTouchBehaviorChanged || hasShowHideConfigChanged) {
 			// #disable() uses the OLD #showOn/#hideOn to remove the correct listeners.
