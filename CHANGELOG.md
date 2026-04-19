@@ -1,3 +1,10 @@
+## [3.15.1](https://github.com/untemps/svelte-use-tooltip/compare/v3.15.0...v3.15.1) (2026-04-19)
+
+
+### Bug Fixes
+
+* Preserve all props on undefined in update() for consistent partial update semantics ([#189](https://github.com/untemps/svelte-use-tooltip/issues/189)) ([9137676](https://github.com/untemps/svelte-use-tooltip/commit/9137676c3d3b98fede61b32ee7b739f95c5a6e0d))
+
 # [3.15.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.14.0...v3.15.0) (2026-04-18)
 
 
