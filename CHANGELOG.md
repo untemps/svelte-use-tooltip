@@ -1,3 +1,10 @@
+## [3.15.4](https://github.com/untemps/svelte-use-tooltip/compare/v3.15.3...v3.15.4) (2026-04-19)
+
+
+### Bug Fixes
+
+* Fire onLeave when Escape key closes the tooltip ([#192](https://github.com/untemps/svelte-use-tooltip/issues/192)) ([6b09278](https://github.com/untemps/svelte-use-tooltip/commit/6b09278ec712d507b496006883cf8ebf49671496))
+
 ## [3.15.3](https://github.com/untemps/svelte-use-tooltip/compare/v3.15.2...v3.15.3) (2026-04-19)
 
 
