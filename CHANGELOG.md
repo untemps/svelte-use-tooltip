@@ -1,3 +1,10 @@
+## [3.15.6](https://github.com/untemps/svelte-use-tooltip/compare/v3.15.5...v3.15.6) (2026-04-19)
+
+
+### Bug Fixes
+
+* Clear observer before structure rebuild to prevent duplicate content ([#194](https://github.com/untemps/svelte-use-tooltip/issues/194)) ([814d8a2](https://github.com/untemps/svelte-use-tooltip/commit/814d8a298cf24ea9971cd282cc792e6c3da4e407))
+
 ## [3.15.5](https://github.com/untemps/svelte-use-tooltip/compare/v3.15.4...v3.15.5) (2026-04-19)
 
 
