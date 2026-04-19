@@ -1,3 +1,10 @@
+## [3.15.5](https://github.com/untemps/svelte-use-tooltip/compare/v3.15.4...v3.15.5) (2026-04-19)
+
+
+### Bug Fixes
+
+* Normalize offset before change detection to avoid spurious rebuild ([#193](https://github.com/untemps/svelte-use-tooltip/issues/193)) ([340ee4d](https://github.com/untemps/svelte-use-tooltip/commit/340ee4d9f0af2d57f1edb569386d5040e33bea77))
+
 ## [3.15.4](https://github.com/untemps/svelte-use-tooltip/compare/v3.15.3...v3.15.4) (2026-04-19)
 
 
