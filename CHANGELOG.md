@@ -1,3 +1,10 @@
+## [3.15.2](https://github.com/untemps/svelte-use-tooltip/compare/v3.15.1...v3.15.2) (2026-04-19)
+
+
+### Bug Fixes
+
+* Treat disabled:undefined as no-op in update() to prevent accidental re-enable ([#190](https://github.com/untemps/svelte-use-tooltip/issues/190)) ([5f6c62a](https://github.com/untemps/svelte-use-tooltip/commit/5f6c62a587376942dfa8dc62ad810172caa939c2))
+
 ## [3.15.1](https://github.com/untemps/svelte-use-tooltip/compare/v3.15.0...v3.15.1) (2026-04-19)
 
 
