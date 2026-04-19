@@ -227,15 +227,15 @@ class Tooltip {
 			hasContainerClassNameChanged:
 				containerClassName !== undefined && containerClassName !== this.#containerClassName,
 			hasWidthChanged: width !== undefined && width !== this.#width,
-			hasToDisableTarget: !!disabled && Boolean(this.#boundEnterHandler),
-			hasToEnableTarget: !disabled && !Boolean(this.#boundEnterHandler),
+			hasToDisableTarget: disabled === true && Boolean(this.#boundEnterHandler),
+			hasToEnableTarget: disabled === false && !Boolean(this.#boundEnterHandler),
 			hasTouchBehaviorChanged: touchBehavior !== undefined && touchBehavior !== this.#touchBehavior,
 			hasShowHideConfigChanged:
 				(showOn !== undefined && showOn.join(',') !== this.#showOn.join(',')) ||
 				(hideOn !== undefined && hideOn.join(',') !== this.#hideOn.join(',')),
 			// Re-show when open:true is passed after a structure rebuild (tooltip removed from DOM),
-			// or when the tooltip is not yet visible. Guard with !disabled so open+disabled is a no-op.
-			hasToShow: open === true && !disabled && (!isCurrentlyShown || hasStructureChanged),
+			// or when the tooltip is not yet visible. Skip when disabled is explicitly true.
+			hasToShow: open === true && disabled !== true && (!isCurrentlyShown || hasStructureChanged),
 			// Skip explicit hide when structure already removed the tooltip from the DOM.
 			hasToHide: open === false && isCurrentlyShown && !hasStructureChanged,
 			hasInteractivityChanged: (() => {
