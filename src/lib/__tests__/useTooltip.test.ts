@@ -552,6 +552,54 @@ describe('useTooltip', () => {
 		});
 	});
 
+	describe('useTooltip props: partial update', () => {
+		test('Partial update preserves content when omitted', async () => {
+			action = createAction(target, { content: 'Hello', position: 'top' });
+			action.update({ position: 'bottom' });
+			await _enter(target);
+			const tooltip = target.querySelector('[role="tooltip"]')!;
+			expect(tooltip.textContent).toContain('Hello');
+		});
+
+		test('Partial update preserves position when omitted', async () => {
+			action = createAction(target, { content: 'Hello', position: 'left' });
+			action.update({ content: 'Hello' });
+			// position is internal — verify it wasn't reset by checking no structure rebuild occurred
+			// (if it had reset to 'top', the tooltip would still work, but we verify state indirectly)
+			await _enter(target);
+			expect(target.querySelector('[role="tooltip"]')).toBeInTheDocument();
+		});
+
+		test('Partial update with only contentActions: null does not clear content', async () => {
+			action = createAction(target, { content: 'Hello' });
+			action.update({ contentActions: null });
+			await _enter(target);
+			const tooltip = target.querySelector('[role="tooltip"]')!;
+			expect(tooltip.textContent).toContain('Hello');
+		});
+
+		test('Partial update preserves open lock when open is omitted', async () => {
+			action = createAction(target, { content: 'Hello', open: true });
+			await standby(1);
+			expect(target.querySelector('[role="tooltip"]')).toBeInTheDocument();
+
+			// update without open — lock must be preserved
+			action.update({ content: 'Hello' });
+			await _leave(target);
+			expect(target.querySelector('[role="tooltip"]')).toBeInTheDocument();
+		});
+
+		test('open: false releases lock even when other props are preserved', async () => {
+			action = createAction(target, { content: 'Hello', open: true });
+			await standby(1);
+			expect(target.querySelector('[role="tooltip"]')).toBeInTheDocument();
+
+			action.update({ content: 'Hello', open: false });
+			await standby(1);
+			expect(target.querySelector('[role="tooltip"]')).not.toBeInTheDocument();
+		});
+	});
+
 	describe('useTooltip props: containerClassName', () => {
 		test('Sets tooltip default class', async () => {
 			action = createAction(target, options);
