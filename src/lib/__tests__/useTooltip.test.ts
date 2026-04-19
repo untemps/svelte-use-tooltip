@@ -564,8 +564,6 @@ describe('useTooltip', () => {
 		test('Partial update preserves position when omitted', async () => {
 			action = createAction(target, { content: 'Hello', position: 'left' });
 			action.update({ content: 'Hello' });
-			// position is internal — verify it wasn't reset by checking no structure rebuild occurred
-			// (if it had reset to 'top', the tooltip would still work, but we verify state indirectly)
 			await _enter(target);
 			expect(target.querySelector('[role="tooltip"]')).toBeInTheDocument();
 		});

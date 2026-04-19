@@ -269,12 +269,12 @@ class Tooltip {
 		open,
 		touchBehavior
 	}: TooltipOptions) {
-		if (content !== undefined) this.#content = content ?? null;
-		if (contentSelector !== undefined) this.#contentSelector = contentSelector ?? null;
-		if (contentActions !== undefined) this.#contentActions = contentActions ?? null;
+		if (content !== undefined) this.#content = content;
+		if (contentSelector !== undefined) this.#contentSelector = contentSelector;
+		if (contentActions !== undefined) this.#contentActions = contentActions;
 		this.#enforceContentActionsConstraint();
-		if (containerClassName !== undefined) this.#containerClassName = containerClassName ?? null;
-		if (position !== undefined) this.#position = position ?? 'top';
+		if (containerClassName !== undefined) this.#containerClassName = containerClassName;
+		if (position !== undefined) this.#position = position;
 		if (animated !== undefined) this.#animated = animated;
 		if (animationEnterClassName !== undefined)
 			this.#animationEnterClassName = animationEnterClassName || '__tooltip-enter';
@@ -282,8 +282,8 @@ class Tooltip {
 			this.#animationLeaveClassName = animationLeaveClassName || '__tooltip-leave';
 		if (enterDelay !== undefined) this.#enterDelay = enterDelay;
 		if (leaveDelay !== undefined) this.#leaveDelay = leaveDelay;
-		if (onEnter !== undefined) this.#onEnter = onEnter ?? null;
-		if (onLeave !== undefined) this.#onLeave = onLeave ?? null;
+		if (onEnter !== undefined) this.#onEnter = onEnter;
+		if (onLeave !== undefined) this.#onLeave = onLeave;
 		if (offset !== undefined) this.#offset = Math.max(offset, 5);
 		if (width !== undefined) this.#width = width;
 		// false is treated as a one-shot close — no lock. Only true locks the tooltip open.
