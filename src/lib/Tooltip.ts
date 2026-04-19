@@ -954,6 +954,7 @@ class Tooltip {
 			(e.type !== 'touchstart' || !this.#target?.contains(e.target as Node))
 		) {
 			await this.#removeTooltipFromTarget();
+			this.#onLeave?.();
 		}
 	}
 
