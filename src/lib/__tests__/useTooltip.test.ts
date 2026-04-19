@@ -2220,5 +2220,35 @@ describe('useTooltip', () => {
 			await standby(1);
 			expect(getElement('#content')).toBeInTheDocument();
 		});
+
+		test('Applies new showOn when disabled and showOn change simultaneously', async () => {
+			// Start enabled with default mouseenter trigger
+			action = createAction(target, options);
+			// Disable and switch to click trigger at the same time
+			action.update({ ...options, disabled: true, showOn: ['click'] });
+			// Re-enable without changing showOn — new value must have been stored
+			action.update({ ...options, disabled: false });
+			// mouseenter should NOT show (new showOn is click-only)
+			await _enter(target);
+			expect(getElement('#content')).not.toBeInTheDocument();
+			// click SHOULD show
+			await fireEvent.click(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Applies new showOn when re-enabling and showOn change simultaneously', async () => {
+			// Start disabled
+			action = createAction(target, { ...options, disabled: true });
+			// Re-enable and switch to click trigger at the same time
+			action.update({ ...options, disabled: false, showOn: ['click'] });
+			// mouseenter should NOT show (new showOn is click-only)
+			await _enter(target);
+			expect(getElement('#content')).not.toBeInTheDocument();
+			// click SHOULD show
+			await fireEvent.click(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
 	});
 });
