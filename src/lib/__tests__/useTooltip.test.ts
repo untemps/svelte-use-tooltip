@@ -659,6 +659,21 @@ describe('useTooltip', () => {
 			action.update({ disabled: true });
 			expect(getElement('#content')).not.toBeInTheDocument();
 		});
+
+		test('Partial update without disabled keeps a disabled tooltip disabled', async () => {
+			action = createAction(target, { ...options, disabled: true });
+			// update without disabled — must not re-enable
+			action.update({ contentSelector: '#template' });
+			await _enter(target);
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
+		test('Partial update without disabled keeps an enabled tooltip enabled', async () => {
+			action = createAction(target, options);
+			action.update({ contentSelector: '#template' });
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
 	});
 
 	describe('useTooltip props: position', () => {
