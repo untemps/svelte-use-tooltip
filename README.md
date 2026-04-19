@@ -156,6 +156,25 @@ npm i @untemps/svelte-use-tooltip
 | `showOn`                  | string[]| `['mouseenter', 'focusin']` | DOM event types that show the tooltip. Any valid [event type](https://developer.mozilla.org/en-US/docs/Web/Events) can be used (e.g. `['click']` to show on click only). Changing this prop via `update()` replaces the listeners atomically. When an event type appears in both `showOn` and `hideOn`, a single toggle listener is registered instead of separate show/hide ones — first trigger shows, second hides, and so on. |
 | `hideOn`                  | string[]| `['mouseleave', 'focusout']` | DOM event types that hide the tooltip. Pass `[]` to keep the tooltip visible until dismissed by Escape, `open: false`, or programmatic removal. Changing this prop via `update()` replaces the listeners atomically. When an event type appears in both `showOn` and `hideOn`, a single toggle listener is registered instead of separate show/hide ones — first trigger shows, second hides, and so on. |
 
+### Partial updates
+
+`update()` supports partial option objects — any prop omitted (or explicitly set to `undefined`) keeps its current value. Only props you pass are applied:
+
+```ts
+// Tooltip created with: content: 'Hello', position: 'left', animated: true
+action.update({ position: 'right' });
+// → position changes to 'right'; content and animated are unchanged
+```
+
+To explicitly clear a nullable prop, pass `null`:
+
+```ts
+action.update({ content: null }); // clears text content
+action.update({ contentActions: null }); // removes all action listeners
+```
+
+The `open` prop is tristate: `true` locks the tooltip open, `false` is a one-shot close that immediately releases the lock, and `undefined` (omitted) leaves the current lock state unchanged.
+
 ### TypeScript
 
 The package ships TypeScript types. The main types you may need when composing options or building wrappers:
