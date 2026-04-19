@@ -1103,6 +1103,26 @@ describe('useTooltip', () => {
 		});
 	});
 
+	describe('useTooltip props: onLeave', () => {
+		test('Triggers callback when leaving tooltip', async () => {
+			const onLeave = vi.fn(() => 0);
+			action = createAction(target, { ...options, onLeave });
+			await _enter(target);
+			await _leave(target);
+			await standby(0);
+			expect(onLeave).toHaveBeenCalled();
+		});
+
+		test('Triggers callback when Escape key closes the tooltip', async () => {
+			const onLeave = vi.fn(() => 0);
+			action = createAction(target, { ...options, onLeave });
+			await _enter(target);
+			await _keyDown(target);
+			await standby(0);
+			expect(onLeave).toHaveBeenCalled();
+		});
+	});
+
 	describe('useTooltip props: leaveDelay', () => {
 		test('Delays tooltip disappearance', async () => {
 			action = createAction(target, {
