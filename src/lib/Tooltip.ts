@@ -269,28 +269,26 @@ class Tooltip {
 		open,
 		touchBehavior
 	}: TooltipOptions) {
-		this.#content = content ?? null;
-		this.#contentSelector = contentSelector ?? null;
-		if (contentActions !== undefined) {
-			this.#contentActions = contentActions ?? null;
-		}
+		if (content !== undefined) this.#content = content ?? null;
+		if (contentSelector !== undefined) this.#contentSelector = contentSelector ?? null;
+		if (contentActions !== undefined) this.#contentActions = contentActions ?? null;
 		this.#enforceContentActionsConstraint();
-		this.#containerClassName = containerClassName ?? null;
-		this.#position = position ?? 'top';
-		this.#animated = animated ?? false;
-		this.#animationEnterClassName = animationEnterClassName || '__tooltip-enter';
-		this.#animationLeaveClassName = animationLeaveClassName || '__tooltip-leave';
-		this.#enterDelay = enterDelay ?? 0;
-		this.#leaveDelay = leaveDelay ?? 0;
-		this.#onEnter = onEnter ?? null;
-		this.#onLeave = onLeave ?? null;
-		this.#offset = Math.max(offset ?? 10, 5);
-		this.#width = width ?? 'auto';
+		if (containerClassName !== undefined) this.#containerClassName = containerClassName ?? null;
+		if (position !== undefined) this.#position = position ?? 'top';
+		if (animated !== undefined) this.#animated = animated;
+		if (animationEnterClassName !== undefined)
+			this.#animationEnterClassName = animationEnterClassName || '__tooltip-enter';
+		if (animationLeaveClassName !== undefined)
+			this.#animationLeaveClassName = animationLeaveClassName || '__tooltip-leave';
+		if (enterDelay !== undefined) this.#enterDelay = enterDelay;
+		if (leaveDelay !== undefined) this.#leaveDelay = leaveDelay;
+		if (onEnter !== undefined) this.#onEnter = onEnter ?? null;
+		if (onLeave !== undefined) this.#onLeave = onLeave ?? null;
+		if (offset !== undefined) this.#offset = Math.max(offset, 5);
+		if (width !== undefined) this.#width = width;
 		// false is treated as a one-shot close — no lock. Only true locks the tooltip open.
-		this.#open = open === true ? true : undefined;
-		if (touchBehavior !== undefined) {
-			this.#touchBehavior = touchBehavior;
-		}
+		if (open !== undefined) this.#open = open === true ? true : undefined;
+		if (touchBehavior !== undefined) this.#touchBehavior = touchBehavior;
 		// #showOn / #hideOn are intentionally NOT updated here: they must be applied between
 		// #disable() and #enable() in #applyChanges so that #disableTarget removes the OLD
 		// listeners before #enableTarget registers the NEW ones.

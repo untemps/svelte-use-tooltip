@@ -1493,8 +1493,13 @@ describe('useTooltip', () => {
 			await standby(1);
 			expect(getElement('[role=\"tooltip\"]')).toBeInTheDocument();
 
-			// release open lock — hover-away should close again
-			action.update({ content: 'Hello' });
+			// release open lock via one-shot close — hover events should work again
+			action.update({ content: 'Hello', open: false });
+			await standby(1);
+			expect(getElement('[role=\"tooltip\"]')).not.toBeInTheDocument();
+
+			// verify hover works normally after lock release
+			await _enter(target);
 			await _leave(target);
 			expect(getElement('[role=\"tooltip\"]')).not.toBeInTheDocument();
 		});
