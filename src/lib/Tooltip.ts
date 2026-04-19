@@ -220,7 +220,7 @@ class Tooltip {
 		const hasStructureChanged =
 			hasContentChanged ||
 			(position !== undefined && position !== this.#position) ||
-			(offset !== undefined && offset !== this.#offset);
+			(offset !== undefined && Math.max(offset, 5) !== this.#offset);
 		const isCurrentlyShown = !!this.#tooltip?.parentNode;
 		return {
 			hasStructureChanged,

@@ -596,6 +596,16 @@ describe('useTooltip', () => {
 			await standby(1);
 			expect(target.querySelector('[role="tooltip"]')).not.toBeInTheDocument();
 		});
+
+		test('Below-minimum offset does not trigger a rebuild on repeated updates', async () => {
+			action = createAction(target, { content: 'Hello', offset: 3 });
+			await _enter(target);
+			const tooltipBefore = target.querySelector('[role="tooltip"]');
+			// Second update with the same below-minimum value — effective offset unchanged (clamped to 5)
+			action.update({ content: 'Hello', offset: 3 });
+			const tooltipAfter = target.querySelector('[role="tooltip"]');
+			expect(tooltipAfter).toBe(tooltipBefore);
+		});
 	});
 
 	describe('useTooltip props: containerClassName', () => {
