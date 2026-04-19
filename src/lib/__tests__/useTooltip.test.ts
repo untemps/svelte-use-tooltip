@@ -295,6 +295,23 @@ describe('useTooltip', () => {
 			await _enter(target);
 			expect(getElement('#content')).not.toBeInTheDocument();
 		});
+
+		test('Does not duplicate content when structure rebuilds while contentSelector observer is pending', async () => {
+			// Remove template so the observer waits for it to appear dynamically
+			removeElement('#template');
+			action = createAction(target, { contentSelector: '#template' });
+
+			// Trigger a structure rebuild before the template appears
+			action.update({ contentSelector: '#template', position: 'bottom' });
+
+			// Now add the template — only the observer registered after the rebuild should fire
+			initTemplate('template', 'content');
+			await standby(10);
+
+			await _enter(target);
+			const tooltipEl = target.querySelector('[role="tooltip"]')!;
+			expect(tooltipEl.querySelectorAll('#content')).toHaveLength(1);
+		});
 	});
 
 	describe('useTooltip props: content', () => {

@@ -311,6 +311,9 @@ class Tooltip {
 	) {
 		if (hasStructureChanged) {
 			this.#removeTooltipFromTarget(true);
+			// Cancel any pending contentSelector observer before re-registering a new one,
+			// otherwise both resolve when the template appears and content is appended twice.
+			this.#observer?.clear();
 			this.#createTooltip();
 			// Re-evaluate tabindex: the template may now have or lack focusable elements.
 			this.#syncTabIndex();
