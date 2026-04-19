@@ -1,3 +1,10 @@
+## [3.15.3](https://github.com/untemps/svelte-use-tooltip/compare/v3.15.2...v3.15.3) (2026-04-19)
+
+
+### Bug Fixes
+
+* Apply showOn/hideOn update in all disabled-transition branches ([#191](https://github.com/untemps/svelte-use-tooltip/issues/191)) ([d236177](https://github.com/untemps/svelte-use-tooltip/commit/d236177b721d8253c81d12c8ddafab3d408949fb))
+
 ## [3.15.2](https://github.com/untemps/svelte-use-tooltip/compare/v3.15.1...v3.15.2) (2026-04-19)
 
 
