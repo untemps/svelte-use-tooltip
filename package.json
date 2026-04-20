@@ -128,7 +128,7 @@
 		"dev": "vite dev",
 		"build": "vite build && yarn package",
 		"preview": "vite preview",
-		"package": "svelte-kit sync && svelte-package && publint run --pack=npm",
+		"package": "svelte-kit sync && svelte-package && rm -rf dist/__tests__ && publint run --pack=npm",
 		"prepublishOnly": "yarn package",
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
