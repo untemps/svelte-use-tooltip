@@ -1,3 +1,10 @@
+## [3.15.7](https://github.com/untemps/svelte-use-tooltip/compare/v3.15.6...v3.15.7) (2026-04-20)
+
+
+### Bug Fixes
+
+* Exclude test files from npm publish ([#208](https://github.com/untemps/svelte-use-tooltip/issues/208)) ([dc5d3a3](https://github.com/untemps/svelte-use-tooltip/commit/dc5d3a3e25af18753063a1dbc6e204a9262428c3))
+
 ## [3.15.6](https://github.com/untemps/svelte-use-tooltip/compare/v3.15.5...v3.15.6) (2026-04-19)
 
 
