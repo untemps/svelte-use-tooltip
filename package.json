@@ -22,7 +22,8 @@
 	"svelte": "./dist/index.js",
 	"type": "module",
 	"files": [
-		"dist"
+		"dist",
+		"!dist/__tests__"
 	],
 	"sideEffects": [
 		"**/*.css"
