@@ -572,7 +572,7 @@
 				<label style="align-items: flex-start;">
 					Show On:
 					<div style="display: flex; flex-direction: column; gap: 0.25rem;">
-						{#each EVENT_OPTIONS as evt}
+						{#each EVENT_OPTIONS as evt (evt)}
 							<label style="justify-content: flex-start; column-gap: 0.5rem;">
 								<input
 									type="checkbox"
@@ -589,7 +589,7 @@
 				<label style="align-items: flex-start;">
 					Hide On:
 					<div style="display: flex; flex-direction: column; gap: 0.25rem;">
-						{#each EVENT_OPTIONS as evt}
+						{#each EVENT_OPTIONS as evt (evt)}
 							<label style="justify-content: flex-start; column-gap: 0.5rem;">
 								<input
 									type="checkbox"
