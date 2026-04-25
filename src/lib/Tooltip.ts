@@ -63,6 +63,7 @@ class Tooltip {
 	static #ANIMATION_TIMEOUT_MS = 1000;
 	static #DEFAULT_SHOW_ON = ['mouseenter', 'focusin'];
 	static #DEFAULT_HIDE_ON = ['mouseleave', 'focusout'];
+	static #DEFAULT_ARIA_LABEL = 'Tooltip';
 	static #FOCUSABLE_SELECTOR = [
 		'a[href]',
 		'button:not([disabled])',
@@ -93,7 +94,7 @@ class Tooltip {
 	#touchBehavior: 'hover' | 'toggle' | null = null;
 	#showOn: string[] = Tooltip.#DEFAULT_SHOW_ON;
 	#hideOn: string[] = Tooltip.#DEFAULT_HIDE_ON;
-	#ariaLabel = 'Tooltip';
+	#ariaLabel = Tooltip.#DEFAULT_ARIA_LABEL;
 
 	#id: string;
 
@@ -167,7 +168,7 @@ class Tooltip {
 		this.#touchBehavior = touchBehavior ?? null;
 		this.#showOn = showOn ?? Tooltip.#DEFAULT_SHOW_ON;
 		this.#hideOn = hideOn ?? Tooltip.#DEFAULT_HIDE_ON;
-		this.#ariaLabel = ariaLabel ?? 'Tooltip';
+		this.#ariaLabel = ariaLabel ?? Tooltip.#DEFAULT_ARIA_LABEL;
 
 		this.#id = `tooltip-${crypto.randomUUID()}`;
 
@@ -254,7 +255,9 @@ class Tooltip {
 				const nextIsInteractive = !!effectiveActions && Object.keys(effectiveActions).length > 0;
 				return nextIsInteractive !== this.#isInteractive();
 			})(),
-			hasAriaLabelChanged: ariaLabel !== undefined && (ariaLabel ?? 'Tooltip') !== this.#ariaLabel
+			hasAriaLabelChanged:
+				ariaLabel !== undefined &&
+				(ariaLabel === null ? Tooltip.#DEFAULT_ARIA_LABEL : ariaLabel) !== this.#ariaLabel
 		};
 	}
 
@@ -297,7 +300,8 @@ class Tooltip {
 		// false is treated as a one-shot close — no lock. Only true locks the tooltip open.
 		if (open !== undefined) this.#open = open === true ? true : undefined;
 		if (touchBehavior !== undefined) this.#touchBehavior = touchBehavior;
-		if (ariaLabel !== undefined) this.#ariaLabel = ariaLabel === null ? 'Tooltip' : ariaLabel;
+		if (ariaLabel !== undefined)
+			this.#ariaLabel = ariaLabel === null ? Tooltip.#DEFAULT_ARIA_LABEL : ariaLabel;
 		// #showOn / #hideOn are intentionally NOT updated here: they must be applied between
 		// #disable() and #enable() in #applyChanges so that #disableTarget removes the OLD
 		// listeners before #enableTarget registers the NEW ones.
