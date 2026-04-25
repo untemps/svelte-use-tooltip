@@ -1,3 +1,10 @@
+## [3.15.9](https://github.com/untemps/svelte-use-tooltip/compare/v3.15.8...v3.15.9) (2026-04-25)
+
+
+### Bug Fixes
+
+* Add default condition to exports map ([#212](https://github.com/untemps/svelte-use-tooltip/issues/212)) ([48d5f73](https://github.com/untemps/svelte-use-tooltip/commit/48d5f7347cd07f2b9ed48291dc5e77eeac869c65))
+
 ## [3.15.8](https://github.com/untemps/svelte-use-tooltip/compare/v3.15.7...v3.15.8) (2026-04-25)
 
 
