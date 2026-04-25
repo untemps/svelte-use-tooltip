@@ -1268,6 +1268,20 @@ describe('useTooltip', () => {
 			expect(content).not.toBeInTheDocument();
 		});
 
+		test('Falls back to __tooltip-enter when animationEnterClassName is reset to empty string via update', async () => {
+			action = createAction(target, { ...options, animated: true, animationEnterClassName: 'my-enter' });
+			action.update({ ...options, animated: true, animationEnterClassName: '' });
+			await _enter(target);
+			expect(tooltipEl()).toHaveClass('__tooltip-enter');
+		});
+
+		test('Falls back to __tooltip-leave when animationLeaveClassName is reset to empty string via update', async () => {
+			action = createAction(target, { ...options, animated: true, animationLeaveClassName: 'my-leave' });
+			action.update({ ...options, animated: true, animationLeaveClassName: '' });
+			await _enterAndLeave(target);
+			expect(tooltipEl()).toHaveClass('__tooltip-leave');
+		});
+
 		test('Cancels animation timeout on destroy and removes tooltip immediately', async () => {
 			vi.useFakeTimers();
 			try {
