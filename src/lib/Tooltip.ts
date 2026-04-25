@@ -790,7 +790,7 @@ class Tooltip {
 			this.#target!.setAttribute('aria-expanded', 'true');
 		}
 
-		if (this.#portal) this.#tooltip!.style.position = 'fixed';
+		this.#tooltip!.style.position = this.#portal ? 'fixed' : '';
 		this.#observer!.wait(this.#tooltip!, { events: [DOMObserver.ADD] }).then(() => {
 			if (this.#destroyed) return;
 			this.#positionTooltip();
