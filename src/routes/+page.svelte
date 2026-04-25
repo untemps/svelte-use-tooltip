@@ -20,6 +20,7 @@
 	let touchBehavior = $state<'hover' | 'toggle' | undefined>(undefined);
 	let showOn = $state<string[]>(['mouseenter', 'focusin']);
 	let hideOn = $state<string[]>(['mouseleave', 'focusout']);
+	let portal = $state(true);
 	let settingsOpen = $state(false);
 
 	const EVENT_OPTIONS = ['mouseenter', 'mouseleave', 'focusin', 'focusout', 'click', 'dblclick'];
@@ -460,7 +461,8 @@
 				open: isOpen,
 				touchBehavior: touchBehavior,
 				showOn: showOn,
-				hideOn: hideOn
+				hideOn: hideOn,
+				portal: portal
 			}}
 			class="target"
 		>
@@ -572,7 +574,7 @@
 				<label style="align-items: flex-start;">
 					Show On:
 					<div style="display: flex; flex-direction: column; gap: 0.25rem;">
-						{#each EVENT_OPTIONS as evt}
+						{#each EVENT_OPTIONS as evt (evt)}
 							<label style="justify-content: flex-start; column-gap: 0.5rem;">
 								<input
 									type="checkbox"
@@ -589,7 +591,7 @@
 				<label style="align-items: flex-start;">
 					Hide On:
 					<div style="display: flex; flex-direction: column; gap: 0.25rem;">
-						{#each EVENT_OPTIONS as evt}
+						{#each EVENT_OPTIONS as evt (evt)}
 							<label style="justify-content: flex-start; column-gap: 0.5rem;">
 								<input
 									type="checkbox"
@@ -600,6 +602,12 @@
 							</label>
 						{/each}
 					</div>
+				</label>
+			</fieldset>
+			<fieldset>
+				<label>
+					Portal:
+					<input type="checkbox" bind:checked={portal} />
 				</label>
 			</fieldset>
 			<fieldset>
