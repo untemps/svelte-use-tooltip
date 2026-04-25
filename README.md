@@ -49,6 +49,7 @@ npm i @untemps/svelte-use-tooltip
 		containerClassName: `tooltip tooltip-right`,
 		animated: true,
 		animationEnterClassName: 'tooltip-enter',
+		animationLeaveClassName: 'tooltip-leave',
 		enterDelay: 100,
 		leaveDelay: 100,
 		offset: 20
@@ -111,6 +112,10 @@ npm i @untemps/svelte-use-tooltip
 
 	:global(.tooltip-enter) {
 		animation: fadeIn 0.2s linear forwards;
+	}
+
+	:global(.tooltip-leave) {
+		animation: fadeOut 0.2s linear forwards;
 	}
 
 	@keyframes fadeIn {
