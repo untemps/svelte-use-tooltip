@@ -2026,6 +2026,14 @@ describe('useTooltip', () => {
 			expect(target).toHaveAttribute('tabindex', '-1');
 			target.removeAttribute('tabindex');
 		});
+
+		test('Does not apply tabindex when contentSelector matches no element', () => {
+			action = createAction(target, {
+				contentSelector: '#does-not-exist',
+				contentActions: { '*': { eventType: 'click', callback: vi.fn(), callbackParams: [] } }
+			});
+			expect(target).not.toHaveAttribute('tabindex');
+		});
 	});
 
 	describe('useTooltip dev warnings', () => {
