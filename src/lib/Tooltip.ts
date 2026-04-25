@@ -297,7 +297,7 @@ class Tooltip {
 		// false is treated as a one-shot close — no lock. Only true locks the tooltip open.
 		if (open !== undefined) this.#open = open === true ? true : undefined;
 		if (touchBehavior !== undefined) this.#touchBehavior = touchBehavior;
-		if (ariaLabel !== undefined) this.#ariaLabel = ariaLabel ?? 'Tooltip';
+		if (ariaLabel !== undefined) this.#ariaLabel = ariaLabel === null ? 'Tooltip' : ariaLabel;
 		// #showOn / #hideOn are intentionally NOT updated here: they must be applied between
 		// #disable() and #enable() in #applyChanges so that #disableTarget removes the OLD
 		// listeners before #enableTarget registers the NEW ones.
