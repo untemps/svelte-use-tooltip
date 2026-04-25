@@ -89,7 +89,6 @@ describe('useTooltip', () => {
 				action = createAction(target, options);
 				await _enter(target);
 				expect(target).toHaveStyle('position: relative');
-				expect(target).toHaveAttribute('aria-describedby');
 				expect(getElement('#content')).toBeInTheDocument();
 			});
 
@@ -1685,15 +1684,15 @@ describe('useTooltip', () => {
 
 	describe('useTooltip aria-describedby', () => {
 		test('Sets aria-describedby on the target when tooltip is shown', async () => {
-			action = createAction(target, options);
+			action = createAction(target, { content: 'Hello' });
 			await _enter(target);
 			expect(target).toHaveAttribute('aria-describedby');
 		});
 
 		test('aria-describedby value matches the tooltip id', async () => {
-			action = createAction(target, options);
+			action = createAction(target, { content: 'Hello' });
 			await _enter(target);
-			const tooltip = getElement('[role=\"dialog\"]') as HTMLElement;
+			const tooltip = getElement('[role=\"tooltip\"]') as HTMLElement;
 			expect(tooltip.id).toMatch(
 				/^tooltip-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 			);
@@ -1701,7 +1700,7 @@ describe('useTooltip', () => {
 		});
 
 		test('Removes aria-describedby from target when tooltip is hidden', async () => {
-			action = createAction(target, options);
+			action = createAction(target, { content: 'Hello' });
 			await _enter(target);
 			expect(target).toHaveAttribute('aria-describedby');
 			await _leave(target);
@@ -1709,7 +1708,7 @@ describe('useTooltip', () => {
 		});
 
 		test('Re-adds aria-describedby when tooltip is shown again', async () => {
-			action = createAction(target, options);
+			action = createAction(target, { content: 'Hello' });
 			await _enter(target);
 			await _leave(target);
 			await _enter(target);
@@ -1724,7 +1723,7 @@ describe('useTooltip', () => {
 			});
 			const action2 = useTooltip(target2, { content: 'World' }) as FullAction;
 
-			action = createAction(target, options);
+			action = createAction(target, { content: 'Hello' });
 			await _enter(target);
 			await _enter(target2);
 
@@ -1739,7 +1738,13 @@ describe('useTooltip', () => {
 		});
 
 		test('Does not set aria-describedby before tooltip is shown', () => {
+			action = createAction(target, { content: 'Hello' });
+			expect(target).not.toHaveAttribute('aria-describedby');
+		});
+
+		test('Does not set aria-describedby on interactive tooltip', async () => {
 			action = createAction(target, options);
+			await _enter(target);
 			expect(target).not.toHaveAttribute('aria-describedby');
 		});
 	});
@@ -1872,7 +1877,10 @@ describe('useTooltip', () => {
 
 		test('Updates role from "tooltip" to "dialog" when contentActions is added via update', async () => {
 			action = createAction(target, { content: 'Hello' });
-			action.update({ content: 'Hello', contentActions: { '*': { eventType: 'click', callback: vi.fn(), callbackParams: [] } } });
+			action.update({
+				content: 'Hello',
+				contentActions: { '*': { eventType: 'click', callback: vi.fn(), callbackParams: [] } }
+			});
 			await _enter(target);
 			expect(target.querySelector('[role="dialog"]')).toBeInTheDocument();
 			expect(target.querySelector('[role="tooltip"]')).not.toBeInTheDocument();
@@ -1883,6 +1891,15 @@ describe('useTooltip', () => {
 			await _enter(target);
 			const dialog = target.querySelector('[role="dialog"]') as HTMLElement;
 			expect(dialog).toHaveAttribute('aria-label', 'Tooltip');
+		});
+
+		test('Removes aria-label when contentActions is removed via update', async () => {
+			action = createAction(target, options);
+			await _enter(target);
+			action.update({ ...options, contentActions: null });
+			await _enter(target);
+			const tooltip = target.querySelector('[role="tooltip"]') as HTMLElement;
+			expect(tooltip).not.toHaveAttribute('aria-label');
 		});
 	});
 

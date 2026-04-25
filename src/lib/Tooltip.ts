@@ -360,12 +360,16 @@ class Tooltip {
 			if (this.#isInteractive()) {
 				this.#tooltip?.setAttribute('role', 'dialog');
 				this.#tooltip?.setAttribute('aria-label', 'Tooltip');
+				this.#target?.removeAttribute('aria-describedby');
 				this.#target?.setAttribute('aria-expanded', this.#tooltip?.parentNode ? 'true' : 'false');
 				this.#target?.setAttribute('aria-haspopup', 'dialog');
 				this.#syncTabIndex();
 			} else {
 				this.#tooltip?.setAttribute('role', 'tooltip');
 				this.#tooltip?.removeAttribute('aria-label');
+				if (this.#tooltip?.parentNode) {
+					this.#target?.setAttribute('aria-describedby', this.#id);
+				}
 				this.#target?.removeAttribute('aria-expanded');
 				this.#target?.removeAttribute('aria-haspopup');
 				this.#restoreTabIndex();
@@ -705,7 +709,9 @@ class Tooltip {
 			await this.#transitionTooltip(true);
 		}
 
-		this.#target!.setAttribute('aria-describedby', this.#id);
+		if (!this.#isInteractive()) {
+			this.#target!.setAttribute('aria-describedby', this.#id);
+		}
 
 		if (this.#isInteractive()) {
 			this.#target!.setAttribute('aria-expanded', 'true');
@@ -745,7 +751,9 @@ class Tooltip {
 		}
 
 		this.#tooltip!.remove();
-		this.#target?.removeAttribute('aria-describedby');
+		if (!this.#isInteractive()) {
+			this.#target?.removeAttribute('aria-describedby');
+		}
 
 		if (this.#isInteractive() && !this.#destroyed) {
 			this.#target?.setAttribute('aria-expanded', 'false');
