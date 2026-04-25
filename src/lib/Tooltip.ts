@@ -32,6 +32,7 @@ export type TooltipOptions = {
 	width?: string;
 	disabled?: boolean;
 	open?: boolean;
+	portal?: boolean;
 	touchBehavior?: 'hover' | 'toggle';
 	showOn?: string[];
 	hideOn?: string[];
@@ -102,6 +103,7 @@ class Tooltip {
 	#addedTabIndex = false;
 
 	#open: boolean | undefined = undefined;
+	#portal = true;
 
 	#destroyed = false;
 
@@ -143,6 +145,7 @@ class Tooltip {
 			width,
 			disabled,
 			open,
+			portal,
 			touchBehavior,
 			showOn,
 			hideOn,
@@ -169,6 +172,7 @@ class Tooltip {
 		this.#showOn = showOn ?? Tooltip.#DEFAULT_SHOW_ON;
 		this.#hideOn = hideOn ?? Tooltip.#DEFAULT_HIDE_ON;
 		this.#ariaLabel = ariaLabel ?? Tooltip.#DEFAULT_ARIA_LABEL;
+		this.#portal = portal ?? true;
 
 		this.#id = `tooltip-${crypto.randomUUID()}`;
 
@@ -178,7 +182,7 @@ class Tooltip {
 
 		this.#originalTitle = this.#target.getAttribute('title');
 		this.#target.removeAttribute('title');
-		this.#target.style.position = 'relative';
+		if (!this.#portal) this.#target.style.position = 'relative';
 
 		if (this.#isInteractive()) {
 			this.#target.setAttribute('aria-expanded', 'false');
@@ -404,7 +408,7 @@ class Tooltip {
 		if (this.#originalTitle !== null) {
 			this.#target?.setAttribute('title', this.#originalTitle);
 		}
-		this.#target?.style.removeProperty('position');
+		if (!this.#portal) this.#target?.style.removeProperty('position');
 		this.#target?.removeAttribute('aria-describedby');
 		this.#target?.removeAttribute('aria-expanded');
 		this.#target?.removeAttribute('aria-haspopup');
@@ -691,33 +695,65 @@ class Tooltip {
 
 		const { width: tooltipWidth, height: tooltipHeight } = tooltipRect;
 
-		switch (effectivePosition) {
-			case 'left': {
-				this.#tooltip!.style.top = `${-(tooltipHeight - targetHeight) >> 1}px`;
-				this.#tooltip!.style.left = `${-tooltipWidth - this.#offset}px`;
-				this.#tooltip!.style.bottom = '';
-				this.#tooltip!.style.right = '';
-				break;
+		if (this.#portal) {
+			switch (effectivePosition) {
+				case 'left': {
+					this.#tooltip!.style.left = `${targetRect.left - tooltipWidth - this.#offset}px`;
+					this.#tooltip!.style.top = `${targetRect.top + ((targetHeight - tooltipHeight) >> 1)}px`;
+					this.#tooltip!.style.bottom = '';
+					this.#tooltip!.style.right = '';
+					break;
+				}
+				case 'right': {
+					this.#tooltip!.style.left = `${targetRect.right + this.#offset}px`;
+					this.#tooltip!.style.top = `${targetRect.top + ((targetHeight - tooltipHeight) >> 1)}px`;
+					this.#tooltip!.style.bottom = '';
+					this.#tooltip!.style.right = '';
+					break;
+				}
+				case 'bottom': {
+					this.#tooltip!.style.left = `${targetRect.left + ((targetWidth - tooltipWidth) >> 1)}px`;
+					this.#tooltip!.style.top = `${targetRect.bottom + this.#offset}px`;
+					this.#tooltip!.style.right = '';
+					this.#tooltip!.style.bottom = '';
+					break;
+				}
+				default: {
+					this.#tooltip!.style.left = `${targetRect.left + ((targetWidth - tooltipWidth) >> 1)}px`;
+					this.#tooltip!.style.top = `${targetRect.top - tooltipHeight - this.#offset}px`;
+					this.#tooltip!.style.right = '';
+					this.#tooltip!.style.bottom = '';
+				}
 			}
-			case 'right': {
-				this.#tooltip!.style.top = `${-(tooltipHeight - targetHeight) >> 1}px`;
-				this.#tooltip!.style.right = `${-tooltipWidth - this.#offset}px`;
-				this.#tooltip!.style.bottom = '';
-				this.#tooltip!.style.left = '';
-				break;
-			}
-			case 'bottom': {
-				this.#tooltip!.style.left = `${-(tooltipWidth - targetWidth) >> 1}px`;
-				this.#tooltip!.style.bottom = `${-tooltipHeight - this.#offset}px`;
-				this.#tooltip!.style.right = '';
-				this.#tooltip!.style.top = '';
-				break;
-			}
-			default: {
-				this.#tooltip!.style.left = `${-(tooltipWidth - targetWidth) >> 1}px`;
-				this.#tooltip!.style.top = `${-tooltipHeight - this.#offset}px`;
-				this.#tooltip!.style.right = '';
-				this.#tooltip!.style.bottom = '';
+		} else {
+			switch (effectivePosition) {
+				case 'left': {
+					this.#tooltip!.style.top = `${-(tooltipHeight - targetHeight) >> 1}px`;
+					this.#tooltip!.style.left = `${-tooltipWidth - this.#offset}px`;
+					this.#tooltip!.style.bottom = '';
+					this.#tooltip!.style.right = '';
+					break;
+				}
+				case 'right': {
+					this.#tooltip!.style.top = `${-(tooltipHeight - targetHeight) >> 1}px`;
+					this.#tooltip!.style.right = `${-tooltipWidth - this.#offset}px`;
+					this.#tooltip!.style.bottom = '';
+					this.#tooltip!.style.left = '';
+					break;
+				}
+				case 'bottom': {
+					this.#tooltip!.style.left = `${-(tooltipWidth - targetWidth) >> 1}px`;
+					this.#tooltip!.style.bottom = `${-tooltipHeight - this.#offset}px`;
+					this.#tooltip!.style.right = '';
+					this.#tooltip!.style.top = '';
+					break;
+				}
+				default: {
+					this.#tooltip!.style.left = `${-(tooltipWidth - targetWidth) >> 1}px`;
+					this.#tooltip!.style.top = `${-tooltipHeight - this.#offset}px`;
+					this.#tooltip!.style.right = '';
+					this.#tooltip!.style.bottom = '';
+				}
 			}
 		}
 	}
@@ -735,11 +771,13 @@ class Tooltip {
 			this.#target!.setAttribute('aria-expanded', 'true');
 		}
 
+		if (this.#portal) this.#tooltip!.style.position = 'fixed';
 		this.#observer!.wait(this.#tooltip!, { events: [DOMObserver.ADD] }).then(() => {
 			if (this.#destroyed) return;
 			this.#positionTooltip();
 		});
-		this.#target!.appendChild(this.#tooltip!);
+		const container = this.#portal ? document.body : this.#target!;
+		container.appendChild(this.#tooltip!);
 
 		if (this.#contentActions) {
 			Object.entries(this.#contentActions).forEach(([key, actionValue]) => {
