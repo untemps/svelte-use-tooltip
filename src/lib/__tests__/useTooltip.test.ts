@@ -487,7 +487,7 @@ describe('useTooltip', () => {
 				}
 			});
 			await _enter(target);
-			const tooltip = target.querySelector<HTMLElement>('[role="tooltip"]')!;
+			const tooltip = target.querySelector<HTMLElement>('[role="dialog"]')!;
 			const buttons = tooltip.querySelectorAll<HTMLElement>('.btn');
 			expect(buttons).toHaveLength(2);
 			await fireEvent.click(buttons[0]);
@@ -506,7 +506,7 @@ describe('useTooltip', () => {
 				}
 			});
 			await _enter(target);
-			const tooltip = target.querySelector<HTMLElement>('[role="tooltip"]')!;
+			const tooltip = target.querySelector<HTMLElement>('[role="dialog"]')!;
 			const buttons = tooltip.querySelectorAll<HTMLElement>('.btn');
 			await fireEvent.mouseEnter(buttons[0]);
 			await fireEvent.mouseEnter(buttons[1]);
@@ -536,7 +536,7 @@ describe('useTooltip', () => {
 				contentActions: { '*': { eventType: 'click', callback, callbackParams: [] } }
 			});
 			await _enter(target);
-			const tooltip = target.querySelector('[role="tooltip"]')!;
+			const tooltip = target.querySelector('[role="dialog"]')!;
 			await fireEvent.click(tooltip);
 			expect(callback).toHaveBeenCalledTimes(1);
 		});
@@ -550,7 +550,7 @@ describe('useTooltip', () => {
 			// Partial update — contentActions intentionally absent (undefined)
 			action.update({ contentSelector: '#template' });
 			await _enter(target);
-			const tooltip = target.querySelector('[role="tooltip"]')!;
+			const tooltip = target.querySelector('[role="dialog"]')!;
 			await fireEvent.click(tooltip);
 			expect(callback).toHaveBeenCalledTimes(1);
 		});
@@ -1693,7 +1693,7 @@ describe('useTooltip', () => {
 		test('aria-describedby value matches the tooltip id', async () => {
 			action = createAction(target, options);
 			await _enter(target);
-			const tooltip = getElement('[role=\"tooltip\"]') as HTMLElement;
+			const tooltip = getElement('[role=\"dialog\"]') as HTMLElement;
 			expect(tooltip.id).toMatch(
 				/^tooltip-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 			);
@@ -1844,6 +1844,45 @@ describe('useTooltip', () => {
 			expect(target).toHaveAttribute('aria-haspopup', 'dialog');
 			action.update({ ...interactiveOptions, contentActions: null });
 			expect(target).not.toHaveAttribute('aria-haspopup');
+		});
+	});
+
+	describe('useTooltip role', () => {
+		test('Sets role="dialog" on tooltip when contentActions is defined', async () => {
+			action = createAction(target, options);
+			await _enter(target);
+			expect(target.querySelector('[role="dialog"]')).toBeInTheDocument();
+			expect(target.querySelector('[role="tooltip"]')).not.toBeInTheDocument();
+		});
+
+		test('Sets role="tooltip" on tooltip when no contentActions', async () => {
+			action = createAction(target, { content: 'Hello' });
+			await _enter(target);
+			expect(target.querySelector('[role="tooltip"]')).toBeInTheDocument();
+			expect(target.querySelector('[role="dialog"]')).not.toBeInTheDocument();
+		});
+
+		test('Updates role from "dialog" to "tooltip" when contentActions is removed via update', async () => {
+			action = createAction(target, options);
+			action.update({ ...options, contentActions: null });
+			await _enter(target);
+			expect(target.querySelector('[role="tooltip"]')).toBeInTheDocument();
+			expect(target.querySelector('[role="dialog"]')).not.toBeInTheDocument();
+		});
+
+		test('Updates role from "tooltip" to "dialog" when contentActions is added via update', async () => {
+			action = createAction(target, { content: 'Hello' });
+			action.update({ content: 'Hello', contentActions: { '*': { eventType: 'click', callback: vi.fn(), callbackParams: [] } } });
+			await _enter(target);
+			expect(target.querySelector('[role="dialog"]')).toBeInTheDocument();
+			expect(target.querySelector('[role="tooltip"]')).not.toBeInTheDocument();
+		});
+
+		test('Sets aria-label="Tooltip" on interactive tooltip', async () => {
+			action = createAction(target, options);
+			await _enter(target);
+			const dialog = target.querySelector('[role="dialog"]') as HTMLElement;
+			expect(dialog).toHaveAttribute('aria-label', 'Tooltip');
 		});
 	});
 
@@ -2017,7 +2056,7 @@ describe('useTooltip', () => {
 		test('Does not close tooltip when focusout fires with relatedTarget inside the tooltip', async () => {
 			action = createAction(target, options);
 			await _enter(target);
-			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
+			const tooltip = getElement('[role="dialog"]') as HTMLElement;
 			const contentEl = getElement('#content') as HTMLElement;
 			await fireEvent.focusOut(target, { relatedTarget: contentEl });
 			await standby(1);
@@ -2027,7 +2066,7 @@ describe('useTooltip', () => {
 		test('Closes tooltip when focusout fires with relatedTarget outside the tooltip', async () => {
 			action = createAction(target, options);
 			await _enter(target);
-			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
+			const tooltip = getElement('[role="dialog"]') as HTMLElement;
 			await fireEvent.focusOut(target, { relatedTarget: document.body });
 			await standby(1);
 			expect(tooltip).not.toBeInTheDocument();
@@ -2036,7 +2075,7 @@ describe('useTooltip', () => {
 		test('Closes tooltip when focusout fires with no relatedTarget', async () => {
 			action = createAction(target, options);
 			await _enter(target);
-			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
+			const tooltip = getElement('[role="dialog"]') as HTMLElement;
 			await fireEvent.focusOut(target, { relatedTarget: null });
 			await standby(1);
 			expect(tooltip).not.toBeInTheDocument();
@@ -2082,21 +2121,21 @@ describe('useTooltip', () => {
 		test('Does not move focus to first focusable element when tooltip opens via keyboard', async () => {
 			trapAction = createAction(trapTarget, trapOptions);
 			await _focus(trapTarget);
-			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
+			const tooltip = getElement('[role="dialog"]') as HTMLElement;
 			expect(document.activeElement).not.toBe(tooltip.querySelector('button'));
 		});
 
 		test('Does not move focus to first focusable element when tooltip opens via mouse', async () => {
 			trapAction = createAction(trapTarget, trapOptions);
 			await _enter(trapTarget);
-			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
+			const tooltip = getElement('[role="dialog"]') as HTMLElement;
 			expect(document.activeElement).not.toBe(tooltip.querySelector('button'));
 		});
 
 		test('Traps Tab: wraps focus from last element to first', async () => {
 			trapAction = createAction(trapTarget, trapOptions);
 			await _enter(trapTarget);
-			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
+			const tooltip = getElement('[role="dialog"]') as HTMLElement;
 			const buttons = tooltip.querySelectorAll<HTMLElement>('button');
 			buttons[buttons.length - 1].focus();
 			await fireEvent.keyDown(tooltip, { key: 'Tab', shiftKey: false });
@@ -2107,7 +2146,7 @@ describe('useTooltip', () => {
 		test('Traps Shift+Tab: wraps focus from first element to last', async () => {
 			trapAction = createAction(trapTarget, trapOptions);
 			await _enter(trapTarget);
-			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
+			const tooltip = getElement('[role="dialog"]') as HTMLElement;
 			const buttons = tooltip.querySelectorAll<HTMLElement>('button');
 			buttons[0].focus();
 			await fireEvent.keyDown(tooltip, { key: 'Tab', shiftKey: true });
@@ -2119,7 +2158,7 @@ describe('useTooltip', () => {
 			trapAction = createAction(trapTarget, trapOptions);
 			await _enter(trapTarget);
 			await _keyDown(trapTarget);
-			expect(getElement('[role="tooltip"]')).not.toBeInTheDocument();
+			expect(getElement('[role="dialog"]')).not.toBeInTheDocument();
 			expect(document.activeElement).toBe(trapTarget);
 		});
 
@@ -2136,7 +2175,7 @@ describe('useTooltip', () => {
 				contentActions: { '*': { eventType: 'click', callback: vi.fn(), callbackParams: [] } }
 			});
 			await _enter(trapTarget);
-			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
+			const tooltip = getElement('[role="dialog"]') as HTMLElement;
 			expect(tooltip.querySelector('button')).toBeNull();
 			expect(document.activeElement).not.toBeInstanceOf(HTMLButtonElement);
 		});

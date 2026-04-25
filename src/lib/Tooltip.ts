@@ -358,10 +358,14 @@ class Tooltip {
 
 		if (hasInteractivityChanged) {
 			if (this.#isInteractive()) {
+				this.#tooltip?.setAttribute('role', 'dialog');
+				this.#tooltip?.setAttribute('aria-label', 'Tooltip');
 				this.#target?.setAttribute('aria-expanded', this.#tooltip?.parentNode ? 'true' : 'false');
 				this.#target?.setAttribute('aria-haspopup', 'dialog');
 				this.#syncTabIndex();
 			} else {
+				this.#tooltip?.setAttribute('role', 'tooltip');
+				this.#tooltip?.removeAttribute('aria-label');
 				this.#target?.removeAttribute('aria-expanded');
 				this.#target?.removeAttribute('aria-haspopup');
 				this.#restoreTabIndex();
@@ -529,7 +533,12 @@ class Tooltip {
 			'class',
 			this.#containerClassName || `__tooltip __tooltip-${this.#position}`
 		);
-		this.#tooltip.setAttribute('role', 'tooltip');
+		if (this.#isInteractive()) {
+			this.#tooltip.setAttribute('role', 'dialog');
+			this.#tooltip.setAttribute('aria-label', 'Tooltip');
+		} else {
+			this.#tooltip.setAttribute('role', 'tooltip');
+		}
 
 		this.#applyWidth();
 
