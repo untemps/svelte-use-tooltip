@@ -1,3 +1,10 @@
+## [3.15.8](https://github.com/untemps/svelte-use-tooltip/compare/v3.15.7...v3.15.8) (2026-04-25)
+
+
+### Bug Fixes
+
+* Add types condition to exports map ([#209](https://github.com/untemps/svelte-use-tooltip/issues/209)) ([2dd1aa3](https://github.com/untemps/svelte-use-tooltip/commit/2dd1aa3b64ba9d4ef8c1eb1e2d795064aee522de))
+
 ## [3.15.7](https://github.com/untemps/svelte-use-tooltip/compare/v3.15.6...v3.15.7) (2026-04-20)
 
 
