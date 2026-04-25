@@ -118,8 +118,11 @@ class Tooltip {
 	#boundToggleHandler: ((e: Event) => void) | null = null;
 	#boundTouchToggleHandler: ((e: Event) => void) | null = null;
 	#boundWindowChangeHandler: ((e: Event) => void) | null = null;
+	#boundTooltipEnterHandler: ((e: Event) => void) | null = null;
+	#boundTooltipLeaveHandler: ((e: Event) => void) | null = null;
 	#trapHandler: ((e: KeyboardEvent) => void) | null = null;
 	#scrollableAncestors: Element[] = [];
+	#tooltipHovered = false;
 
 	static destroy() {
 		Tooltip.#instances.forEach((instance) => {
@@ -795,9 +798,33 @@ class Tooltip {
 			const cs = getComputedStyle(this.#target!);
 			this.#tooltip!.style.fontFamily = cs.fontFamily;
 			this.#tooltip!.style.fontSize = cs.fontSize;
+			this.#tooltip!.style.lineHeight = cs.lineHeight;
+			// Bridge hover gap between target and tooltip: cancel pending hide when
+			// mouse enters the tooltip, and start hide when it leaves.
+			if (!this.#boundTooltipEnterHandler) {
+				this.#boundTooltipEnterHandler = () => {
+					this.#tooltipHovered = true;
+					this.#clearDelay();
+				};
+				this.#boundTooltipLeaveHandler = () => {
+					this.#tooltipHovered = false;
+					if (!this.#open && this.#tooltip?.parentNode) {
+						this.#waitForDelay(this.#leaveDelay).then(() => {
+							if (!this.#tooltipHovered) {
+								this.#removeTooltipFromTarget().then(() => {
+									standby(0).then(() => this.#onLeave?.());
+								});
+							}
+						});
+					}
+				};
+				this.#tooltip!.addEventListener('mouseenter', this.#boundTooltipEnterHandler);
+				this.#tooltip!.addEventListener('mouseleave', this.#boundTooltipLeaveHandler);
+			}
 		} else {
 			this.#tooltip!.style.removeProperty('font-family');
 			this.#tooltip!.style.removeProperty('font-size');
+			this.#tooltip!.style.removeProperty('line-height');
 		}
 		this.#observer!.wait(this.#tooltip!, { events: [DOMObserver.ADD] }).then(() => {
 			if (this.#destroyed) return;
@@ -852,6 +879,16 @@ class Tooltip {
 			trigger.removeEventListener(eventType, listener)
 		);
 		this.#events = [];
+
+		this.#tooltipHovered = false;
+		if (this.#boundTooltipEnterHandler) {
+			this.#tooltip?.removeEventListener('mouseenter', this.#boundTooltipEnterHandler);
+			this.#boundTooltipEnterHandler = null;
+		}
+		if (this.#boundTooltipLeaveHandler) {
+			this.#tooltip?.removeEventListener('mouseleave', this.#boundTooltipLeaveHandler);
+			this.#boundTooltipLeaveHandler = null;
+		}
 
 		this.#teardownFocusTrap();
 	}
@@ -1026,10 +1063,17 @@ class Tooltip {
 
 	async #onTargetLeave(e: Event) {
 		if (this.#open) return;
-		if (e.type === 'focusout' && this.#target?.contains((e as FocusEvent).relatedTarget as Node))
-			return;
+		if (e.type === 'focusout') {
+			const relatedTarget = (e as FocusEvent).relatedTarget as Node;
+			if (
+				this.#target?.contains(relatedTarget) ||
+				(this.#portal && this.#tooltip?.contains(relatedTarget))
+			)
+				return;
+		}
 		if (this.#target === e.target || !this.#target?.contains(e.target as Node)) {
 			await this.#waitForDelay(this.#leaveDelay);
+			if (this.#tooltipHovered) return;
 			await this.#removeTooltipFromTarget();
 			await standby(0);
 			this.#onLeave?.();
@@ -1054,9 +1098,12 @@ class Tooltip {
 		}
 
 		const ke = e as KeyboardEvent;
+		const touchTarget = e.target as Node;
 		if (
 			(e.type !== 'keydown' || ke.key === 'Escape' || ke.key === 'Esc') &&
-			(e.type !== 'touchstart' || !this.#target?.contains(e.target as Node))
+			(e.type !== 'touchstart' ||
+				(!this.#target?.contains(touchTarget) &&
+					!(this.#portal && this.#tooltip?.contains(touchTarget))))
 		) {
 			await this.#removeTooltipFromTarget();
 			this.#onLeave?.();

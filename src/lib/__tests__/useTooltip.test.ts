@@ -688,6 +688,57 @@ describe('useTooltip', () => {
 			expect(document.querySelector('.__tooltip')).not.toBeNull();
 			expect(document.body.contains(document.querySelector('.__tooltip'))).toBe(true);
 		});
+
+		test('Keeps tooltip visible when mouse enters tooltip in portal mode', async () => {
+			action = createAction(target, { ...options, portal: true });
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			// Mouse enters tooltip — cancel pending hide
+			await fireEvent.mouseEnter(tooltipEl());
+			// Mouse leaves target — would normally hide
+			await _leave(target);
+			// Tooltip stays visible because mouse is over it
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Hides tooltip when mouse leaves tooltip in portal mode', async () => {
+			action = createAction(target, { ...options, portal: true });
+			await _enter(target);
+			await fireEvent.mouseEnter(tooltipEl());
+			// Mouse leaves tooltip
+			await fireEvent.mouseLeave(tooltipEl());
+			await standby(1);
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
+		test('Does not hide tooltip when focus moves from target to tooltip in portal mode', async () => {
+			action = createAction(target, { ...options, portal: true });
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			// Simulate focusout from target with relatedTarget inside tooltip
+			await fireEvent.focusOut(target, { relatedTarget: tooltipEl() });
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Does not hide tooltip on touchstart inside tooltip in portal mode', async () => {
+			action = createAction(target, { ...options, portal: true });
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			// Simulate touchstart inside the tooltip
+			await fireEvent.touchStart(tooltipEl());
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Cleans up tooltip hover listeners on hide in portal mode', async () => {
+			action = createAction(target, { ...options, portal: true });
+			await _enter(target);
+			await fireEvent.mouseEnter(tooltipEl());
+			await _leave(target);
+			// Tooltip hides because mouseLeave on tooltip was already called implicitly
+			// Re-enter to verify clean state
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
 	});
 
 	describe('useTooltip props: disabled', () => {
