@@ -1269,14 +1269,22 @@ describe('useTooltip', () => {
 		});
 
 		test('Falls back to __tooltip-enter when animationEnterClassName is reset to empty string via update', async () => {
-			action = createAction(target, { ...options, animated: true, animationEnterClassName: 'my-enter' });
+			action = createAction(target, {
+				...options,
+				animated: true,
+				animationEnterClassName: 'my-enter'
+			});
 			action.update({ ...options, animated: true, animationEnterClassName: '' });
 			await _enter(target);
 			expect(tooltipEl()).toHaveClass('__tooltip-enter');
 		});
 
 		test('Falls back to __tooltip-leave when animationLeaveClassName is reset to empty string via update', async () => {
-			action = createAction(target, { ...options, animated: true, animationLeaveClassName: 'my-leave' });
+			action = createAction(target, {
+				...options,
+				animated: true,
+				animationLeaveClassName: 'my-leave'
+			});
 			action.update({ ...options, animated: true, animationLeaveClassName: '' });
 			await _enterAndLeave(target);
 			expect(tooltipEl()).toHaveClass('__tooltip-leave');
@@ -2426,6 +2434,22 @@ describe('useTooltip', () => {
 			await fireEvent.click(target);
 			await standby(1);
 			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Applies new hideOn when re-enabling and hideOn change simultaneously', async () => {
+			// Start disabled
+			action = createAction(target, { ...options, disabled: true });
+			// Re-enable and switch to dblclick dismiss at the same time
+			action.update({ ...options, disabled: false, hideOn: ['dblclick'] });
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			// Default mouseleave must no longer dismiss
+			await _leave(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			// New hideOn event must dismiss
+			await fireEvent.dblClick(target);
+			await standby(1);
+			expect(getElement('#content')).not.toBeInTheDocument();
 		});
 	});
 });
