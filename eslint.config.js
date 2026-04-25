@@ -2,6 +2,7 @@ import prettier from 'eslint-config-prettier';
 import js from '@eslint/js';
 import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
+import tsParser from '@typescript-eslint/parser';
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
@@ -18,6 +19,14 @@ export default [
 		}
 	},
 	{
-		ignores: ['build/', '.svelte-kit/', 'dist/']
+		files: ['**/*.svelte'],
+		languageOptions: {
+			parserOptions: {
+				parser: tsParser
+			}
+		}
+	},
+	{
+		ignores: ['build/', '.svelte-kit/', 'dist/', 'coverage/']
 	}
 ];
