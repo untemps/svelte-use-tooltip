@@ -54,6 +54,7 @@ type ChangeSet = {
 	hasToHide: boolean;
 	hasInteractivityChanged: boolean;
 	hasAriaLabelChanged: boolean;
+	hasPortalChanged: boolean;
 };
 
 class Tooltip {
@@ -220,6 +221,7 @@ class Tooltip {
 		width,
 		disabled,
 		open,
+		portal,
 		touchBehavior,
 		showOn,
 		hideOn,
@@ -261,7 +263,8 @@ class Tooltip {
 			})(),
 			hasAriaLabelChanged:
 				ariaLabel !== undefined &&
-				(ariaLabel === null ? Tooltip.#DEFAULT_ARIA_LABEL : ariaLabel) !== this.#ariaLabel
+				(ariaLabel === null ? Tooltip.#DEFAULT_ARIA_LABEL : ariaLabel) !== this.#ariaLabel,
+			hasPortalChanged: portal !== undefined && portal !== this.#portal
 		};
 	}
 
@@ -281,6 +284,7 @@ class Tooltip {
 		offset,
 		width,
 		open,
+		portal,
 		touchBehavior,
 		ariaLabel
 	}: TooltipOptions) {
@@ -306,6 +310,7 @@ class Tooltip {
 		if (touchBehavior !== undefined) this.#touchBehavior = touchBehavior;
 		if (ariaLabel !== undefined)
 			this.#ariaLabel = ariaLabel === null ? Tooltip.#DEFAULT_ARIA_LABEL : ariaLabel;
+		if (portal !== undefined) this.#portal = portal;
 		// #showOn / #hideOn are intentionally NOT updated here: they must be applied between
 		// #disable() and #enable() in #applyChanges so that #disableTarget removes the OLD
 		// listeners before #enableTarget registers the NEW ones.
@@ -323,10 +328,24 @@ class Tooltip {
 			hasToShow,
 			hasToHide,
 			hasInteractivityChanged,
-			hasAriaLabelChanged
+			hasAriaLabelChanged,
+			hasPortalChanged
 		}: ChangeSet,
 		options: TooltipOptions = {}
 	) {
+		if (hasPortalChanged) {
+			if (this.#portal) {
+				this.#target?.style.removeProperty('position');
+			} else {
+				this.#target!.style.position = 'relative';
+			}
+			if (this.#tooltip?.parentNode) {
+				this.#tooltip!.style.position = this.#portal ? 'fixed' : '';
+				const container = this.#portal ? document.body : this.#target!;
+				container.appendChild(this.#tooltip!);
+				this.#positionTooltip();
+			}
+		}
 		if (hasStructureChanged) {
 			this.#removeTooltipFromTarget(true);
 			// Cancel any pending contentSelector observer before re-registering a new one,
