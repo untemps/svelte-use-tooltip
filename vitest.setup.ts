@@ -16,73 +16,53 @@ declare global {
 	function _touchCancel(trigger: Element): Promise<void>;
 }
 
-global._enter = async (trigger: Element) =>
-	new Promise<void>(async (resolve) => {
-		await fireEvent.mouseOver(trigger); // fireEvent.mouseEnter only works if mouseOver is triggered before
-		await fireEvent.mouseEnter(trigger);
-		await standby(1);
-		resolve();
-	});
+global._enter = async (trigger: Element) => {
+	await fireEvent.mouseOver(trigger); // fireEvent.mouseEnter only works if mouseOver is triggered before
+	await fireEvent.mouseEnter(trigger);
+	await standby(1);
+};
 
-global._leave = async (trigger: Element) =>
-	new Promise<void>(async (resolve) => {
-		await fireEvent.mouseLeave(trigger);
-		await standby(1);
-		resolve();
-	});
+global._leave = async (trigger: Element) => {
+	await fireEvent.mouseLeave(trigger);
+	await standby(1);
+};
 
-global._enterAndLeave = async (trigger: Element) =>
-	new Promise<void>(async (resolve) => {
-		await _enter(trigger);
-		await _leave(trigger);
-		resolve();
-	});
+global._enterAndLeave = async (trigger: Element) => {
+	await _enter(trigger);
+	await _leave(trigger);
+};
 
-global._focus = async (trigger: Element) =>
-	new Promise<void>(async (resolve) => {
-		await fireEvent.focusIn(trigger);
-		await standby(1);
-		resolve();
-	});
+global._focus = async (trigger: Element) => {
+	await fireEvent.focusIn(trigger);
+	await standby(1);
+};
 
-global._blur = async (trigger: Element) =>
-	new Promise<void>(async (resolve) => {
-		await fireEvent.focusOut(trigger);
-		await standby(1);
-		resolve();
-	});
+global._blur = async (trigger: Element) => {
+	await fireEvent.focusOut(trigger);
+	await standby(1);
+};
 
-global._focusAndBlur = async (trigger: Element) =>
-	new Promise<void>(async (resolve) => {
-		await _focus(trigger);
-		await _blur(trigger);
-		resolve();
-	});
+global._focusAndBlur = async (trigger: Element) => {
+	await _focus(trigger);
+	await _blur(trigger);
+};
 
-global._keyDown = async (trigger: Element, key?: object) =>
-	new Promise<void>(async (resolve) => {
-		await fireEvent.keyDown(trigger, key || { key: 'Escape', code: 'Escape', charCode: 27 });
-		await standby(1);
-		resolve();
-	});
+global._keyDown = async (trigger: Element, key?: object) => {
+	await fireEvent.keyDown(trigger, key || { key: 'Escape', code: 'Escape', charCode: 27 });
+	await standby(1);
+};
 
-global._touchStart = async (trigger: Element) =>
-	new Promise<void>(async (resolve) => {
-		await fireEvent.touchStart(trigger);
-		await standby(1);
-		resolve();
-	});
+global._touchStart = async (trigger: Element) => {
+	await fireEvent.touchStart(trigger);
+	await standby(1);
+};
 
-global._touchEnd = async (trigger: Element) =>
-	new Promise<void>(async (resolve) => {
-		await fireEvent.touchEnd(trigger);
-		await standby(1);
-		resolve();
-	});
+global._touchEnd = async (trigger: Element) => {
+	await fireEvent.touchEnd(trigger);
+	await standby(1);
+};
 
-global._touchCancel = async (trigger: Element) =>
-	new Promise<void>(async (resolve) => {
-		await fireEvent.touchCancel(trigger);
-		await standby(1);
-		resolve();
-	});
+global._touchCancel = async (trigger: Element) => {
+	await fireEvent.touchCancel(trigger);
+	await standby(1);
+};
