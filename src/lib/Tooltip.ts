@@ -791,6 +791,14 @@ class Tooltip {
 		}
 
 		this.#tooltip!.style.position = this.#portal ? 'fixed' : '';
+		if (this.#portal) {
+			const cs = getComputedStyle(this.#target!);
+			this.#tooltip!.style.fontFamily = cs.fontFamily;
+			this.#tooltip!.style.fontSize = cs.fontSize;
+		} else {
+			this.#tooltip!.style.removeProperty('font-family');
+			this.#tooltip!.style.removeProperty('font-size');
+		}
 		this.#observer!.wait(this.#tooltip!, { events: [DOMObserver.ADD] }).then(() => {
 			if (this.#destroyed) return;
 			this.#positionTooltip();
