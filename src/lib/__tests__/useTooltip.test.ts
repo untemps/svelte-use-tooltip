@@ -218,6 +218,13 @@ describe('useTooltip', () => {
 			spy.mockRestore();
 		});
 
+		test('Does not throw when window resize fires with no active tooltip', async () => {
+			action = createAction(target, options);
+			// Tooltip is not shown — parentNode guard must swallow the event silently
+			await expect(fireEvent.resize(window)).resolves.not.toThrow();
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
 		test('Removes ancestor scroll listeners on destroy', async () => {
 			const container = createElement({
 				tag: 'div',
