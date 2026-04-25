@@ -1901,6 +1901,28 @@ describe('useTooltip', () => {
 			const tooltip = target.querySelector('[role="tooltip"]') as HTMLElement;
 			expect(tooltip).not.toHaveAttribute('aria-label');
 		});
+
+		test('Uses custom ariaLabel on interactive tooltip', async () => {
+			action = createAction(target, { ...options, ariaLabel: 'User actions menu' });
+			await _enter(target);
+			const dialog = target.querySelector('[role="dialog"]') as HTMLElement;
+			expect(dialog).toHaveAttribute('aria-label', 'User actions menu');
+		});
+
+		test('Updates aria-label via update()', async () => {
+			action = createAction(target, options);
+			await _enter(target);
+			action.update({ ...options, ariaLabel: 'Updated label' });
+			const dialog = target.querySelector('[role="dialog"]') as HTMLElement;
+			expect(dialog).toHaveAttribute('aria-label', 'Updated label');
+		});
+
+		test('Defaults aria-label to "Tooltip" when ariaLabel is not provided', async () => {
+			action = createAction(target, options);
+			await _enter(target);
+			const dialog = target.querySelector('[role="dialog"]') as HTMLElement;
+			expect(dialog).toHaveAttribute('aria-label', 'Tooltip');
+		});
 	});
 
 	describe('useTooltip tabindex', () => {
@@ -2195,6 +2217,32 @@ describe('useTooltip', () => {
 			const tooltip = getElement('[role="dialog"]') as HTMLElement;
 			expect(tooltip.querySelector('button')).toBeNull();
 			expect(document.activeElement).not.toBeInstanceOf(HTMLButtonElement);
+		});
+
+		test('Sets aria-modal="true" when focus trap is active', async () => {
+			trapAction = createAction(trapTarget, trapOptions);
+			await _enter(trapTarget);
+			const tooltip = getElement('[role="dialog"]') as HTMLElement;
+			expect(tooltip).toHaveAttribute('aria-modal', 'true');
+		});
+
+		test('Does not set aria-modal when tooltip has no focusable elements', async () => {
+			trapAction = createAction(trapTarget, {
+				content: 'Hello',
+				contentActions: { '*': { eventType: 'click', callback: vi.fn(), callbackParams: [] } }
+			});
+			await _enter(trapTarget);
+			const tooltip = getElement('[role="dialog"]') as HTMLElement;
+			expect(tooltip).not.toHaveAttribute('aria-modal');
+		});
+
+		test('Removes aria-modal when tooltip is hidden', async () => {
+			trapAction = createAction(trapTarget, trapOptions);
+			await _enter(trapTarget);
+			const tooltip = getElement('[role="dialog"]') as HTMLElement;
+			expect(tooltip).toHaveAttribute('aria-modal', 'true');
+			await _leave(trapTarget);
+			expect(tooltip).not.toBeInTheDocument();
 		});
 	});
 

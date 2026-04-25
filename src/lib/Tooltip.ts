@@ -35,6 +35,7 @@ export type TooltipOptions = {
 	touchBehavior?: 'hover' | 'toggle';
 	showOn?: string[];
 	hideOn?: string[];
+	ariaLabel?: string | null;
 };
 
 type SpaceMap = Record<TooltipPosition, number>;
@@ -51,6 +52,7 @@ type ChangeSet = {
 	hasToShow: boolean;
 	hasToHide: boolean;
 	hasInteractivityChanged: boolean;
+	hasAriaLabelChanged: boolean;
 };
 
 class Tooltip {
@@ -91,6 +93,7 @@ class Tooltip {
 	#touchBehavior: 'hover' | 'toggle' | null = null;
 	#showOn: string[] = Tooltip.#DEFAULT_SHOW_ON;
 	#hideOn: string[] = Tooltip.#DEFAULT_HIDE_ON;
+	#ariaLabel = 'Tooltip';
 
 	#id: string;
 
@@ -141,7 +144,8 @@ class Tooltip {
 			open,
 			touchBehavior,
 			showOn,
-			hideOn
+			hideOn,
+			ariaLabel
 		} = options;
 
 		this.#target = target;
@@ -163,6 +167,7 @@ class Tooltip {
 		this.#touchBehavior = touchBehavior ?? null;
 		this.#showOn = showOn ?? Tooltip.#DEFAULT_SHOW_ON;
 		this.#hideOn = hideOn ?? Tooltip.#DEFAULT_HIDE_ON;
+		this.#ariaLabel = ariaLabel ?? 'Tooltip';
 
 		this.#id = `tooltip-${crypto.randomUUID()}`;
 
@@ -212,7 +217,8 @@ class Tooltip {
 		open,
 		touchBehavior,
 		showOn,
-		hideOn
+		hideOn,
+		ariaLabel
 	}: TooltipOptions): ChangeSet {
 		const hasContentChanged =
 			(contentSelector !== undefined && contentSelector !== this.#contentSelector) ||
@@ -247,7 +253,8 @@ class Tooltip {
 				const effectiveActions = this.#computeEffectiveActions(nextActions, nextSelector);
 				const nextIsInteractive = !!effectiveActions && Object.keys(effectiveActions).length > 0;
 				return nextIsInteractive !== this.#isInteractive();
-			})()
+			})(),
+			hasAriaLabelChanged: ariaLabel !== undefined && (ariaLabel ?? 'Tooltip') !== this.#ariaLabel
 		};
 	}
 
@@ -267,7 +274,8 @@ class Tooltip {
 		offset,
 		width,
 		open,
-		touchBehavior
+		touchBehavior,
+		ariaLabel
 	}: TooltipOptions) {
 		if (content !== undefined) this.#content = content;
 		if (contentSelector !== undefined) this.#contentSelector = contentSelector;
@@ -289,6 +297,7 @@ class Tooltip {
 		// false is treated as a one-shot close — no lock. Only true locks the tooltip open.
 		if (open !== undefined) this.#open = open === true ? true : undefined;
 		if (touchBehavior !== undefined) this.#touchBehavior = touchBehavior;
+		if (ariaLabel !== undefined) this.#ariaLabel = ariaLabel ?? 'Tooltip';
 		// #showOn / #hideOn are intentionally NOT updated here: they must be applied between
 		// #disable() and #enable() in #applyChanges so that #disableTarget removes the OLD
 		// listeners before #enableTarget registers the NEW ones.
@@ -305,7 +314,8 @@ class Tooltip {
 			hasShowHideConfigChanged,
 			hasToShow,
 			hasToHide,
-			hasInteractivityChanged
+			hasInteractivityChanged,
+			hasAriaLabelChanged
 		}: ChangeSet,
 		options: TooltipOptions = {}
 	) {
@@ -359,7 +369,7 @@ class Tooltip {
 		if (hasInteractivityChanged) {
 			if (this.#isInteractive()) {
 				this.#tooltip?.setAttribute('role', 'dialog');
-				this.#tooltip?.setAttribute('aria-label', 'Tooltip');
+				this.#tooltip?.setAttribute('aria-label', this.#ariaLabel);
 				this.#target?.removeAttribute('aria-describedby');
 				this.#target?.setAttribute('aria-expanded', this.#tooltip?.parentNode ? 'true' : 'false');
 				this.#target?.setAttribute('aria-haspopup', 'dialog');
@@ -374,6 +384,10 @@ class Tooltip {
 				this.#target?.removeAttribute('aria-haspopup');
 				this.#restoreTabIndex();
 			}
+		}
+
+		if (hasAriaLabelChanged && this.#isInteractive()) {
+			this.#tooltip?.setAttribute('aria-label', this.#ariaLabel);
 		}
 	}
 
@@ -539,7 +553,7 @@ class Tooltip {
 		);
 		if (this.#isInteractive()) {
 			this.#tooltip.setAttribute('role', 'dialog');
-			this.#tooltip.setAttribute('aria-label', 'Tooltip');
+			this.#tooltip.setAttribute('aria-label', this.#ariaLabel);
 		} else {
 			this.#tooltip.setAttribute('role', 'tooltip');
 		}
@@ -853,6 +867,7 @@ class Tooltip {
 		};
 
 		this.#tooltip!.addEventListener('keydown', this.#trapHandler);
+		this.#tooltip!.setAttribute('aria-modal', 'true');
 	}
 
 	#syncTabIndex(): void {
@@ -880,6 +895,7 @@ class Tooltip {
 	#teardownFocusTrap(): void {
 		if (this.#trapHandler) {
 			this.#tooltip?.removeEventListener('keydown', this.#trapHandler);
+			this.#tooltip?.removeAttribute('aria-modal');
 			this.#trapHandler = null;
 			// Temporarily remove show-event listeners so that returning focus to the trigger
 			// does not re-open the tooltip.
