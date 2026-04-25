@@ -1128,6 +1128,14 @@ describe('useTooltip', () => {
 			await standby(0);
 			expect(onEnter).toHaveBeenCalled();
 		});
+
+		test('Triggers callback when tooltip opens programmatically via open: true', async () => {
+			const onEnter = vi.fn(() => 0);
+			action = createAction(target, { ...options, onEnter });
+			action.update({ open: true });
+			await standby(1);
+			expect(onEnter).toHaveBeenCalled();
+		});
 	});
 
 	describe('useTooltip props: onLeave', () => {
