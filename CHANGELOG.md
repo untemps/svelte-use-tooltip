@@ -1,3 +1,10 @@
+# [3.16.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.15.9...v3.16.0) (2026-04-25)
+
+
+### Features
+
+* Improve ARIA semantics for interactive tooltips ([#224](https://github.com/untemps/svelte-use-tooltip/issues/224)) ([e1a3c44](https://github.com/untemps/svelte-use-tooltip/commit/e1a3c44ce217397b40782305773df3ec6ee07749))
+
 ## [3.15.9](https://github.com/untemps/svelte-use-tooltip/compare/v3.15.8...v3.15.9) (2026-04-25)
 
 
