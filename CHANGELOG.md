@@ -1,3 +1,21 @@
+# [4.0.0-beta.1](https://github.com/untemps/svelte-use-tooltip/compare/v3.16.0...v4.0.0-beta.1) (2026-04-26)
+
+
+* feat!: V4 major release ([14f30f3](https://github.com/untemps/svelte-use-tooltip/commit/14f30f37a4ffe114aab82b3787fd9d11c81f7787))
+
+
+### Features
+
+* Add portal prop to render tooltip into document.body ([#233](https://github.com/untemps/svelte-use-tooltip/issues/233)) ([3acdb75](https://github.com/untemps/svelte-use-tooltip/commit/3acdb7534b8f97024b8b7c21eccdb93aeec95c70))
+
+
+### BREAKING CHANGES
+
+* portal rendering is now the default — the tooltip is
+appended to document.body instead of being a child of the target element.
+CSS selectors targeting .target > .tooltip will break. Set portal:false
+to restore pre-v4 inline behavior.
+
 # [3.17.0-beta.1](https://github.com/untemps/svelte-use-tooltip/compare/v3.16.0...v3.17.0-beta.1) (2026-04-26)
 
 
