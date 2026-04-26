@@ -1,3 +1,10 @@
+# [4.0.0-beta.2](https://github.com/untemps/svelte-use-tooltip/compare/v4.0.0-beta.1...v4.0.0-beta.2) (2026-04-26)
+
+
+### Features
+
+* Add onPlacementChange callback when tooltip auto-flips position ([#237](https://github.com/untemps/svelte-use-tooltip/issues/237)) ([36cbbe0](https://github.com/untemps/svelte-use-tooltip/commit/36cbbe031c686dcab136f5a243e2c9a9063f3876))
+
 # [4.0.0-beta.1](https://github.com/untemps/svelte-use-tooltip/compare/v3.16.0...v4.0.0-beta.1) (2026-04-26)
 
 
