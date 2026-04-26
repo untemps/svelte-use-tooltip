@@ -1,3 +1,10 @@
+# [3.17.0-beta.1](https://github.com/untemps/svelte-use-tooltip/compare/v3.16.0...v3.17.0-beta.1) (2026-04-26)
+
+
+### Features
+
+* Add portal prop to render tooltip into document.body ([#233](https://github.com/untemps/svelte-use-tooltip/issues/233)) ([3acdb75](https://github.com/untemps/svelte-use-tooltip/commit/3acdb7534b8f97024b8b7c21eccdb93aeec95c70))
+
 # [3.16.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.15.9...v3.16.0) (2026-04-25)
 
 

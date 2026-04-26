@@ -1,6 +1,6 @@
 {
 	"name": "@untemps/svelte-use-tooltip",
-	"version": "3.16.0",
+	"version": "3.17.0-beta.1",
 	"author": "Vincent Le Badezet <v.lebadezet@untemps.net>",
 	"license": "MIT",
 	"description": "Svelte action to display a tooltip",
