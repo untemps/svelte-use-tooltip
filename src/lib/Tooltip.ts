@@ -63,6 +63,7 @@ class Tooltip {
 	// Below this threshold the tooltip switches to a different position instead.
 	static #MIN_WIDTH = 80;
 	static #ANIMATION_TIMEOUT_MS = 1000;
+	static #PORTAL_HOVER_BRIDGE_MS = 16; // one animation frame — lets mouseenter on the tooltip fire before the hide executes
 	static #DEFAULT_SHOW_ON = ['mouseenter', 'focusin'];
 	static #DEFAULT_HIDE_ON = ['mouseleave', 'focusout'];
 	static #DEFAULT_ARIA_LABEL = 'Tooltip';
@@ -775,7 +776,8 @@ class Tooltip {
 			if (this.#computedLineHeight) this.#tooltip!.style.lineHeight = this.#computedLineHeight;
 			// Bridge hover gap between target and tooltip: cancel pending hide when
 			// mouse enters the tooltip, and start hide when it leaves.
-			if (!this.#boundTooltipEnterHandler) {
+			// Only needed for interactive tooltips — non-interactive ones hide on target leave.
+			if (this.#isInteractive() && !this.#boundTooltipEnterHandler) {
 				this.#boundTooltipEnterHandler = () => {
 					this.#tooltipHovered = true;
 					this.#clearDelay();
@@ -1046,8 +1048,14 @@ class Tooltip {
 	}
 
 	async #scheduleHide() {
+		// For interactive portal tooltips, guarantee at least one animation frame so the
+		// mouseenter on the tooltip can fire and cancel this hide via #clearDelay().
+		const delay =
+			this.#portal && this.#isInteractive()
+				? Math.max(this.#leaveDelay, Tooltip.#PORTAL_HOVER_BRIDGE_MS)
+				: this.#leaveDelay;
 		try {
-			await this.#waitForDelay(this.#leaveDelay);
+			await this.#waitForDelay(delay);
 		} catch {
 			return;
 		}

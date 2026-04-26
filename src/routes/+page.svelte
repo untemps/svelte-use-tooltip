@@ -42,11 +42,6 @@
 			alert("You've left the target");
 		}
 	};
-
-	const _onTooltipClick = (arg, e) => {
-		e.preventDefault();
-		alert("You've clicked the tooltip");
-	};
 </script>
 
 <style>
@@ -439,14 +434,7 @@
 								}
 							]
 						}
-					: {
-							'*': {
-								eventType: 'click',
-								callback: _onTooltipClick,
-								callbackParams: ['ok'],
-								closeOnCallback: true
-							}
-						},
+					: null,
 				containerClassName: useCustomClass ? `tooltip tooltip-${position}` : null,
 				animated: animate,
 				animationEnterClassName: useCustomAnimationEnterClass ? 'tooltip-enter' : null,

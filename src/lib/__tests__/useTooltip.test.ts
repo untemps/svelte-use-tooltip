@@ -701,25 +701,55 @@ describe('useTooltip', () => {
 			expect(document.body.contains(document.querySelector('.__tooltip'))).toBe(true);
 		});
 
-		test('Keeps tooltip visible when mouse enters tooltip in portal mode', async () => {
+		test('Keeps tooltip visible when mouse enters tooltip after leaving target (interactive)', async () => {
 			action = createAction(target, { ...options, portal: true });
 			await _enter(target);
 			expect(getElement('#content')).toBeInTheDocument();
-			// Mouse enters tooltip — cancel pending hide
+			// Simulate mouse moving from target to tooltip within 16ms grace period
 			await fireEvent.mouseEnter(tooltipEl());
-			// Mouse leaves target — would normally hide
 			await _leave(target);
-			// Tooltip stays visible because mouse is over it
 			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Hides tooltip when mouse leaves target and does not enter tooltip (interactive)', async () => {
+			action = createAction(target, { ...options, portal: true });
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			// Mouse leaves target without entering tooltip — hides after grace period
+			await _leave(target);
+			await standby(20);
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
+		test('Hides tooltip when mouse leaves tooltip in portal mode (interactive)', async () => {
+			action = createAction(target, { ...options, portal: true });
+			await _enter(target);
+			await fireEvent.mouseEnter(tooltipEl());
+			await _leave(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			await fireEvent.mouseLeave(tooltipEl());
+			await standby(20);
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
+		test('Hides tooltip immediately when mouse leaves target in portal mode (non-interactive)', async () => {
+			action = createAction(target, { content: 'Hello', portal: true });
+			await _enter(target);
+			expect(document.querySelector('.__tooltip')).toBeInTheDocument();
+			// Mouse enters tooltip — no bridge for non-interactive
+			await fireEvent.mouseEnter(document.querySelector('.__tooltip')!);
+			// Mouse leaves target — tooltip must hide regardless of tooltip hover
+			await _leave(target);
+			expect(document.querySelector('.__tooltip')).not.toBeInTheDocument();
 		});
 
 		test('Hides tooltip when mouse leaves tooltip in portal mode', async () => {
 			action = createAction(target, { ...options, portal: true });
 			await _enter(target);
 			await fireEvent.mouseEnter(tooltipEl());
-			// Mouse leaves tooltip
+			// Mouse leaves tooltip — hides after 16ms grace period
 			await fireEvent.mouseLeave(tooltipEl());
-			await standby(1);
+			await standby(20);
 			expect(getElement('#content')).not.toBeInTheDocument();
 		});
 
@@ -1880,6 +1910,7 @@ describe('useTooltip', () => {
 	describe('useTooltip aria-expanded', () => {
 		const interactiveOptions: TooltipOptions = {
 			contentSelector: '#template',
+			portal: false,
 			contentActions: {
 				'*': { eventType: 'click', callback: vi.fn(), callbackParams: [] }
 			}
@@ -1938,6 +1969,7 @@ describe('useTooltip', () => {
 	describe('useTooltip aria-haspopup', () => {
 		const interactiveOptions: TooltipOptions = {
 			contentSelector: '#template',
+			portal: false,
 			contentActions: {
 				'*': { eventType: 'click', callback: vi.fn(), callbackParams: [] }
 			}
@@ -2261,6 +2293,7 @@ describe('useTooltip', () => {
 		const TRAP_TEMPLATE_ID = 'trap-template';
 		const trapOptions: TooltipOptions = {
 			contentSelector: `#${TRAP_TEMPLATE_ID}`,
+			portal: false,
 			contentActions: {
 				'*': { eventType: 'click', callback: vi.fn(), callbackParams: [] }
 			}
