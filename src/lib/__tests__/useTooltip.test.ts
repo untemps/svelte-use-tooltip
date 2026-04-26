@@ -866,8 +866,8 @@ describe('useTooltip', () => {
 			});
 			await _enter(target);
 			const tooltip = tooltipEl();
-			expect(tooltip.style.left).toHaveLength(0);
-			expect(tooltip.style.right).not.toHaveLength(0);
+			expect(tooltip.style.left).not.toHaveLength(0);
+			expect(tooltip.style.right).toHaveLength(0);
 			expect(tooltip.style.top).not.toHaveLength(0);
 			expect(tooltip.style.bottom).toHaveLength(0);
 			expect(tooltip).toHaveClass('__tooltip-right');
@@ -880,8 +880,8 @@ describe('useTooltip', () => {
 			});
 			await _enter(target);
 			const tooltip = tooltipEl();
-			expect(tooltip.style.left).toHaveLength(0);
-			expect(tooltip.style.right).not.toHaveLength(0);
+			expect(tooltip.style.left).not.toHaveLength(0);
+			expect(tooltip.style.right).toHaveLength(0);
 			expect(tooltip.style.top).not.toHaveLength(0);
 			expect(tooltip.style.bottom).toHaveLength(0);
 			expect(tooltip).not.toHaveClass('__tooltip-top');
@@ -926,8 +926,8 @@ describe('useTooltip', () => {
 			const tooltip = tooltipEl();
 			expect(tooltip.style.left).not.toHaveLength(0);
 			expect(tooltip.style.right).toHaveLength(0);
-			expect(tooltip.style.top).toHaveLength(0);
-			expect(tooltip.style.bottom).not.toHaveLength(0);
+			expect(tooltip.style.top).not.toHaveLength(0);
+			expect(tooltip.style.bottom).toHaveLength(0);
 			expect(tooltip).toHaveClass('__tooltip-bottom');
 		});
 
@@ -940,8 +940,8 @@ describe('useTooltip', () => {
 			const tooltip = tooltipEl();
 			expect(tooltip.style.left).not.toHaveLength(0);
 			expect(tooltip.style.right).toHaveLength(0);
-			expect(tooltip.style.top).toHaveLength(0);
-			expect(tooltip.style.bottom).not.toHaveLength(0);
+			expect(tooltip.style.top).not.toHaveLength(0);
+			expect(tooltip.style.bottom).toHaveLength(0);
 			expect(tooltip).not.toHaveClass('__tooltip-top');
 			expect(tooltip).toHaveClass('__tooltip-bottom');
 		});

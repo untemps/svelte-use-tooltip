@@ -123,6 +123,10 @@ class Tooltip {
 	#trapHandler: ((e: KeyboardEvent) => void) | null = null;
 	#scrollableAncestors: Element[] = [];
 	#tooltipHovered = false;
+	#delayReject: ((reason: unknown) => void) | null = null;
+	#computedFontFamily = '';
+	#computedFontSize = '';
+	#computedLineHeight = '';
 
 	static destroy() {
 		Tooltip.#instances.forEach((instance) => {
@@ -177,6 +181,7 @@ class Tooltip {
 		this.#hideOn = hideOn ?? Tooltip.#DEFAULT_HIDE_ON;
 		this.#ariaLabel = ariaLabel ?? Tooltip.#DEFAULT_ARIA_LABEL;
 		this.#portal = portal ?? true;
+		if (this.#portal) this.#syncComputedFont();
 
 		this.#id = `tooltip-${crypto.randomUUID()}`;
 
@@ -339,6 +344,7 @@ class Tooltip {
 		if (hasPortalChanged) {
 			if (this.#portal) {
 				this.#target?.style.removeProperty('position');
+				this.#syncComputedFont();
 			} else {
 				this.#target!.style.position = 'relative';
 			}
@@ -717,66 +723,35 @@ class Tooltip {
 
 		const { width: tooltipWidth, height: tooltipHeight } = tooltipRect;
 
-		if (this.#portal) {
-			switch (effectivePosition) {
-				case 'left': {
-					this.#tooltip!.style.left = `${targetRect.left - tooltipWidth - this.#offset}px`;
-					this.#tooltip!.style.top = `${targetRect.top + ((targetHeight - tooltipHeight) >> 1)}px`;
-					this.#tooltip!.style.bottom = '';
-					this.#tooltip!.style.right = '';
-					break;
-				}
-				case 'right': {
-					this.#tooltip!.style.left = `${targetRect.right + this.#offset}px`;
-					this.#tooltip!.style.top = `${targetRect.top + ((targetHeight - tooltipHeight) >> 1)}px`;
-					this.#tooltip!.style.bottom = '';
-					this.#tooltip!.style.right = '';
-					break;
-				}
-				case 'bottom': {
-					this.#tooltip!.style.left = `${targetRect.left + ((targetWidth - tooltipWidth) >> 1)}px`;
-					this.#tooltip!.style.top = `${targetRect.bottom + this.#offset}px`;
-					this.#tooltip!.style.right = '';
-					this.#tooltip!.style.bottom = '';
-					break;
-				}
-				default: {
-					this.#tooltip!.style.left = `${targetRect.left + ((targetWidth - tooltipWidth) >> 1)}px`;
-					this.#tooltip!.style.top = `${targetRect.top - tooltipHeight - this.#offset}px`;
-					this.#tooltip!.style.right = '';
-					this.#tooltip!.style.bottom = '';
-				}
-			}
-		} else {
-			switch (effectivePosition) {
-				case 'left': {
-					this.#tooltip!.style.top = `${-(tooltipHeight - targetHeight) >> 1}px`;
-					this.#tooltip!.style.left = `${-tooltipWidth - this.#offset}px`;
-					this.#tooltip!.style.bottom = '';
-					this.#tooltip!.style.right = '';
-					break;
-				}
-				case 'right': {
-					this.#tooltip!.style.top = `${-(tooltipHeight - targetHeight) >> 1}px`;
-					this.#tooltip!.style.right = `${-tooltipWidth - this.#offset}px`;
-					this.#tooltip!.style.bottom = '';
-					this.#tooltip!.style.left = '';
-					break;
-				}
-				case 'bottom': {
-					this.#tooltip!.style.left = `${-(tooltipWidth - targetWidth) >> 1}px`;
-					this.#tooltip!.style.bottom = `${-tooltipHeight - this.#offset}px`;
-					this.#tooltip!.style.right = '';
-					this.#tooltip!.style.top = '';
-					break;
-				}
-				default: {
-					this.#tooltip!.style.left = `${-(tooltipWidth - targetWidth) >> 1}px`;
-					this.#tooltip!.style.top = `${-tooltipHeight - this.#offset}px`;
-					this.#tooltip!.style.right = '';
-					this.#tooltip!.style.bottom = '';
-				}
-			}
+		// Viewport-absolute origin; inline mode subtracts target offset to get relative coords.
+		const ox = this.#portal ? 0 : targetRect.left;
+		const oy = this.#portal ? 0 : targetRect.top;
+		const t = this.#tooltip!.style;
+
+		switch (effectivePosition) {
+			case 'left':
+				t.left = `${targetRect.left - tooltipWidth - this.#offset - ox}px`;
+				t.top = `${targetRect.top + ((targetHeight - tooltipHeight) >> 1) - oy}px`;
+				t.bottom = '';
+				t.right = '';
+				break;
+			case 'right':
+				t.left = `${targetRect.right + this.#offset - ox}px`;
+				t.top = `${targetRect.top + ((targetHeight - tooltipHeight) >> 1) - oy}px`;
+				t.bottom = '';
+				t.right = '';
+				break;
+			case 'bottom':
+				t.left = `${targetRect.left + ((targetWidth - tooltipWidth) >> 1) - ox}px`;
+				t.top = `${targetRect.bottom + this.#offset - oy}px`;
+				t.right = '';
+				t.bottom = '';
+				break;
+			default:
+				t.left = `${targetRect.left + ((targetWidth - tooltipWidth) >> 1) - ox}px`;
+				t.top = `${targetRect.top - tooltipHeight - this.#offset - oy}px`;
+				t.right = '';
+				t.bottom = '';
 		}
 	}
 
@@ -795,10 +770,9 @@ class Tooltip {
 
 		this.#tooltip!.style.position = this.#portal ? 'fixed' : '';
 		if (this.#portal) {
-			const cs = getComputedStyle(this.#target!);
-			this.#tooltip!.style.fontFamily = cs.fontFamily;
-			this.#tooltip!.style.fontSize = cs.fontSize;
-			this.#tooltip!.style.lineHeight = cs.lineHeight;
+			this.#tooltip!.style.fontFamily = this.#computedFontFamily;
+			this.#tooltip!.style.fontSize = this.#computedFontSize;
+			this.#tooltip!.style.lineHeight = this.#computedLineHeight;
 			// Bridge hover gap between target and tooltip: cancel pending hide when
 			// mouse enters the tooltip, and start hide when it leaves.
 			if (!this.#boundTooltipEnterHandler) {
@@ -806,16 +780,18 @@ class Tooltip {
 					this.#tooltipHovered = true;
 					this.#clearDelay();
 				};
-				this.#boundTooltipLeaveHandler = () => {
+				this.#boundTooltipLeaveHandler = async () => {
 					this.#tooltipHovered = false;
 					if (!this.#open && this.#tooltip?.parentNode) {
-						this.#waitForDelay(this.#leaveDelay).then(() => {
-							if (!this.#tooltipHovered) {
-								this.#removeTooltipFromTarget().then(() => {
-									standby(0).then(() => this.#onLeave?.());
-								});
-							}
-						});
+						try {
+							await this.#waitForDelay(this.#leaveDelay);
+						} catch {
+							return;
+						}
+						if (this.#tooltipHovered) return;
+						await this.#removeTooltipFromTarget();
+						await standby(0);
+						this.#onLeave?.();
 					}
 				};
 				this.#tooltip!.addEventListener('mouseenter', this.#boundTooltipEnterHandler);
@@ -893,20 +869,32 @@ class Tooltip {
 		this.#teardownFocusTrap();
 	}
 
-	#waitForDelay(delay: number) {
+	#syncComputedFont() {
+		const cs = getComputedStyle(this.#target!);
+		this.#computedFontFamily = cs.fontFamily;
+		this.#computedFontSize = cs.fontSize;
+		this.#computedLineHeight = cs.lineHeight;
+	}
+
+	#waitForDelay(delay: number): Promise<void> {
 		this.#clearDelay();
-		return new Promise<void>(
-			(resolve) =>
-				(this.#delay = setTimeout(() => {
-					this.#clearDelay();
-					resolve();
-				}, delay))
-		);
+		if (!delay) return Promise.resolve();
+		return new Promise<void>((resolve, reject) => {
+			this.#delayReject = reject;
+			this.#delay = setTimeout(() => {
+				this.#delayReject = null;
+				this.#delay = undefined;
+				resolve();
+			}, delay);
+		});
 	}
 
 	#clearDelay() {
 		clearTimeout(this.#delay);
 		this.#delay = undefined;
+		const reject = this.#delayReject;
+		this.#delayReject = null;
+		reject?.(new DOMException('Delay cancelled', 'AbortError'));
 	}
 
 	#isInteractive() {
@@ -1054,7 +1042,11 @@ class Tooltip {
 
 	async #onTargetEnter(e: Event) {
 		if (this.#target === e.target) {
-			await this.#waitForDelay(this.#enterDelay);
+			try {
+				await this.#waitForDelay(this.#enterDelay);
+			} catch {
+				return;
+			}
 			await this.#appendTooltipToTarget();
 			await standby(0);
 			this.#onEnter?.();
@@ -1072,7 +1064,11 @@ class Tooltip {
 				return;
 		}
 		if (this.#target === e.target || !this.#target?.contains(e.target as Node)) {
-			await this.#waitForDelay(this.#leaveDelay);
+			try {
+				await this.#waitForDelay(this.#leaveDelay);
+			} catch {
+				return;
+			}
 			if (this.#tooltipHovered) return;
 			await this.#removeTooltipFromTarget();
 			await standby(0);
@@ -1112,12 +1108,20 @@ class Tooltip {
 
 	async #onTouchToggle(_e: Event) {
 		if (this.#tooltip?.parentNode) {
-			await this.#waitForDelay(this.#leaveDelay);
+			try {
+				await this.#waitForDelay(this.#leaveDelay);
+			} catch {
+				return;
+			}
 			await this.#removeTooltipFromTarget();
 			await standby(0);
 			this.#onLeave?.();
 		} else {
-			await this.#waitForDelay(this.#enterDelay);
+			try {
+				await this.#waitForDelay(this.#enterDelay);
+			} catch {
+				return;
+			}
 			await this.#appendTooltipToTarget();
 			await standby(0);
 			this.#onEnter?.();
