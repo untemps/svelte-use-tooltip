@@ -783,15 +783,7 @@ class Tooltip {
 				this.#boundTooltipLeaveHandler = async () => {
 					this.#tooltipHovered = false;
 					if (!this.#open && this.#tooltip?.parentNode) {
-						try {
-							await this.#waitForDelay(this.#leaveDelay);
-						} catch {
-							return;
-						}
-						if (this.#tooltipHovered) return;
-						await this.#removeTooltipFromTarget();
-						await standby(0);
-						this.#onLeave?.();
+						await this.#scheduleHide();
 					}
 				};
 				this.#tooltip!.addEventListener('mouseenter', this.#boundTooltipEnterHandler);
@@ -1053,6 +1045,18 @@ class Tooltip {
 		}
 	}
 
+	async #scheduleHide() {
+		try {
+			await this.#waitForDelay(this.#leaveDelay);
+		} catch {
+			return;
+		}
+		if (this.#tooltipHovered) return;
+		await this.#removeTooltipFromTarget();
+		await standby(0);
+		this.#onLeave?.();
+	}
+
 	async #onTargetLeave(e: Event) {
 		if (this.#open) return;
 		if (e.type === 'focusout') {
@@ -1064,15 +1068,7 @@ class Tooltip {
 				return;
 		}
 		if (this.#target === e.target || !this.#target?.contains(e.target as Node)) {
-			try {
-				await this.#waitForDelay(this.#leaveDelay);
-			} catch {
-				return;
-			}
-			if (this.#tooltipHovered) return;
-			await this.#removeTooltipFromTarget();
-			await standby(0);
-			this.#onLeave?.();
+			await this.#scheduleHide();
 		}
 	}
 
