@@ -219,6 +219,18 @@ describe('useTooltip', () => {
 			spy.mockRestore();
 		});
 
+		test('Repositions tooltip on window resize when open is locked', async () => {
+			action = createAction(target, { ...options, open: true });
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+
+			const spy = vi.spyOn(target, 'getBoundingClientRect');
+			await fireEvent.resize(window);
+			expect(getElement('#content')).toBeInTheDocument();
+			expect(spy).toHaveBeenCalled();
+			spy.mockRestore();
+		});
+
 		test('Removes ancestor scroll listeners on destroy', async () => {
 			const container = createElement({
 				tag: 'div',

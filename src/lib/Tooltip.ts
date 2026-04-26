@@ -770,9 +770,9 @@ class Tooltip {
 
 		this.#tooltip!.style.position = this.#portal ? 'fixed' : '';
 		if (this.#portal) {
-			this.#tooltip!.style.fontFamily = this.#computedFontFamily;
-			this.#tooltip!.style.fontSize = this.#computedFontSize;
-			this.#tooltip!.style.lineHeight = this.#computedLineHeight;
+			if (this.#computedFontFamily) this.#tooltip!.style.fontFamily = this.#computedFontFamily;
+			if (this.#computedFontSize) this.#tooltip!.style.fontSize = this.#computedFontSize;
+			if (this.#computedLineHeight) this.#tooltip!.style.lineHeight = this.#computedLineHeight;
 			// Bridge hover gap between target and tooltip: cancel pending hide when
 			// mouse enters the tooltip, and start hide when it leaves.
 			if (!this.#boundTooltipEnterHandler) {
@@ -1085,13 +1085,15 @@ class Tooltip {
 	}
 
 	async #onWindowChange(e: Event) {
-		if (this.#open) return;
 		if (!this.#tooltip || !this.#tooltip.parentNode) return;
 
 		if (e.type === 'resize' || e.type === 'scroll') {
 			this.#positionTooltip();
 			return;
 		}
+
+		// Reposition is always allowed; close events are blocked when open is locked.
+		if (this.#open) return;
 
 		const ke = e as KeyboardEvent;
 		const touchTarget = e.target as Node;
