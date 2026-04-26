@@ -1212,6 +1212,97 @@ describe('useTooltip', () => {
 		});
 	});
 
+	describe('useTooltip props: onPlacementChange', () => {
+		const VW = 1024;
+		const VH = 768;
+
+		const mockRects = (targetRect: Partial<DOMRect>, tooltipRect: Partial<DOMRect>) => {
+			Object.defineProperty(document.documentElement, 'clientWidth', {
+				get: () => VW,
+				configurable: true
+			});
+			Object.defineProperty(document.documentElement, 'clientHeight', {
+				get: () => VH,
+				configurable: true
+			});
+			vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
+				this: HTMLElement
+			) {
+				if (this === target) return { ...targetRect } as DOMRect;
+				return { ...tooltipRect } as DOMRect;
+			});
+		};
+
+		afterEach(() => {
+			vi.restoreAllMocks();
+			Object.defineProperty(document.documentElement, 'clientWidth', {
+				get: () => 0,
+				configurable: true
+			});
+			Object.defineProperty(document.documentElement, 'clientHeight', {
+				get: () => 0,
+				configurable: true
+			});
+		});
+
+		// Target near top + left/right edges → only bottom has space → flip top→bottom
+		const FLIP_TARGET = { top: 5, bottom: 25, left: 50, right: 980, width: 930, height: 20 };
+		const FLIP_TOOLTIP = { width: 80, height: 30 };
+
+		test('Calls onPlacementChange when tooltip flips to a different position', async () => {
+			mockRects(FLIP_TARGET, FLIP_TOOLTIP);
+			const onPlacementChange = vi.fn();
+			action = createAction(target, { ...options, position: 'top', onPlacementChange });
+			await _enter(target);
+			expect(onPlacementChange).toHaveBeenCalledWith('top', expect.any(String));
+			expect(onPlacementChange.mock.calls[0][1]).not.toBe('top');
+		});
+
+		test('Does not call onPlacementChange when position does not flip', async () => {
+			mockRects(
+				{ top: 200, bottom: 220, left: 100, right: 200, width: 100, height: 20 },
+				{ width: 80, height: 30 }
+			);
+			const onPlacementChange = vi.fn();
+			action = createAction(target, { ...options, position: 'top', onPlacementChange });
+			await _enter(target);
+			expect(onPlacementChange).not.toHaveBeenCalled();
+		});
+
+		test('Receives correct from and to positions', async () => {
+			mockRects(FLIP_TARGET, FLIP_TOOLTIP);
+			const onPlacementChange = vi.fn();
+			action = createAction(target, { ...options, position: 'top', onPlacementChange });
+			await _enter(target);
+			expect(onPlacementChange).toHaveBeenCalledWith('top', 'bottom');
+		});
+
+		test('Updates onPlacementChange reactively via update()', async () => {
+			mockRects(FLIP_TARGET, FLIP_TOOLTIP);
+			const cb1 = vi.fn();
+			const cb2 = vi.fn();
+			action = createAction(target, { ...options, position: 'top', onPlacementChange: cb1 });
+			action.update({ ...options, position: 'top', onPlacementChange: cb2 });
+			await _enter(target);
+			expect(cb1).not.toHaveBeenCalled();
+			expect(cb2).toHaveBeenCalledWith('top', 'bottom');
+		});
+
+		test('Calls onPlacementChange with containerClassName set', async () => {
+			mockRects(FLIP_TARGET, FLIP_TOOLTIP);
+			const onPlacementChange = vi.fn();
+			action = createAction(target, {
+				...options,
+				position: 'top',
+				containerClassName: 'my-tooltip',
+				onPlacementChange
+			});
+			await _enter(target);
+			// callback fires even when containerClassName is set (class not changed by library)
+			expect(onPlacementChange).toHaveBeenCalledWith('top', 'bottom');
+		});
+	});
+
 	describe('useTooltip props: enterDelay', () => {
 		test('Delays tooltip appearance', async () => {
 			action = createAction(target, {
