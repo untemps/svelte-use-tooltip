@@ -443,6 +443,7 @@
 				leaveDelay: leaveDelay,
 				onEnter: _onTooltipEnter,
 				onLeave: _onTooltipLeave,
+				onPlacementChange: (from, to) => console.log('Placement Change:', from, '>', to),
 				offset: offset,
 				width: width,
 				disabled: isDisabled,
