@@ -1249,13 +1249,15 @@ describe('useTooltip', () => {
 		const FLIP_TARGET = { top: 5, bottom: 25, left: 50, right: 980, width: 930, height: 20 };
 		const FLIP_TOOLTIP = { width: 80, height: 30 };
 
-		test('Calls onPlacementChange when tooltip flips to a different position', async () => {
+		test('Calls onPlacementChange on scroll reposition when tooltip flips', async () => {
 			mockRects(FLIP_TARGET, FLIP_TOOLTIP);
 			const onPlacementChange = vi.fn();
 			action = createAction(target, { ...options, position: 'top', onPlacementChange });
 			await _enter(target);
-			expect(onPlacementChange).toHaveBeenCalledWith('top', expect.any(String));
-			expect(onPlacementChange.mock.calls[0][1]).not.toBe('top');
+			onPlacementChange.mockClear();
+			// Reposition on scroll should also fire the callback when flip persists
+			await fireEvent.scroll(window);
+			expect(onPlacementChange).toHaveBeenCalledWith('top', 'bottom');
 		});
 
 		test('Does not call onPlacementChange when position does not flip', async () => {
