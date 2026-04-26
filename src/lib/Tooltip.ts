@@ -32,6 +32,7 @@ export type TooltipOptions = {
 	width?: string;
 	disabled?: boolean;
 	open?: boolean;
+	portal?: boolean;
 	touchBehavior?: 'hover' | 'toggle';
 	showOn?: string[];
 	hideOn?: string[];
@@ -53,6 +54,7 @@ type ChangeSet = {
 	hasToHide: boolean;
 	hasInteractivityChanged: boolean;
 	hasAriaLabelChanged: boolean;
+	hasPortalChanged: boolean;
 };
 
 class Tooltip {
@@ -61,6 +63,7 @@ class Tooltip {
 	// Below this threshold the tooltip switches to a different position instead.
 	static #MIN_WIDTH = 80;
 	static #ANIMATION_TIMEOUT_MS = 1000;
+	static #PORTAL_HOVER_BRIDGE_MS = 16; // one animation frame — lets mouseenter on the tooltip fire before the hide executes
 	static #DEFAULT_SHOW_ON = ['mouseenter', 'focusin'];
 	static #DEFAULT_HIDE_ON = ['mouseleave', 'focusout'];
 	static #DEFAULT_ARIA_LABEL = 'Tooltip';
@@ -102,6 +105,7 @@ class Tooltip {
 	#addedTabIndex = false;
 
 	#open: boolean | undefined = undefined;
+	#portal = true;
 
 	#destroyed = false;
 
@@ -115,8 +119,15 @@ class Tooltip {
 	#boundToggleHandler: ((e: Event) => void) | null = null;
 	#boundTouchToggleHandler: ((e: Event) => void) | null = null;
 	#boundWindowChangeHandler: ((e: Event) => void) | null = null;
+	#boundTooltipEnterHandler: ((e: Event) => void) | null = null;
+	#boundTooltipLeaveHandler: ((e: Event) => void) | null = null;
 	#trapHandler: ((e: KeyboardEvent) => void) | null = null;
 	#scrollableAncestors: Element[] = [];
+	#tooltipHovered = false;
+	#delayReject: ((reason: unknown) => void) | null = null;
+	#computedFontFamily = '';
+	#computedFontSize = '';
+	#computedLineHeight = '';
 
 	static destroy() {
 		Tooltip.#instances.forEach((instance) => {
@@ -143,6 +154,7 @@ class Tooltip {
 			width,
 			disabled,
 			open,
+			portal,
 			touchBehavior,
 			showOn,
 			hideOn,
@@ -169,6 +181,8 @@ class Tooltip {
 		this.#showOn = showOn ?? Tooltip.#DEFAULT_SHOW_ON;
 		this.#hideOn = hideOn ?? Tooltip.#DEFAULT_HIDE_ON;
 		this.#ariaLabel = ariaLabel ?? Tooltip.#DEFAULT_ARIA_LABEL;
+		this.#portal = portal ?? true;
+		if (this.#portal) this.#syncComputedFont();
 
 		this.#id = `tooltip-${crypto.randomUUID()}`;
 
@@ -178,7 +192,7 @@ class Tooltip {
 
 		this.#originalTitle = this.#target.getAttribute('title');
 		this.#target.removeAttribute('title');
-		this.#target.style.position = 'relative';
+		if (!this.#portal) this.#target.style.position = 'relative';
 
 		if (this.#isInteractive()) {
 			this.#target.setAttribute('aria-expanded', 'false');
@@ -216,6 +230,7 @@ class Tooltip {
 		width,
 		disabled,
 		open,
+		portal,
 		touchBehavior,
 		showOn,
 		hideOn,
@@ -257,7 +272,8 @@ class Tooltip {
 			})(),
 			hasAriaLabelChanged:
 				ariaLabel !== undefined &&
-				(ariaLabel === null ? Tooltip.#DEFAULT_ARIA_LABEL : ariaLabel) !== this.#ariaLabel
+				(ariaLabel === null ? Tooltip.#DEFAULT_ARIA_LABEL : ariaLabel) !== this.#ariaLabel,
+			hasPortalChanged: portal !== undefined && portal !== this.#portal
 		};
 	}
 
@@ -277,6 +293,7 @@ class Tooltip {
 		offset,
 		width,
 		open,
+		portal,
 		touchBehavior,
 		ariaLabel
 	}: TooltipOptions) {
@@ -302,6 +319,7 @@ class Tooltip {
 		if (touchBehavior !== undefined) this.#touchBehavior = touchBehavior;
 		if (ariaLabel !== undefined)
 			this.#ariaLabel = ariaLabel === null ? Tooltip.#DEFAULT_ARIA_LABEL : ariaLabel;
+		if (portal !== undefined) this.#portal = portal;
 		// #showOn / #hideOn are intentionally NOT updated here: they must be applied between
 		// #disable() and #enable() in #applyChanges so that #disableTarget removes the OLD
 		// listeners before #enableTarget registers the NEW ones.
@@ -319,10 +337,25 @@ class Tooltip {
 			hasToShow,
 			hasToHide,
 			hasInteractivityChanged,
-			hasAriaLabelChanged
+			hasAriaLabelChanged,
+			hasPortalChanged
 		}: ChangeSet,
 		options: TooltipOptions = {}
 	) {
+		if (hasPortalChanged) {
+			if (this.#portal) {
+				this.#target?.style.removeProperty('position');
+				this.#syncComputedFont();
+			} else {
+				this.#target!.style.position = 'relative';
+			}
+			if (this.#tooltip?.parentNode) {
+				this.#tooltip!.style.position = this.#portal ? 'fixed' : '';
+				const container = this.#portal ? document.body : this.#target!;
+				container.appendChild(this.#tooltip!);
+				this.#positionTooltip();
+			}
+		}
 		if (hasStructureChanged) {
 			this.#removeTooltipFromTarget(true);
 			// Cancel any pending contentSelector observer before re-registering a new one,
@@ -404,7 +437,7 @@ class Tooltip {
 		if (this.#originalTitle !== null) {
 			this.#target?.setAttribute('title', this.#originalTitle);
 		}
-		this.#target?.style.removeProperty('position');
+		if (!this.#portal) this.#target?.style.removeProperty('position');
 		this.#target?.removeAttribute('aria-describedby');
 		this.#target?.removeAttribute('aria-expanded');
 		this.#target?.removeAttribute('aria-haspopup');
@@ -691,34 +724,35 @@ class Tooltip {
 
 		const { width: tooltipWidth, height: tooltipHeight } = tooltipRect;
 
+		// Viewport-absolute origin; inline mode subtracts target offset to get relative coords.
+		const ox = this.#portal ? 0 : targetRect.left;
+		const oy = this.#portal ? 0 : targetRect.top;
+		const t = this.#tooltip!.style;
+
 		switch (effectivePosition) {
-			case 'left': {
-				this.#tooltip!.style.top = `${-(tooltipHeight - targetHeight) >> 1}px`;
-				this.#tooltip!.style.left = `${-tooltipWidth - this.#offset}px`;
-				this.#tooltip!.style.bottom = '';
-				this.#tooltip!.style.right = '';
+			case 'left':
+				t.left = `${targetRect.left - tooltipWidth - this.#offset - ox}px`;
+				t.top = `${targetRect.top + ((targetHeight - tooltipHeight) >> 1) - oy}px`;
+				t.bottom = '';
+				t.right = '';
 				break;
-			}
-			case 'right': {
-				this.#tooltip!.style.top = `${-(tooltipHeight - targetHeight) >> 1}px`;
-				this.#tooltip!.style.right = `${-tooltipWidth - this.#offset}px`;
-				this.#tooltip!.style.bottom = '';
-				this.#tooltip!.style.left = '';
+			case 'right':
+				t.left = `${targetRect.right + this.#offset - ox}px`;
+				t.top = `${targetRect.top + ((targetHeight - tooltipHeight) >> 1) - oy}px`;
+				t.bottom = '';
+				t.right = '';
 				break;
-			}
-			case 'bottom': {
-				this.#tooltip!.style.left = `${-(tooltipWidth - targetWidth) >> 1}px`;
-				this.#tooltip!.style.bottom = `${-tooltipHeight - this.#offset}px`;
-				this.#tooltip!.style.right = '';
-				this.#tooltip!.style.top = '';
+			case 'bottom':
+				t.left = `${targetRect.left + ((targetWidth - tooltipWidth) >> 1) - ox}px`;
+				t.top = `${targetRect.bottom + this.#offset - oy}px`;
+				t.right = '';
+				t.bottom = '';
 				break;
-			}
-			default: {
-				this.#tooltip!.style.left = `${-(tooltipWidth - targetWidth) >> 1}px`;
-				this.#tooltip!.style.top = `${-tooltipHeight - this.#offset}px`;
-				this.#tooltip!.style.right = '';
-				this.#tooltip!.style.bottom = '';
-			}
+			default:
+				t.left = `${targetRect.left + ((targetWidth - tooltipWidth) >> 1) - ox}px`;
+				t.top = `${targetRect.top - tooltipHeight - this.#offset - oy}px`;
+				t.right = '';
+				t.bottom = '';
 		}
 	}
 
@@ -735,11 +769,39 @@ class Tooltip {
 			this.#target!.setAttribute('aria-expanded', 'true');
 		}
 
+		this.#tooltip!.style.position = this.#portal ? 'fixed' : '';
+		if (this.#portal) {
+			if (this.#computedFontFamily) this.#tooltip!.style.fontFamily = this.#computedFontFamily;
+			if (this.#computedFontSize) this.#tooltip!.style.fontSize = this.#computedFontSize;
+			if (this.#computedLineHeight) this.#tooltip!.style.lineHeight = this.#computedLineHeight;
+			// Bridge hover gap between target and tooltip: cancel pending hide when
+			// mouse enters the tooltip, and start hide when it leaves.
+			// Only needed for interactive tooltips — non-interactive ones hide on target leave.
+			if (this.#isInteractive() && !this.#boundTooltipEnterHandler) {
+				this.#boundTooltipEnterHandler = () => {
+					this.#tooltipHovered = true;
+					this.#clearDelay();
+				};
+				this.#boundTooltipLeaveHandler = async () => {
+					this.#tooltipHovered = false;
+					if (!this.#open && this.#tooltip?.parentNode) {
+						await this.#scheduleHide();
+					}
+				};
+				this.#tooltip!.addEventListener('mouseenter', this.#boundTooltipEnterHandler);
+				this.#tooltip!.addEventListener('mouseleave', this.#boundTooltipLeaveHandler);
+			}
+		} else {
+			this.#tooltip!.style.removeProperty('font-family');
+			this.#tooltip!.style.removeProperty('font-size');
+			this.#tooltip!.style.removeProperty('line-height');
+		}
 		this.#observer!.wait(this.#tooltip!, { events: [DOMObserver.ADD] }).then(() => {
 			if (this.#destroyed) return;
 			this.#positionTooltip();
 		});
-		this.#target!.appendChild(this.#tooltip!);
+		const container = this.#portal ? document.body : this.#target!;
+		container.appendChild(this.#tooltip!);
 
 		if (this.#contentActions) {
 			Object.entries(this.#contentActions).forEach(([key, actionValue]) => {
@@ -788,23 +850,45 @@ class Tooltip {
 		);
 		this.#events = [];
 
+		this.#tooltipHovered = false;
+		if (this.#boundTooltipEnterHandler) {
+			this.#tooltip?.removeEventListener('mouseenter', this.#boundTooltipEnterHandler);
+			this.#boundTooltipEnterHandler = null;
+		}
+		if (this.#boundTooltipLeaveHandler) {
+			this.#tooltip?.removeEventListener('mouseleave', this.#boundTooltipLeaveHandler);
+			this.#boundTooltipLeaveHandler = null;
+		}
+
 		this.#teardownFocusTrap();
 	}
 
-	#waitForDelay(delay: number) {
+	#syncComputedFont() {
+		const cs = getComputedStyle(this.#target!);
+		this.#computedFontFamily = cs.fontFamily;
+		this.#computedFontSize = cs.fontSize;
+		this.#computedLineHeight = cs.lineHeight;
+	}
+
+	#waitForDelay(delay: number): Promise<void> {
 		this.#clearDelay();
-		return new Promise<void>(
-			(resolve) =>
-				(this.#delay = setTimeout(() => {
-					this.#clearDelay();
-					resolve();
-				}, delay))
-		);
+		if (!delay) return Promise.resolve();
+		return new Promise<void>((resolve, reject) => {
+			this.#delayReject = reject;
+			this.#delay = setTimeout(() => {
+				this.#delayReject = null;
+				this.#delay = undefined;
+				resolve();
+			}, delay);
+		});
 	}
 
 	#clearDelay() {
 		clearTimeout(this.#delay);
 		this.#delay = undefined;
+		const reject = this.#delayReject;
+		this.#delayReject = null;
+		reject?.(new DOMException('Delay cancelled', 'AbortError'));
 	}
 
 	#isInteractive() {
@@ -952,22 +1036,47 @@ class Tooltip {
 
 	async #onTargetEnter(e: Event) {
 		if (this.#target === e.target) {
-			await this.#waitForDelay(this.#enterDelay);
+			try {
+				await this.#waitForDelay(this.#enterDelay);
+			} catch {
+				return;
+			}
 			await this.#appendTooltipToTarget();
 			await standby(0);
 			this.#onEnter?.();
 		}
 	}
 
+	async #scheduleHide() {
+		// For interactive portal tooltips, guarantee at least one animation frame so the
+		// mouseenter on the tooltip can fire and cancel this hide via #clearDelay().
+		const delay =
+			this.#portal && this.#isInteractive()
+				? Math.max(this.#leaveDelay, Tooltip.#PORTAL_HOVER_BRIDGE_MS)
+				: this.#leaveDelay;
+		try {
+			await this.#waitForDelay(delay);
+		} catch {
+			return;
+		}
+		if (this.#tooltipHovered) return;
+		await this.#removeTooltipFromTarget();
+		await standby(0);
+		this.#onLeave?.();
+	}
+
 	async #onTargetLeave(e: Event) {
 		if (this.#open) return;
-		if (e.type === 'focusout' && this.#target?.contains((e as FocusEvent).relatedTarget as Node))
-			return;
+		if (e.type === 'focusout') {
+			const relatedTarget = (e as FocusEvent).relatedTarget as Node;
+			if (
+				this.#target?.contains(relatedTarget) ||
+				(this.#portal && this.#tooltip?.contains(relatedTarget))
+			)
+				return;
+		}
 		if (this.#target === e.target || !this.#target?.contains(e.target as Node)) {
-			await this.#waitForDelay(this.#leaveDelay);
-			await this.#removeTooltipFromTarget();
-			await standby(0);
-			this.#onLeave?.();
+			await this.#scheduleHide();
 		}
 	}
 
@@ -980,7 +1089,6 @@ class Tooltip {
 	}
 
 	async #onWindowChange(e: Event) {
-		if (this.#open) return;
 		if (!this.#tooltip || !this.#tooltip.parentNode) return;
 
 		if (e.type === 'resize' || e.type === 'scroll') {
@@ -988,10 +1096,16 @@ class Tooltip {
 			return;
 		}
 
+		// Reposition is always allowed; close events are blocked when open is locked.
+		if (this.#open) return;
+
 		const ke = e as KeyboardEvent;
+		const touchTarget = e.target as Node;
 		if (
 			(e.type !== 'keydown' || ke.key === 'Escape' || ke.key === 'Esc') &&
-			(e.type !== 'touchstart' || !this.#target?.contains(e.target as Node))
+			(e.type !== 'touchstart' ||
+				(!this.#target?.contains(touchTarget) &&
+					!(this.#portal && this.#tooltip?.contains(touchTarget))))
 		) {
 			await this.#removeTooltipFromTarget();
 			this.#onLeave?.();
@@ -1000,12 +1114,20 @@ class Tooltip {
 
 	async #onTouchToggle(_e: Event) {
 		if (this.#tooltip?.parentNode) {
-			await this.#waitForDelay(this.#leaveDelay);
+			try {
+				await this.#waitForDelay(this.#leaveDelay);
+			} catch {
+				return;
+			}
 			await this.#removeTooltipFromTarget();
 			await standby(0);
 			this.#onLeave?.();
 		} else {
-			await this.#waitForDelay(this.#enterDelay);
+			try {
+				await this.#waitForDelay(this.#enterDelay);
+			} catch {
+				return;
+			}
 			await this.#appendTooltipToTarget();
 			await standby(0);
 			this.#onEnter?.();
