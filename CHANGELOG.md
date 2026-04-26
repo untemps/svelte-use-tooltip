@@ -1,3 +1,10 @@
+# [4.0.0-beta.3](https://github.com/untemps/svelte-use-tooltip/compare/v4.0.0-beta.2...v4.0.0-beta.3) (2026-04-26)
+
+
+### Features
+
+* Allow touch events in showOn/hideOn with passive listeners ([#238](https://github.com/untemps/svelte-use-tooltip/issues/238)) ([d351efe](https://github.com/untemps/svelte-use-tooltip/commit/d351efea6e82da8a01acc33d00a8004fd4455cd9))
+
 # [4.0.0-beta.2](https://github.com/untemps/svelte-use-tooltip/compare/v4.0.0-beta.1...v4.0.0-beta.2) (2026-04-26)
 
 
