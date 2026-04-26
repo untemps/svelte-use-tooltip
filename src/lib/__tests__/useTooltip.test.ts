@@ -2683,5 +2683,52 @@ describe('useTooltip', () => {
 			await standby(1);
 			expect(getElement('#content')).not.toBeInTheDocument();
 		});
+
+		test('Shows tooltip on touchstart when touchstart is in showOn', async () => {
+			action = createAction(target, { ...options, showOn: ['touchstart'] });
+			await fireEvent.touchStart(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Hides tooltip on touchend when touchend is in hideOn', async () => {
+			action = createAction(target, { ...options, showOn: ['touchstart'], hideOn: ['touchend'] });
+			await fireEvent.touchStart(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+			await fireEvent.touchEnd(target);
+			await standby(1);
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
+		test('Toggles tooltip when touchend is in both showOn and hideOn', async () => {
+			action = createAction(target, {
+				...options,
+				showOn: ['touchend'],
+				hideOn: ['touchend']
+			});
+			await fireEvent.touchEnd(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+			await fireEvent.touchEnd(target);
+			await standby(1);
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
+		test('Shows tooltip on touchstart or mouseenter when both in showOn', async () => {
+			action = createAction(target, {
+				...options,
+				showOn: ['touchstart', 'mouseenter'],
+				hideOn: ['touchend', 'mouseleave']
+			});
+			await fireEvent.touchStart(target);
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+			await fireEvent.touchEnd(target);
+			await standby(1);
+			expect(getElement('#content')).not.toBeInTheDocument();
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
 	});
 });
