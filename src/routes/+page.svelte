@@ -23,7 +23,17 @@
 	let portal = $state(true);
 	let settingsOpen = $state(false);
 
-	const EVENT_OPTIONS = ['mouseenter', 'mouseleave', 'focusin', 'focusout', 'click', 'dblclick'];
+	const EVENT_OPTIONS = [
+		'mouseenter',
+		'mouseleave',
+		'focusin',
+		'focusout',
+		'click',
+		'dblclick',
+		'touchstart',
+		'touchend',
+		'touchcancel'
+	];
 
 	const toggleEvent = (list: string[], event: string): string[] =>
 		list.includes(event) ? list.filter((e) => e !== event) : [...list, event];

@@ -483,13 +483,22 @@ class Tooltip {
 		this.#boundLeaveHandler = this.#onTargetLeave.bind(this);
 
 		const { toggleEvents, showOnlyEvents, hideOnlyEvents } = this.#partitionEvents();
+		// Touch events require passive:true to avoid blocking the browser's scroll thread.
+		const passiveIfTouch = (evt: string): AddEventListenerOptions | undefined =>
+			evt.startsWith('touch') ? { passive: true } : undefined;
 
 		if (toggleEvents.length) {
 			this.#boundToggleHandler = this.#onTargetToggle.bind(this);
-			toggleEvents.forEach((evt) => this.#target?.addEventListener(evt, this.#boundToggleHandler!));
+			toggleEvents.forEach((evt) =>
+				this.#target?.addEventListener(evt, this.#boundToggleHandler!, passiveIfTouch(evt))
+			);
 		}
-		showOnlyEvents.forEach((evt) => this.#target?.addEventListener(evt, this.#boundEnterHandler!));
-		hideOnlyEvents.forEach((evt) => this.#target?.addEventListener(evt, this.#boundLeaveHandler!));
+		showOnlyEvents.forEach((evt) =>
+			this.#target?.addEventListener(evt, this.#boundEnterHandler!, passiveIfTouch(evt))
+		);
+		hideOnlyEvents.forEach((evt) =>
+			this.#target?.addEventListener(evt, this.#boundLeaveHandler!, passiveIfTouch(evt))
+		);
 
 		if (this.#touchBehavior === 'hover') {
 			this.#target?.addEventListener('touchstart', this.#boundEnterHandler, { passive: true });
