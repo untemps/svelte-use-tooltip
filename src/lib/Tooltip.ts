@@ -28,6 +28,7 @@ export type TooltipOptions = {
 	leaveDelay?: number;
 	onEnter?: (() => void) | null;
 	onLeave?: (() => void) | null;
+	onPlacementChange?: ((from: TooltipPosition, to: TooltipPosition) => void) | null;
 	offset?: number;
 	width?: string;
 	disabled?: boolean;
@@ -92,6 +93,7 @@ class Tooltip {
 	#leaveDelay = 0;
 	#onEnter: (() => void) | null = null;
 	#onLeave: (() => void) | null = null;
+	#onPlacementChange: ((from: TooltipPosition, to: TooltipPosition) => void) | null = null;
 	#offset = 10;
 	#width = 'auto';
 	#touchBehavior: 'hover' | 'toggle' | null = null;
@@ -150,6 +152,7 @@ class Tooltip {
 			leaveDelay,
 			onEnter,
 			onLeave,
+			onPlacementChange,
 			offset,
 			width,
 			disabled,
@@ -175,6 +178,7 @@ class Tooltip {
 		this.#leaveDelay = leaveDelay ?? 0;
 		this.#onEnter = onEnter ?? null;
 		this.#onLeave = onLeave ?? null;
+		this.#onPlacementChange = onPlacementChange ?? null;
 		this.#offset = Math.max(offset ?? 10, 5);
 		this.#width = width ?? 'auto';
 		this.#touchBehavior = touchBehavior ?? null;
@@ -290,6 +294,7 @@ class Tooltip {
 		leaveDelay,
 		onEnter,
 		onLeave,
+		onPlacementChange,
 		offset,
 		width,
 		open,
@@ -312,6 +317,7 @@ class Tooltip {
 		if (leaveDelay !== undefined) this.#leaveDelay = leaveDelay;
 		if (onEnter !== undefined) this.#onEnter = onEnter;
 		if (onLeave !== undefined) this.#onLeave = onLeave;
+		if (onPlacementChange !== undefined) this.#onPlacementChange = onPlacementChange;
 		if (offset !== undefined) this.#offset = Math.max(offset, 5);
 		if (width !== undefined) this.#width = width;
 		// false is treated as a one-shot close — no lock. Only true locks the tooltip open.
@@ -718,8 +724,11 @@ class Tooltip {
 			tooltipRect = this.#tooltip!.getBoundingClientRect();
 		}
 
-		if (effectivePosition !== this.#position && !this.#containerClassName) {
-			this.#tooltip!.setAttribute('class', `__tooltip __tooltip-${effectivePosition}`);
+		if (effectivePosition !== this.#position) {
+			if (!this.#containerClassName) {
+				this.#tooltip!.setAttribute('class', `__tooltip __tooltip-${effectivePosition}`);
+			}
+			this.#onPlacementChange?.(this.#position, effectivePosition);
 		}
 
 		const { width: tooltipWidth, height: tooltipHeight } = tooltipRect;
