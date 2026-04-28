@@ -271,7 +271,8 @@ class Tooltip {
 				const nextSelector =
 					contentSelector !== undefined ? (contentSelector ?? null) : this.#contentSelector;
 				const effectiveActions = this.#computeEffectiveActions(nextActions, nextSelector);
-				const nextIsInteractive = !!effectiveActions && Object.keys(effectiveActions).length > 0;
+				const hasNextActions = !!effectiveActions && Object.keys(effectiveActions).length > 0;
+				const nextIsInteractive = hasNextActions && this.#hasFocusableContent(nextSelector);
 				return nextIsInteractive !== this.#isInteractive();
 			})(),
 			hasAriaLabelChanged:
@@ -910,7 +911,9 @@ class Tooltip {
 	}
 
 	#isInteractive() {
-		return Object.keys(this.#contentActions ?? {}).length > 0;
+		return (
+			Object.keys(this.#contentActions ?? {}).length > 0 && this.#contentHasFocusableElements()
+		);
 	}
 
 	#computeEffectiveActions(
@@ -942,12 +945,16 @@ class Tooltip {
 		}
 	}
 
-	#contentHasFocusableElements(): boolean {
-		if (!this.#contentSelector) return false;
-		const el = document.querySelector(this.#contentSelector);
+	#hasFocusableContent(selector: string | null): boolean {
+		if (!selector) return false;
+		const el = document.querySelector(selector);
 		if (!el) return false;
 		const root = el instanceof HTMLTemplateElement ? el.content : el;
 		return root.querySelector(Tooltip.#FOCUSABLE_SELECTOR) !== null;
+	}
+
+	#contentHasFocusableElements(): boolean {
+		return this.#hasFocusableContent(this.#contentSelector);
 	}
 
 	#setupFocusTrap(): void {
@@ -977,7 +984,7 @@ class Tooltip {
 	}
 
 	#syncTabIndex(): void {
-		if (this.#isInteractive() && this.#contentHasFocusableElements()) {
+		if (this.#isInteractive()) {
 			this.#applyTabIndex();
 		} else {
 			this.#restoreTabIndex();

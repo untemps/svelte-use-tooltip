@@ -18,6 +18,16 @@ const initTarget = (id: string): HTMLElement => {
 	return createElement({ tag: 'div', attributes: { id, class: 'bar' }, parent: document.body });
 };
 
+// Creates a <template> with a <button> child — used for tests that need focusable elements
+// to trigger role="dialog" / interactive behaviour.
+const initInteractiveTemplate = (id: string): void => {
+	const template = createElement({ tag: 'template', attributes: { id }, parent: document.body });
+	createElement({
+		tag: 'button',
+		parent: (template as HTMLTemplateElement).content as unknown as HTMLElement
+	});
+};
+
 const initTemplate = (id: string, contentId: string): void => {
 	const template = createElement({ tag: 'template', attributes: { id }, parent: document.body });
 	createElement({
@@ -60,6 +70,7 @@ describe('useTooltip', () => {
 	beforeEach(() => {
 		target = initTarget('target');
 		initTemplate('template', 'content');
+		initInteractiveTemplate('interactive-template');
 		options = {
 			contentSelector: '#template',
 			portal: false,
@@ -79,6 +90,7 @@ describe('useTooltip', () => {
 
 		removeElement('#target');
 		removeElement('#template');
+		removeElement('#interactive-template');
 		removeElement('#multi-template');
 
 		Tooltip.destroy();
@@ -548,7 +560,7 @@ describe('useTooltip', () => {
 				contentActions: { '*': { eventType: 'click', callback, callbackParams: [] } }
 			});
 			await _enter(target);
-			const tooltip = document.querySelector('[role="dialog"]')!;
+			const tooltip = document.querySelector('[role="tooltip"]')!;
 			await fireEvent.click(tooltip);
 			expect(callback).toHaveBeenCalledTimes(1);
 		});
@@ -562,7 +574,7 @@ describe('useTooltip', () => {
 			// Partial update — contentActions intentionally absent (undefined)
 			action.update({ contentSelector: '#template' });
 			await _enter(target);
-			const tooltip = document.querySelector('[role="dialog"]')!;
+			const tooltip = document.querySelector('[role="tooltip"]')!;
 			await fireEvent.click(tooltip);
 			expect(callback).toHaveBeenCalledTimes(1);
 		});
@@ -702,13 +714,18 @@ describe('useTooltip', () => {
 		});
 
 		test('Keeps tooltip visible when mouse enters tooltip after leaving target (interactive)', async () => {
-			action = createAction(target, { ...options, portal: true });
+			action = createAction(target, {
+				contentSelector: '#interactive-template',
+				portal: true,
+				contentActions: { '*': { eventType: 'click', callback: vi.fn(), callbackParams: [] } }
+			});
 			await _enter(target);
-			expect(getElement('#content')).toBeInTheDocument();
+			const tip = document.querySelector('.__tooltip')!;
+			expect(tip).toBeInTheDocument();
 			// Simulate mouse moving from target to tooltip within 16ms grace period
-			await fireEvent.mouseEnter(tooltipEl());
+			await fireEvent.mouseEnter(tip);
 			await _leave(target);
-			expect(getElement('#content')).toBeInTheDocument();
+			expect(tip).toBeInTheDocument();
 		});
 
 		test('Hides tooltip when mouse leaves target and does not enter tooltip (interactive)', async () => {
@@ -722,14 +739,19 @@ describe('useTooltip', () => {
 		});
 
 		test('Hides tooltip when mouse leaves tooltip in portal mode (interactive)', async () => {
-			action = createAction(target, { ...options, portal: true });
+			action = createAction(target, {
+				contentSelector: '#interactive-template',
+				portal: true,
+				contentActions: { '*': { eventType: 'click', callback: vi.fn(), callbackParams: [] } }
+			});
 			await _enter(target);
-			await fireEvent.mouseEnter(tooltipEl());
+			const tip = document.querySelector('.__tooltip')!;
+			await fireEvent.mouseEnter(tip);
 			await _leave(target);
-			expect(getElement('#content')).toBeInTheDocument();
-			await fireEvent.mouseLeave(tooltipEl());
+			expect(tip).toBeInTheDocument();
+			await fireEvent.mouseLeave(tip);
 			await standby(20);
-			expect(getElement('#content')).not.toBeInTheDocument();
+			expect(tip).not.toBeInTheDocument();
 		});
 
 		test('Hides tooltip immediately when mouse leaves target in portal mode (non-interactive)', async () => {
@@ -744,13 +766,18 @@ describe('useTooltip', () => {
 		});
 
 		test('Hides tooltip when mouse leaves tooltip in portal mode', async () => {
-			action = createAction(target, { ...options, portal: true });
+			action = createAction(target, {
+				contentSelector: '#interactive-template',
+				portal: true,
+				contentActions: { '*': { eventType: 'click', callback: vi.fn(), callbackParams: [] } }
+			});
 			await _enter(target);
-			await fireEvent.mouseEnter(tooltipEl());
+			const tip = document.querySelector('.__tooltip')!;
+			await fireEvent.mouseEnter(tip);
 			// Mouse leaves tooltip — hides after 16ms grace period
-			await fireEvent.mouseLeave(tooltipEl());
+			await fireEvent.mouseLeave(tip);
 			await standby(20);
-			expect(getElement('#content')).not.toBeInTheDocument();
+			expect(tip).not.toBeInTheDocument();
 		});
 
 		test('Does not hide tooltip when focus moves from target to tooltip in portal mode', async () => {
@@ -1994,7 +2021,11 @@ describe('useTooltip', () => {
 		});
 
 		test('Does not set aria-describedby on interactive tooltip', async () => {
-			action = createAction(target, options);
+			action = createAction(target, {
+				contentSelector: '#interactive-template',
+				portal: false,
+				contentActions: { '*': { eventType: 'click', callback: vi.fn(), callbackParams: [] } }
+			});
 			await _enter(target);
 			expect(target).not.toHaveAttribute('aria-describedby');
 		});
@@ -2002,7 +2033,7 @@ describe('useTooltip', () => {
 
 	describe('useTooltip aria-expanded', () => {
 		const interactiveOptions: TooltipOptions = {
-			contentSelector: '#template',
+			contentSelector: '#interactive-template',
 			portal: false,
 			contentActions: {
 				'*': { eventType: 'click', callback: vi.fn(), callbackParams: [] }
@@ -2061,7 +2092,7 @@ describe('useTooltip', () => {
 
 	describe('useTooltip aria-haspopup', () => {
 		const interactiveOptions: TooltipOptions = {
-			contentSelector: '#template',
+			contentSelector: '#interactive-template',
 			portal: false,
 			contentActions: {
 				'*': { eventType: 'click', callback: vi.fn(), callbackParams: [] }
@@ -2106,11 +2137,24 @@ describe('useTooltip', () => {
 	});
 
 	describe('useTooltip role', () => {
-		test('Sets role="dialog" on tooltip when contentActions is defined', async () => {
-			action = createAction(target, options);
+		const dialogOptions: TooltipOptions = {
+			contentSelector: '#interactive-template',
+			portal: false,
+			contentActions: { '*': { eventType: 'click', callback: vi.fn(), callbackParams: [] } }
+		};
+
+		test('Sets role="dialog" on tooltip when contentActions is defined and content has focusable elements', async () => {
+			action = createAction(target, dialogOptions);
 			await _enter(target);
 			expect(document.querySelector('[role="dialog"]')).toBeInTheDocument();
 			expect(document.querySelector('[role="tooltip"]')).not.toBeInTheDocument();
+		});
+
+		test('Sets role="tooltip" on tooltip when contentActions is defined but content has no focusable elements', async () => {
+			action = createAction(target, options);
+			await _enter(target);
+			expect(document.querySelector('[role="tooltip"]')).toBeInTheDocument();
+			expect(document.querySelector('[role="dialog"]')).not.toBeInTheDocument();
 		});
 
 		test('Sets role="tooltip" on tooltip when no contentActions', async () => {
@@ -2121,17 +2165,18 @@ describe('useTooltip', () => {
 		});
 
 		test('Updates role from "dialog" to "tooltip" when contentActions is removed via update', async () => {
-			action = createAction(target, options);
-			action.update({ ...options, contentActions: null });
+			action = createAction(target, dialogOptions);
+			action.update({ ...dialogOptions, contentActions: null });
 			await _enter(target);
 			expect(document.querySelector('[role="tooltip"]')).toBeInTheDocument();
 			expect(document.querySelector('[role="dialog"]')).not.toBeInTheDocument();
 		});
 
 		test('Updates role from "tooltip" to "dialog" when contentActions is added via update', async () => {
-			action = createAction(target, { content: 'Hello' });
+			action = createAction(target, { contentSelector: '#interactive-template', portal: false });
 			action.update({
-				content: 'Hello',
+				contentSelector: '#interactive-template',
+				portal: false,
 				contentActions: { '*': { eventType: 'click', callback: vi.fn(), callbackParams: [] } }
 			});
 			await _enter(target);
@@ -2140,38 +2185,38 @@ describe('useTooltip', () => {
 		});
 
 		test('Sets aria-label="Tooltip" on interactive tooltip', async () => {
-			action = createAction(target, options);
+			action = createAction(target, dialogOptions);
 			await _enter(target);
 			const dialog = document.querySelector('[role="dialog"]') as HTMLElement;
 			expect(dialog).toHaveAttribute('aria-label', 'Tooltip');
 		});
 
 		test('Removes aria-label when contentActions is removed via update', async () => {
-			action = createAction(target, options);
+			action = createAction(target, dialogOptions);
 			await _enter(target);
-			action.update({ ...options, contentActions: null });
+			action.update({ ...dialogOptions, contentActions: null });
 			await _enter(target);
 			const tooltip = document.querySelector('[role="tooltip"]') as HTMLElement;
 			expect(tooltip).not.toHaveAttribute('aria-label');
 		});
 
 		test('Uses custom ariaLabel on interactive tooltip', async () => {
-			action = createAction(target, { ...options, ariaLabel: 'User actions menu' });
+			action = createAction(target, { ...dialogOptions, ariaLabel: 'User actions menu' });
 			await _enter(target);
 			const dialog = document.querySelector('[role="dialog"]') as HTMLElement;
 			expect(dialog).toHaveAttribute('aria-label', 'User actions menu');
 		});
 
 		test('Updates aria-label via update()', async () => {
-			action = createAction(target, options);
+			action = createAction(target, dialogOptions);
 			await _enter(target);
-			action.update({ ...options, ariaLabel: 'Updated label' });
+			action.update({ ...dialogOptions, ariaLabel: 'Updated label' });
 			const dialog = document.querySelector('[role="dialog"]') as HTMLElement;
 			expect(dialog).toHaveAttribute('aria-label', 'Updated label');
 		});
 
 		test('Defaults aria-label to "Tooltip" when ariaLabel is not provided', async () => {
-			action = createAction(target, options);
+			action = createAction(target, dialogOptions);
 			await _enter(target);
 			const dialog = document.querySelector('[role="dialog"]') as HTMLElement;
 			expect(dialog).toHaveAttribute('aria-label', 'Tooltip');
@@ -2356,7 +2401,7 @@ describe('useTooltip', () => {
 		test('Does not close tooltip when focusout fires with relatedTarget inside the tooltip', async () => {
 			action = createAction(target, options);
 			await _enter(target);
-			const tooltip = getElement('[role="dialog"]') as HTMLElement;
+			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
 			const contentEl = getElement('#content') as HTMLElement;
 			await fireEvent.focusOut(target, { relatedTarget: contentEl });
 			await standby(1);
@@ -2366,7 +2411,7 @@ describe('useTooltip', () => {
 		test('Closes tooltip when focusout fires with relatedTarget outside the tooltip', async () => {
 			action = createAction(target, options);
 			await _enter(target);
-			const tooltip = getElement('[role="dialog"]') as HTMLElement;
+			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
 			await fireEvent.focusOut(target, { relatedTarget: document.body });
 			await standby(1);
 			expect(tooltip).not.toBeInTheDocument();
@@ -2375,7 +2420,7 @@ describe('useTooltip', () => {
 		test('Closes tooltip when focusout fires with no relatedTarget', async () => {
 			action = createAction(target, options);
 			await _enter(target);
-			const tooltip = getElement('[role="dialog"]') as HTMLElement;
+			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
 			await fireEvent.focusOut(target, { relatedTarget: null });
 			await standby(1);
 			expect(tooltip).not.toBeInTheDocument();
@@ -2476,7 +2521,7 @@ describe('useTooltip', () => {
 				contentActions: { '*': { eventType: 'click', callback: vi.fn(), callbackParams: [] } }
 			});
 			await _enter(trapTarget);
-			const tooltip = getElement('[role="dialog"]') as HTMLElement;
+			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
 			expect(tooltip.querySelector('button')).toBeNull();
 			expect(document.activeElement).not.toBeInstanceOf(HTMLButtonElement);
 		});
@@ -2494,7 +2539,7 @@ describe('useTooltip', () => {
 				contentActions: { '*': { eventType: 'click', callback: vi.fn(), callbackParams: [] } }
 			});
 			await _enter(trapTarget);
-			const tooltip = getElement('[role="dialog"]') as HTMLElement;
+			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
 			expect(tooltip).not.toHaveAttribute('aria-modal');
 		});
 
