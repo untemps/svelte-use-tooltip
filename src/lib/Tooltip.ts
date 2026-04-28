@@ -26,8 +26,8 @@ export type TooltipOptions = {
 	animationLeaveClassName?: string | null;
 	enterDelay?: number;
 	leaveDelay?: number;
-	onEnter?: (() => void) | null;
-	onLeave?: (() => void) | null;
+	onEnter?: ((event?: Event) => void) | null;
+	onLeave?: ((event?: Event) => void) | null;
 	onPlacementChange?: ((from: TooltipPosition, to: TooltipPosition) => void) | null;
 	offset?: number;
 	width?: string;
@@ -91,8 +91,8 @@ class Tooltip {
 	#animationLeaveClassName: string | null = null;
 	#enterDelay = 0;
 	#leaveDelay = 0;
-	#onEnter: (() => void) | null = null;
-	#onLeave: (() => void) | null = null;
+	#onEnter: ((event?: Event) => void) | null = null;
+	#onLeave: ((event?: Event) => void) | null = null;
 	#onPlacementChange: ((from: TooltipPosition, to: TooltipPosition) => void) | null = null;
 	#offset = 10;
 	#width = 'auto';
@@ -405,9 +405,9 @@ class Tooltip {
 		}
 
 		if (hasToShow) {
-			this.#appendTooltipToTarget().then(() => this.#onEnter?.());
+			this.#appendTooltipToTarget().then(() => this.#onEnter?.(undefined));
 		} else if (hasToHide) {
-			this.#removeTooltipFromTarget().then(() => this.#onLeave?.());
+			this.#removeTooltipFromTarget().then(() => this.#onLeave?.(undefined));
 		}
 
 		if (hasInteractivityChanged) {
@@ -1068,11 +1068,11 @@ class Tooltip {
 			}
 			await this.#appendTooltipToTarget();
 			await standby(0);
-			this.#onEnter?.();
+			this.#onEnter?.(e);
 		}
 	}
 
-	async #scheduleHide() {
+	async #scheduleHide(e?: Event) {
 		// For interactive portal tooltips, guarantee at least one animation frame so the
 		// mouseenter on the tooltip can fire and cancel this hide via #clearDelay().
 		const delay =
@@ -1087,7 +1087,7 @@ class Tooltip {
 		if (this.#tooltipHovered) return;
 		await this.#removeTooltipFromTarget();
 		await standby(0);
-		this.#onLeave?.();
+		this.#onLeave?.(e);
 	}
 
 	async #onTargetLeave(e: Event) {
@@ -1101,7 +1101,7 @@ class Tooltip {
 				return;
 		}
 		if (this.#target === e.target || !this.#target?.contains(e.target as Node)) {
-			await this.#scheduleHide();
+			await this.#scheduleHide(e);
 		}
 	}
 
@@ -1133,7 +1133,7 @@ class Tooltip {
 					!(this.#portal && this.#tooltip?.contains(touchTarget))))
 		) {
 			await this.#removeTooltipFromTarget();
-			this.#onLeave?.();
+			this.#onLeave?.(e);
 		}
 	}
 
@@ -1146,7 +1146,7 @@ class Tooltip {
 			}
 			await this.#removeTooltipFromTarget();
 			await standby(0);
-			this.#onLeave?.();
+			this.#onLeave?.(_e);
 		} else {
 			try {
 				await this.#waitForDelay(this.#enterDelay);
@@ -1155,7 +1155,7 @@ class Tooltip {
 			}
 			await this.#appendTooltipToTarget();
 			await standby(0);
-			this.#onEnter?.();
+			this.#onEnter?.(_e);
 		}
 	}
 }
