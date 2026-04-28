@@ -1,3 +1,10 @@
+# [4.0.0-beta.5](https://github.com/untemps/svelte-use-tooltip/compare/v4.0.0-beta.4...v4.0.0-beta.5) (2026-04-28)
+
+
+### Features
+
+* Pass triggering Event to onEnter and onLeave callbacks ([#240](https://github.com/untemps/svelte-use-tooltip/issues/240)) ([77a4486](https://github.com/untemps/svelte-use-tooltip/commit/77a44860eefc3306ec6bcac552475177b803b05e))
+
 # [4.0.0-beta.4](https://github.com/untemps/svelte-use-tooltip/compare/v4.0.0-beta.3...v4.0.0-beta.4) (2026-04-28)
 
 
