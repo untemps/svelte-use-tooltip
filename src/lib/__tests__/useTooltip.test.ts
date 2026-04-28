@@ -1392,12 +1392,28 @@ describe('useTooltip', () => {
 			expect(onEnter).toHaveBeenCalled();
 		});
 
-		test('Passes triggering Event to onEnter callback', async () => {
+		test('Passes triggering MouseEvent to onEnter callback on mouseenter', async () => {
 			const onEnter = vi.fn();
 			action = createAction(target, { ...options, onEnter });
 			await _enter(target);
 			await standby(0);
-			expect(onEnter).toHaveBeenCalledWith(expect.any(Event));
+			expect(onEnter).toHaveBeenCalledWith(expect.any(MouseEvent));
+		});
+
+		test('Passes triggering FocusEvent to onEnter callback on focusin', async () => {
+			const onEnter = vi.fn();
+			action = createAction(target, { ...options, onEnter });
+			await _focus(target);
+			await standby(0);
+			expect(onEnter).toHaveBeenCalledWith(expect.any(FocusEvent));
+		});
+
+		test('Passes triggering TouchEvent to onEnter callback on touch toggle show', async () => {
+			const onEnter = vi.fn();
+			action = createAction(target, { ...options, onEnter, touchBehavior: 'toggle' });
+			await _touchEnd(target);
+			await standby(0);
+			expect(onEnter).toHaveBeenCalledWith(expect.any(TouchEvent));
 		});
 
 		test('Passes undefined to onEnter when triggered programmatically', async () => {
@@ -1428,22 +1444,49 @@ describe('useTooltip', () => {
 			expect(onLeave).toHaveBeenCalled();
 		});
 
-		test('Passes triggering Event to onLeave callback on mouseleave', async () => {
+		test('Passes triggering MouseEvent to onLeave callback on mouseleave', async () => {
 			const onLeave = vi.fn();
 			action = createAction(target, { ...options, onLeave });
 			await _enter(target);
 			await _leave(target);
 			await standby(0);
-			expect(onLeave).toHaveBeenCalledWith(expect.any(Event));
+			expect(onLeave).toHaveBeenCalledWith(expect.any(MouseEvent));
 		});
 
-		test('Passes triggering Event to onLeave callback on Escape', async () => {
+		test('Passes triggering FocusEvent to onLeave callback on focusout', async () => {
+			const onLeave = vi.fn();
+			action = createAction(target, { ...options, onLeave });
+			await _focus(target);
+			await _blur(target);
+			await standby(0);
+			expect(onLeave).toHaveBeenCalledWith(expect.any(FocusEvent));
+		});
+
+		test('Passes triggering KeyboardEvent to onLeave callback on Escape', async () => {
 			const onLeave = vi.fn();
 			action = createAction(target, { ...options, onLeave });
 			await _enter(target);
 			await _keyDown(target);
 			await standby(0);
-			expect(onLeave).toHaveBeenCalledWith(expect.any(Event));
+			expect(onLeave).toHaveBeenCalledWith(expect.any(KeyboardEvent));
+		});
+
+		test('Passes triggering TouchEvent to onLeave callback on touch toggle hide', async () => {
+			const onLeave = vi.fn();
+			action = createAction(target, { ...options, onLeave, touchBehavior: 'toggle' });
+			await _touchEnd(target);
+			await _touchEnd(target);
+			await standby(0);
+			expect(onLeave).toHaveBeenCalledWith(expect.any(TouchEvent));
+		});
+
+		test('Passes triggering TouchEvent to onLeave callback on touchstart outside in toggle mode', async () => {
+			const onLeave = vi.fn();
+			action = createAction(target, { ...options, onLeave, touchBehavior: 'toggle' });
+			await _touchEnd(target);
+			await _touchStart(document.body);
+			await standby(0);
+			expect(onLeave).toHaveBeenCalledWith(expect.any(TouchEvent));
 		});
 
 		test('Passes undefined to onLeave when triggered programmatically', async () => {
