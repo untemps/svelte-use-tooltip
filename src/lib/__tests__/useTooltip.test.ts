@@ -1391,6 +1391,22 @@ describe('useTooltip', () => {
 			await standby(1);
 			expect(onEnter).toHaveBeenCalled();
 		});
+
+		test('Passes triggering Event to onEnter callback', async () => {
+			const onEnter = vi.fn();
+			action = createAction(target, { ...options, onEnter });
+			await _enter(target);
+			await standby(0);
+			expect(onEnter).toHaveBeenCalledWith(expect.any(Event));
+		});
+
+		test('Passes undefined to onEnter when triggered programmatically', async () => {
+			const onEnter = vi.fn();
+			action = createAction(target, { ...options, onEnter });
+			action.update({ open: true });
+			await standby(1);
+			expect(onEnter).toHaveBeenCalledWith(undefined);
+		});
 	});
 
 	describe('useTooltip props: onLeave', () => {
@@ -1410,6 +1426,33 @@ describe('useTooltip', () => {
 			await _keyDown(target);
 			await standby(0);
 			expect(onLeave).toHaveBeenCalled();
+		});
+
+		test('Passes triggering Event to onLeave callback on mouseleave', async () => {
+			const onLeave = vi.fn();
+			action = createAction(target, { ...options, onLeave });
+			await _enter(target);
+			await _leave(target);
+			await standby(0);
+			expect(onLeave).toHaveBeenCalledWith(expect.any(Event));
+		});
+
+		test('Passes triggering Event to onLeave callback on Escape', async () => {
+			const onLeave = vi.fn();
+			action = createAction(target, { ...options, onLeave });
+			await _enter(target);
+			await _keyDown(target);
+			await standby(0);
+			expect(onLeave).toHaveBeenCalledWith(expect.any(Event));
+		});
+
+		test('Passes undefined to onLeave when triggered programmatically', async () => {
+			const onLeave = vi.fn();
+			action = createAction(target, { ...options, onLeave });
+			await _enter(target);
+			action.update({ open: false });
+			await standby(1);
+			expect(onLeave).toHaveBeenCalledWith(undefined);
 		});
 	});
 
