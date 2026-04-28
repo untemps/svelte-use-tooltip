@@ -1,3 +1,10 @@
+# [4.0.0-beta.4](https://github.com/untemps/svelte-use-tooltip/compare/v4.0.0-beta.3...v4.0.0-beta.4) (2026-04-28)
+
+
+### Bug Fixes
+
+* Base role="dialog" on focusable content elements in addition to contentActions ([#239](https://github.com/untemps/svelte-use-tooltip/issues/239)) ([0addbca](https://github.com/untemps/svelte-use-tooltip/commit/0addbcaffcd8725bdab00150c02387971a407adf))
+
 # [4.0.0-beta.3](https://github.com/untemps/svelte-use-tooltip/compare/v4.0.0-beta.2...v4.0.0-beta.3) (2026-04-26)
 
 
