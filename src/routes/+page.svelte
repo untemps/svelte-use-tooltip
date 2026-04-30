@@ -20,6 +20,7 @@
 	let touchBehavior = $state<'hover' | 'toggle' | undefined>(undefined);
 	let showOn = $state<string[]>(['mouseenter', 'focusin']);
 	let hideOn = $state<string[]>(['mouseleave', 'focusout']);
+	let portal = $state(true);
 	let settingsOpen = $state(false);
 
 	const EVENT_OPTIONS = ['mouseenter', 'mouseleave', 'focusin', 'focusout', 'click', 'dblclick'];
@@ -40,11 +41,6 @@
 		if (triggerOnLeave) {
 			alert("You've left the target");
 		}
-	};
-
-	const _onTooltipClick = (arg, e) => {
-		e.preventDefault();
-		alert("You've clicked the tooltip");
 	};
 </script>
 
@@ -438,14 +434,7 @@
 								}
 							]
 						}
-					: {
-							'*': {
-								eventType: 'click',
-								callback: _onTooltipClick,
-								callbackParams: ['ok'],
-								closeOnCallback: true
-							}
-						},
+					: null,
 				containerClassName: useCustomClass ? `tooltip tooltip-${position}` : null,
 				animated: animate,
 				animationEnterClassName: useCustomAnimationEnterClass ? 'tooltip-enter' : null,
@@ -460,7 +449,8 @@
 				open: isOpen,
 				touchBehavior: touchBehavior,
 				showOn: showOn,
-				hideOn: hideOn
+				hideOn: hideOn,
+				portal: portal
 			}}
 			class="target"
 		>
@@ -600,6 +590,12 @@
 							</label>
 						{/each}
 					</div>
+				</label>
+			</fieldset>
+			<fieldset>
+				<label>
+					Portal:
+					<input type="checkbox" bind:checked={portal} />
 				</label>
 			</fieldset>
 			<fieldset>

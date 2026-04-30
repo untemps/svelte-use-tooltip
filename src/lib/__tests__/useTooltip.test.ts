@@ -62,6 +62,7 @@ describe('useTooltip', () => {
 		initTemplate('template', 'content');
 		options = {
 			contentSelector: '#template',
+			portal: false,
 			contentActions: {
 				'*': {
 					eventType: 'click',
@@ -110,7 +111,7 @@ describe('useTooltip', () => {
 	describe('useTooltip inline styles preservation', () => {
 		test('Preserves existing inline styles on the target element after init', () => {
 			target.style.fontSize = '14px';
-			action = createAction(target, { content: 'tooltip' });
+			action = createAction(target, { content: 'tooltip', portal: false });
 			expect(target).toHaveStyle('font-size: 14px');
 			expect(target).toHaveStyle('position: relative');
 		});
@@ -225,6 +226,18 @@ describe('useTooltip', () => {
 			expect(getElement('#content')).not.toBeInTheDocument();
 		});
 
+		test('Repositions tooltip on window resize when open is locked', async () => {
+			action = createAction(target, { ...options, open: true });
+			await standby(1);
+			expect(getElement('#content')).toBeInTheDocument();
+
+			const spy = vi.spyOn(target, 'getBoundingClientRect');
+			await fireEvent.resize(window);
+			expect(getElement('#content')).toBeInTheDocument();
+			expect(spy).toHaveBeenCalled();
+			spy.mockRestore();
+		});
+
 		test('Removes ancestor scroll listeners on destroy', async () => {
 			const container = createElement({
 				tag: 'div',
@@ -315,7 +328,7 @@ describe('useTooltip', () => {
 			await standby(10);
 
 			await _enter(target);
-			const tooltipEl = target.querySelector('[role="tooltip"]')!;
+			const tooltipEl = document.querySelector('[role="tooltip"]')!;
 			expect(tooltipEl.querySelectorAll('#content')).toHaveLength(1);
 		});
 	});
@@ -493,7 +506,7 @@ describe('useTooltip', () => {
 				}
 			});
 			await _enter(target);
-			const tooltip = target.querySelector<HTMLElement>('[role="dialog"]')!;
+			const tooltip = document.querySelector<HTMLElement>('[role="dialog"]')!;
 			const buttons = tooltip.querySelectorAll<HTMLElement>('.btn');
 			expect(buttons).toHaveLength(2);
 			await fireEvent.click(buttons[0]);
@@ -512,7 +525,7 @@ describe('useTooltip', () => {
 				}
 			});
 			await _enter(target);
-			const tooltip = target.querySelector<HTMLElement>('[role="dialog"]')!;
+			const tooltip = document.querySelector<HTMLElement>('[role="dialog"]')!;
 			const buttons = tooltip.querySelectorAll<HTMLElement>('.btn');
 			await fireEvent.mouseEnter(buttons[0]);
 			await fireEvent.mouseEnter(buttons[1]);
@@ -528,7 +541,7 @@ describe('useTooltip', () => {
 				contentActions: { '#btn': { eventType: 'click', callback, callbackParams: [] } }
 			});
 			await _enter(target);
-			const tooltip = target.querySelector('[role="tooltip"]')!;
+			const tooltip = document.querySelector('[role="tooltip"]')!;
 			await fireEvent.click(tooltip);
 			expect(callback).not.toHaveBeenCalled();
 			expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('"*"'));
@@ -542,7 +555,7 @@ describe('useTooltip', () => {
 				contentActions: { '*': { eventType: 'click', callback, callbackParams: [] } }
 			});
 			await _enter(target);
-			const tooltip = target.querySelector('[role="dialog"]')!;
+			const tooltip = document.querySelector('[role="dialog"]')!;
 			await fireEvent.click(tooltip);
 			expect(callback).toHaveBeenCalledTimes(1);
 		});
@@ -556,7 +569,7 @@ describe('useTooltip', () => {
 			// Partial update — contentActions intentionally absent (undefined)
 			action.update({ contentSelector: '#template' });
 			await _enter(target);
-			const tooltip = target.querySelector('[role="dialog"]')!;
+			const tooltip = document.querySelector('[role="dialog"]')!;
 			await fireEvent.click(tooltip);
 			expect(callback).toHaveBeenCalledTimes(1);
 		});
@@ -569,7 +582,7 @@ describe('useTooltip', () => {
 			});
 			action.update({ ...options, contentActions: null });
 			await _enter(target);
-			const tooltip = target.querySelector('[role="tooltip"]')!;
+			const tooltip = document.querySelector('[role="tooltip"]')!;
 			await fireEvent.click(tooltip);
 			expect(callback).not.toHaveBeenCalled();
 		});
@@ -580,7 +593,7 @@ describe('useTooltip', () => {
 			action = createAction(target, { content: 'Hello', position: 'top' });
 			action.update({ position: 'bottom' });
 			await _enter(target);
-			const tooltip = target.querySelector('[role="tooltip"]')!;
+			const tooltip = document.querySelector('[role="tooltip"]')!;
 			expect(tooltip.textContent).toContain('Hello');
 		});
 
@@ -588,45 +601,45 @@ describe('useTooltip', () => {
 			action = createAction(target, { content: 'Hello', position: 'left' });
 			action.update({ content: 'Hello' });
 			await _enter(target);
-			expect(target.querySelector('[role="tooltip"]')).toBeInTheDocument();
+			expect(document.querySelector('[role="tooltip"]')).toBeInTheDocument();
 		});
 
 		test('Partial update with only contentActions: null does not clear content', async () => {
 			action = createAction(target, { content: 'Hello' });
 			action.update({ contentActions: null });
 			await _enter(target);
-			const tooltip = target.querySelector('[role="tooltip"]')!;
+			const tooltip = document.querySelector('[role="tooltip"]')!;
 			expect(tooltip.textContent).toContain('Hello');
 		});
 
 		test('Partial update preserves open lock when open is omitted', async () => {
 			action = createAction(target, { content: 'Hello', open: true });
 			await standby(1);
-			expect(target.querySelector('[role="tooltip"]')).toBeInTheDocument();
+			expect(document.querySelector('[role="tooltip"]')).toBeInTheDocument();
 
 			// update without open — lock must be preserved
 			action.update({ content: 'Hello' });
 			await _leave(target);
-			expect(target.querySelector('[role="tooltip"]')).toBeInTheDocument();
+			expect(document.querySelector('[role="tooltip"]')).toBeInTheDocument();
 		});
 
 		test('open: false releases lock even when other props are preserved', async () => {
 			action = createAction(target, { content: 'Hello', open: true });
 			await standby(1);
-			expect(target.querySelector('[role="tooltip"]')).toBeInTheDocument();
+			expect(document.querySelector('[role="tooltip"]')).toBeInTheDocument();
 
 			action.update({ content: 'Hello', open: false });
 			await standby(1);
-			expect(target.querySelector('[role="tooltip"]')).not.toBeInTheDocument();
+			expect(document.querySelector('[role="tooltip"]')).not.toBeInTheDocument();
 		});
 
 		test('Below-minimum offset does not trigger a rebuild on repeated updates', async () => {
 			action = createAction(target, { content: 'Hello', offset: 3 });
 			await _enter(target);
-			const tooltipBefore = target.querySelector('[role="tooltip"]');
+			const tooltipBefore = document.querySelector('[role="tooltip"]');
 			// Second update with the same below-minimum value — effective offset unchanged (clamped to 5)
 			action.update({ content: 'Hello', offset: 3 });
-			const tooltipAfter = target.querySelector('[role="tooltip"]');
+			const tooltipAfter = document.querySelector('[role="tooltip"]');
 			expect(tooltipAfter).toBe(tooltipBefore);
 		});
 	});
@@ -651,6 +664,129 @@ describe('useTooltip', () => {
 			action = createAction(target, { ...options, containerClassName: '__custom-tooltip' });
 			await _enter(target);
 			expect(tooltipEl()).toHaveClass('__custom-tooltip');
+		});
+	});
+
+	describe('useTooltip props: portal', () => {
+		test('Renders tooltip into document.body when portal is true', async () => {
+			action = createAction(target, { ...options, portal: true });
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			expect(document.body.contains(tooltipEl())).toBe(true);
+			expect(target.contains(tooltipEl())).toBe(false);
+		});
+
+		test('Renders tooltip as child of target when portal is false', async () => {
+			action = createAction(target, { ...options, portal: false });
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			expect(target.contains(tooltipEl())).toBe(true);
+		});
+
+		test('Sets position:fixed on tooltip when portal is true', async () => {
+			action = createAction(target, { ...options, portal: true });
+			await _enter(target);
+			expect(tooltipEl().style.position).toBe('fixed');
+		});
+
+		test('Does not set position:relative on target when portal is true', async () => {
+			action = createAction(target, { ...options, portal: true });
+			await _enter(target);
+			expect(target).not.toHaveStyle('position: relative');
+		});
+
+		test('Sets position:relative on target when portal is false', async () => {
+			action = createAction(target, { ...options, portal: false });
+			await _enter(target);
+			expect(target).toHaveStyle('position: relative');
+		});
+
+		test('Defaults portal to true', async () => {
+			action = createAction(target, { content: 'Hello' });
+			await _enter(target);
+			expect(document.querySelector('.__tooltip')).not.toBeNull();
+			expect(document.body.contains(document.querySelector('.__tooltip'))).toBe(true);
+		});
+
+		test('Keeps tooltip visible when mouse enters tooltip after leaving target (interactive)', async () => {
+			action = createAction(target, { ...options, portal: true });
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			// Simulate mouse moving from target to tooltip within 16ms grace period
+			await fireEvent.mouseEnter(tooltipEl());
+			await _leave(target);
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Hides tooltip when mouse leaves target and does not enter tooltip (interactive)', async () => {
+			action = createAction(target, { ...options, portal: true });
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			// Mouse leaves target without entering tooltip — hides after grace period
+			await _leave(target);
+			await standby(20);
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
+		test('Hides tooltip when mouse leaves tooltip in portal mode (interactive)', async () => {
+			action = createAction(target, { ...options, portal: true });
+			await _enter(target);
+			await fireEvent.mouseEnter(tooltipEl());
+			await _leave(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			await fireEvent.mouseLeave(tooltipEl());
+			await standby(20);
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
+		test('Hides tooltip immediately when mouse leaves target in portal mode (non-interactive)', async () => {
+			action = createAction(target, { content: 'Hello', portal: true });
+			await _enter(target);
+			expect(document.querySelector('.__tooltip')).toBeInTheDocument();
+			// Mouse enters tooltip — no bridge for non-interactive
+			await fireEvent.mouseEnter(document.querySelector('.__tooltip')!);
+			// Mouse leaves target — tooltip must hide regardless of tooltip hover
+			await _leave(target);
+			expect(document.querySelector('.__tooltip')).not.toBeInTheDocument();
+		});
+
+		test('Hides tooltip when mouse leaves tooltip in portal mode', async () => {
+			action = createAction(target, { ...options, portal: true });
+			await _enter(target);
+			await fireEvent.mouseEnter(tooltipEl());
+			// Mouse leaves tooltip — hides after 16ms grace period
+			await fireEvent.mouseLeave(tooltipEl());
+			await standby(20);
+			expect(getElement('#content')).not.toBeInTheDocument();
+		});
+
+		test('Does not hide tooltip when focus moves from target to tooltip in portal mode', async () => {
+			action = createAction(target, { ...options, portal: true });
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			// Simulate focusout from target with relatedTarget inside tooltip
+			await fireEvent.focusOut(target, { relatedTarget: tooltipEl() });
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Does not hide tooltip on touchstart inside tooltip in portal mode', async () => {
+			action = createAction(target, { ...options, portal: true });
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
+			// Simulate touchstart inside the tooltip
+			await fireEvent.touchStart(tooltipEl());
+			expect(getElement('#content')).toBeInTheDocument();
+		});
+
+		test('Cleans up tooltip hover listeners on hide in portal mode', async () => {
+			action = createAction(target, { ...options, portal: true });
+			await _enter(target);
+			await fireEvent.mouseEnter(tooltipEl());
+			await _leave(target);
+			// Tooltip hides because mouseLeave on tooltip was already called implicitly
+			// Re-enter to verify clean state
+			await _enter(target);
+			expect(getElement('#content')).toBeInTheDocument();
 		});
 	});
 
@@ -779,8 +915,8 @@ describe('useTooltip', () => {
 			});
 			await _enter(target);
 			const tooltip = tooltipEl();
-			expect(tooltip.style.left).toHaveLength(0);
-			expect(tooltip.style.right).not.toHaveLength(0);
+			expect(tooltip.style.left).not.toHaveLength(0);
+			expect(tooltip.style.right).toHaveLength(0);
 			expect(tooltip.style.top).not.toHaveLength(0);
 			expect(tooltip.style.bottom).toHaveLength(0);
 			expect(tooltip).toHaveClass('__tooltip-right');
@@ -793,8 +929,8 @@ describe('useTooltip', () => {
 			});
 			await _enter(target);
 			const tooltip = tooltipEl();
-			expect(tooltip.style.left).toHaveLength(0);
-			expect(tooltip.style.right).not.toHaveLength(0);
+			expect(tooltip.style.left).not.toHaveLength(0);
+			expect(tooltip.style.right).toHaveLength(0);
 			expect(tooltip.style.top).not.toHaveLength(0);
 			expect(tooltip.style.bottom).toHaveLength(0);
 			expect(tooltip).not.toHaveClass('__tooltip-top');
@@ -839,8 +975,8 @@ describe('useTooltip', () => {
 			const tooltip = tooltipEl();
 			expect(tooltip.style.left).not.toHaveLength(0);
 			expect(tooltip.style.right).toHaveLength(0);
-			expect(tooltip.style.top).toHaveLength(0);
-			expect(tooltip.style.bottom).not.toHaveLength(0);
+			expect(tooltip.style.top).not.toHaveLength(0);
+			expect(tooltip.style.bottom).toHaveLength(0);
 			expect(tooltip).toHaveClass('__tooltip-bottom');
 		});
 
@@ -853,8 +989,8 @@ describe('useTooltip', () => {
 			const tooltip = tooltipEl();
 			expect(tooltip.style.left).not.toHaveLength(0);
 			expect(tooltip.style.right).toHaveLength(0);
-			expect(tooltip.style.top).toHaveLength(0);
-			expect(tooltip.style.bottom).not.toHaveLength(0);
+			expect(tooltip.style.top).not.toHaveLength(0);
+			expect(tooltip.style.bottom).toHaveLength(0);
 			expect(tooltip).not.toHaveClass('__tooltip-top');
 			expect(tooltip).toHaveClass('__tooltip-bottom');
 		});
@@ -1781,6 +1917,7 @@ describe('useTooltip', () => {
 	describe('useTooltip aria-expanded', () => {
 		const interactiveOptions: TooltipOptions = {
 			contentSelector: '#template',
+			portal: false,
 			contentActions: {
 				'*': { eventType: 'click', callback: vi.fn(), callbackParams: [] }
 			}
@@ -1839,6 +1976,7 @@ describe('useTooltip', () => {
 	describe('useTooltip aria-haspopup', () => {
 		const interactiveOptions: TooltipOptions = {
 			contentSelector: '#template',
+			portal: false,
 			contentActions: {
 				'*': { eventType: 'click', callback: vi.fn(), callbackParams: [] }
 			}
@@ -1885,23 +2023,23 @@ describe('useTooltip', () => {
 		test('Sets role="dialog" on tooltip when contentActions is defined', async () => {
 			action = createAction(target, options);
 			await _enter(target);
-			expect(target.querySelector('[role="dialog"]')).toBeInTheDocument();
-			expect(target.querySelector('[role="tooltip"]')).not.toBeInTheDocument();
+			expect(document.querySelector('[role="dialog"]')).toBeInTheDocument();
+			expect(document.querySelector('[role="tooltip"]')).not.toBeInTheDocument();
 		});
 
 		test('Sets role="tooltip" on tooltip when no contentActions', async () => {
 			action = createAction(target, { content: 'Hello' });
 			await _enter(target);
-			expect(target.querySelector('[role="tooltip"]')).toBeInTheDocument();
-			expect(target.querySelector('[role="dialog"]')).not.toBeInTheDocument();
+			expect(document.querySelector('[role="tooltip"]')).toBeInTheDocument();
+			expect(document.querySelector('[role="dialog"]')).not.toBeInTheDocument();
 		});
 
 		test('Updates role from "dialog" to "tooltip" when contentActions is removed via update', async () => {
 			action = createAction(target, options);
 			action.update({ ...options, contentActions: null });
 			await _enter(target);
-			expect(target.querySelector('[role="tooltip"]')).toBeInTheDocument();
-			expect(target.querySelector('[role="dialog"]')).not.toBeInTheDocument();
+			expect(document.querySelector('[role="tooltip"]')).toBeInTheDocument();
+			expect(document.querySelector('[role="dialog"]')).not.toBeInTheDocument();
 		});
 
 		test('Updates role from "tooltip" to "dialog" when contentActions is added via update', async () => {
@@ -1911,14 +2049,14 @@ describe('useTooltip', () => {
 				contentActions: { '*': { eventType: 'click', callback: vi.fn(), callbackParams: [] } }
 			});
 			await _enter(target);
-			expect(target.querySelector('[role="dialog"]')).toBeInTheDocument();
-			expect(target.querySelector('[role="tooltip"]')).not.toBeInTheDocument();
+			expect(document.querySelector('[role="dialog"]')).toBeInTheDocument();
+			expect(document.querySelector('[role="tooltip"]')).not.toBeInTheDocument();
 		});
 
 		test('Sets aria-label="Tooltip" on interactive tooltip', async () => {
 			action = createAction(target, options);
 			await _enter(target);
-			const dialog = target.querySelector('[role="dialog"]') as HTMLElement;
+			const dialog = document.querySelector('[role="dialog"]') as HTMLElement;
 			expect(dialog).toHaveAttribute('aria-label', 'Tooltip');
 		});
 
@@ -1927,14 +2065,14 @@ describe('useTooltip', () => {
 			await _enter(target);
 			action.update({ ...options, contentActions: null });
 			await _enter(target);
-			const tooltip = target.querySelector('[role="tooltip"]') as HTMLElement;
+			const tooltip = document.querySelector('[role="tooltip"]') as HTMLElement;
 			expect(tooltip).not.toHaveAttribute('aria-label');
 		});
 
 		test('Uses custom ariaLabel on interactive tooltip', async () => {
 			action = createAction(target, { ...options, ariaLabel: 'User actions menu' });
 			await _enter(target);
-			const dialog = target.querySelector('[role="dialog"]') as HTMLElement;
+			const dialog = document.querySelector('[role="dialog"]') as HTMLElement;
 			expect(dialog).toHaveAttribute('aria-label', 'User actions menu');
 		});
 
@@ -1942,14 +2080,14 @@ describe('useTooltip', () => {
 			action = createAction(target, options);
 			await _enter(target);
 			action.update({ ...options, ariaLabel: 'Updated label' });
-			const dialog = target.querySelector('[role="dialog"]') as HTMLElement;
+			const dialog = document.querySelector('[role="dialog"]') as HTMLElement;
 			expect(dialog).toHaveAttribute('aria-label', 'Updated label');
 		});
 
 		test('Defaults aria-label to "Tooltip" when ariaLabel is not provided', async () => {
 			action = createAction(target, options);
 			await _enter(target);
-			const dialog = target.querySelector('[role="dialog"]') as HTMLElement;
+			const dialog = document.querySelector('[role="dialog"]') as HTMLElement;
 			expect(dialog).toHaveAttribute('aria-label', 'Tooltip');
 		});
 	});
@@ -2162,6 +2300,7 @@ describe('useTooltip', () => {
 		const TRAP_TEMPLATE_ID = 'trap-template';
 		const trapOptions: TooltipOptions = {
 			contentSelector: `#${TRAP_TEMPLATE_ID}`,
+			portal: false,
 			contentActions: {
 				'*': { eventType: 'click', callback: vi.fn(), callbackParams: [] }
 			}
