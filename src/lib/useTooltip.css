@@ -1,6 +1,7 @@
 .__tooltip {
 	position: absolute;
 	z-index: 9999;
+	width: max-content;
 	background-color: black;
 	color: white;
 	text-align: center;
