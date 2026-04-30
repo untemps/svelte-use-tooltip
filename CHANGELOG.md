@@ -1,3 +1,31 @@
+# [4.0.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.16.0...v4.0.0) (2026-04-30)
+
+
+### Bug Fixes
+
+* Base role="dialog" on focusable content elements in addition to contentActions ([#239](https://github.com/untemps/svelte-use-tooltip/issues/239)) ([8dc08b8](https://github.com/untemps/svelte-use-tooltip/commit/8dc08b845474b9559b119e13b0271c69752c7b73))
+
+
+### Features
+
+* Add onPlacementChange callback when tooltip auto-flips position ([#237](https://github.com/untemps/svelte-use-tooltip/issues/237)) ([cd5bb15](https://github.com/untemps/svelte-use-tooltip/commit/cd5bb153b5052644da63eab1dffc66d343988700))
+* Add portal prop to render tooltip into document.body ([#233](https://github.com/untemps/svelte-use-tooltip/issues/233)) ([f47e90c](https://github.com/untemps/svelte-use-tooltip/commit/f47e90c339f6bcfda014dbc39c0dd2480cccc6af))
+* Allow touch events in showOn/hideOn with passive listeners ([#238](https://github.com/untemps/svelte-use-tooltip/issues/238)) ([ac97dc6](https://github.com/untemps/svelte-use-tooltip/commit/ac97dc6a72cb88e0e82cb0d59a17672c6ce07bea))
+* Pass triggering Event to onEnter and onLeave callbacks ([#240](https://github.com/untemps/svelte-use-tooltip/issues/240)) ([670a367](https://github.com/untemps/svelte-use-tooltip/commit/670a36734026f357b7e74387de7776ec998879be))
+
+
+### BREAKING CHANGES
+
+* role="dialog", aria-haspopup, aria-expanded, and the
+focus trap are now applied only when contentActions is set AND the
+template content contains at least one focusable element (button, a,
+input…). Previously, contentActions alone was sufficient. Add a
+focusable element to the template content to restore dialog semantics.
+* The tooltip is now rendered into document.body with
+position: fixed by default (portal: true). Any CSS selector targeting
+.target > .tooltip will break. Set portal: false to restore the pre-v4
+behavior where the tooltip is a direct child of the target element.
+
 # [3.16.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.15.9...v3.16.0) (2026-04-25)
 
 
