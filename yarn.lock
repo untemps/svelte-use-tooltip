@@ -1266,14 +1266,14 @@
     eslint-visitor-keys "^5.0.0"
 
 "@untemps/dom-observer@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@untemps/dom-observer/-/dom-observer-4.0.0.tgz#8f25ed10ace559ff53183e1342cdb6335ba5ba6f"
-  integrity sha512-c9GJwkkaRfnPCvPD7BolhplGYU/tXOJtaZEs/h+FXwG+RmvJ58fiRNcoaz1U8Ov5ntx84y82Kos2WtsEf6TeVA==
+  version "4.8.0"
+  resolved "https://registry.yarnpkg.com/@untemps/dom-observer/-/dom-observer-4.8.0.tgz#aac12118d342de96baf4e25b0d8ea5959b6ff556"
+  integrity sha512-XvinGCPYHPJPg2OiIk8VQl0RMH8Sj+wW/Kx8g5UHPWS3my702wFhBQe8zp518jB7MMma8V6J+SOgvr4TuoU9hw==
 
 "@untemps/utils@^3.0.0":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@untemps/utils/-/utils-3.1.0.tgz#0823f2e5faba842f3c9eb3683025ce2bd60fef38"
-  integrity sha512-2lK8ZWCMgMCXPeubH4y3mq2ubN9Wj0KjUm2qMXM7vr+AImTtZVHFoaOnFK7tsbLf2h09pm/DeaWNdLg1fjvEzA==
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@untemps/utils/-/utils-3.2.0.tgz#dc26d65d54e4a5e9b940b5c7f65832f60ff283dd"
+  integrity sha512-P48fcASTI8LSngn8cYjDq8KkasjDLghOnDmMatjwTLp0/qwp8/sifYuAJDODCqXXr7xATxcTnkULzNdZqavuNA==
 
 "@vitest/coverage-v8@^4.1.2":
   version "4.1.5"
