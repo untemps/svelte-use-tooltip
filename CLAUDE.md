@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 yarn dev          # Start the demo app (SvelteKit) on http://localhost:5173
 yarn build        # Build the demo site (build/) and package the library (dist/)
-yarn package      # Package the library only: svelte-kit sync, svelte-package, publint
+yarn package      # Package the library only: svelte-package, .d.ts clean-up, publint
 yarn preview      # Serve the built demo site
 yarn lint         # Check formatting (Prettier) and linting (ESLint)
 yarn format       # Auto-format all files with Prettier
@@ -42,7 +42,7 @@ use:useTooltip={params}
 - `src/lib/useTooltip.css` — default styles (`__tooltip`, `__tooltip-<position>`, `__tooltip-enter` / `__tooltip-leave`); the `containerClassName` and animation class name options replace them
 - `src/routes/+page.svelte` — demo page with a settings panel for every option (not published)
 
-`svelte-package` compiles `src/lib` to `.js` and `.d.ts` files in `dist/`, the only published folder. It keeps import paths as written, so relative imports in `src/lib` must end in `.js` (`from './Tooltip.js'`): consumers resolving with `moduleResolution: nodenext` cannot resolve extensionless paths and silently get `any` types.
+`svelte-package` compiles `src/lib` to `.js` and `.d.ts` files in `dist/`, the only published folder. It keeps import paths as written, so relative imports in `src/lib` must end in `.js` (`from './Tooltip.js'`): consumers resolving with `moduleResolution: nodenext` cannot resolve extensionless paths and silently get `any` types. TypeScript also copies the `import './useTooltip.css'` side effect into `dist/useTooltip.d.ts`, where consumers that type-check libraries cannot resolve it (TS2882), so `scripts/strip-dts-css-imports.js` removes it after packaging.
 
 **Rendering:** With `portal: true` (default), the tooltip is appended to `document.body` with `position: fixed` and copies the target's computed font. With `portal: false`, it is appended inside the target, which gets `position: relative`. Each instance has a unique id (`tooltip-<uuid>`), which the target references in `aria-describedby` while the tooltip is shown.
 
