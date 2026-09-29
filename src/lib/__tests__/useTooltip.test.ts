@@ -2124,6 +2124,51 @@ describe('useTooltip', () => {
 		});
 	});
 
+	describe('useTooltip non-secure context', () => {
+		// Non-secure contexts (plain HTTP outside localhost) expose crypto.getRandomValues()
+		// but not crypto.randomUUID().
+		beforeEach(() => {
+			vi.stubGlobal('crypto', { getRandomValues: crypto.getRandomValues.bind(crypto) });
+		});
+
+		afterEach(() => {
+			vi.unstubAllGlobals();
+		});
+
+		test('Shows tooltip with a UUID v4 id when crypto.randomUUID is unavailable', async () => {
+			action = createAction(target, { content: 'Hello' });
+			await _enter(target);
+			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
+			expect(tooltip).toBeInTheDocument();
+			expect(tooltip.id).toMatch(
+				/^tooltip-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+			);
+			expect(target.getAttribute('aria-describedby')).toBe(tooltip.id);
+		});
+
+		test('Two tooltip instances have distinct IDs when crypto.randomUUID is unavailable', async () => {
+			const target2 = createElement({
+				tag: 'div',
+				attributes: { id: 'target2' },
+				parent: document.body
+			});
+			const action2 = createAction(target2, { content: 'World' });
+
+			action = createAction(target, { content: 'Hello' });
+			await _enter(target);
+			await _enter(target2);
+
+			const id1 = target.getAttribute('aria-describedby');
+			const id2 = target2.getAttribute('aria-describedby');
+			expect(id1).toBeTruthy();
+			expect(id2).toBeTruthy();
+			expect(id1).not.toBe(id2);
+
+			await action2.destroy();
+			removeElement('#target2');
+		});
+	});
+
 	describe('useTooltip aria-expanded', () => {
 		const interactiveOptions: TooltipOptions = {
 			contentSelector: '#interactive-template',
