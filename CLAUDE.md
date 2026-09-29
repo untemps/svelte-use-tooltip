@@ -42,7 +42,7 @@ use:useTooltip={params}
 - `src/lib/useTooltip.css` — default styles (`__tooltip`, `__tooltip-<position>`, `__tooltip-enter` / `__tooltip-leave`); the `containerClassName` and animation class name options replace them
 - `src/routes/+page.svelte` — demo page with a settings panel for every option (not published)
 
-`svelte-package` compiles `src/lib` to `.js` and `.d.ts` files in `dist/`, the only published folder.
+`svelte-package` compiles `src/lib` to `.js` and `.d.ts` files in `dist/`, the only published folder. It keeps import paths as written, so relative imports in `src/lib` must end in `.js` (`from './Tooltip.js'`): consumers resolving with `moduleResolution: nodenext` cannot resolve extensionless paths and silently get `any` types.
 
 **Rendering:** With `portal: true` (default), the tooltip is appended to `document.body` with `position: fixed` and copies the target's computed font. With `portal: false`, it is appended inside the target, which gets `position: relative`. Each instance has a unique id (`tooltip-<uuid>`), which the target references in `aria-describedby` while the tooltip is shown.
 
