@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, expect, describe, test, vi } from 'vitest';
+import type { Mock } from 'vitest';
 import { fireEvent } from '@testing-library/svelte';
 import { createElement } from '@untemps/utils/dom/createElement';
 import { getElement } from '@untemps/utils/dom/getElement';
@@ -2070,6 +2071,19 @@ describe('useTooltip', () => {
 			expect(target.getAttribute('aria-describedby')).toBe(tooltip.id);
 		});
 
+		test('Builds the tooltip id with crypto.randomUUID when it is available', async () => {
+			const spy = vi
+				.spyOn(crypto, 'randomUUID')
+				.mockReturnValue('01234567-89ab-4def-8123-456789abcdef');
+			action = createAction(target, { content: 'Hello' });
+			await _enter(target);
+			expect(target).toHaveAttribute(
+				'aria-describedby',
+				'tooltip-01234567-89ab-4def-8123-456789abcdef'
+			);
+			spy.mockRestore();
+		});
+
 		test('Removes aria-describedby from target when tooltip is hidden', async () => {
 			action = createAction(target, { content: 'Hello' });
 			await _enter(target);
@@ -2127,23 +2141,30 @@ describe('useTooltip', () => {
 	describe('useTooltip non-secure context', () => {
 		// Non-secure contexts (plain HTTP outside localhost) expose crypto.getRandomValues()
 		// but not crypto.randomUUID().
+		let getRandomValues: Mock<(bytes: Uint8Array<ArrayBuffer>) => Uint8Array<ArrayBuffer>>;
+
 		beforeEach(() => {
-			vi.stubGlobal('crypto', { getRandomValues: crypto.getRandomValues.bind(crypto) });
+			const nativeCrypto = crypto;
+			getRandomValues = vi.fn((bytes) => nativeCrypto.getRandomValues(bytes));
+			vi.stubGlobal('crypto', { getRandomValues });
 		});
 
 		afterEach(() => {
 			vi.unstubAllGlobals();
 		});
 
-		test('Shows tooltip with a UUID v4 id when crypto.randomUUID is unavailable', async () => {
+		test('Builds a UUID v4 id from crypto.getRandomValues when crypto.randomUUID is unavailable', async () => {
+			// Known bytes 0xff, 0xee, …, 0x00: the version bits turn byte 6 (0x99) into 0x49, the
+			// variant bits turn byte 8 (0x77) into 0xb7, and 0x00 checks the zero padding.
+			getRandomValues.mockImplementationOnce((bytes) => {
+				for (let i = 0; i < bytes.length; i++) bytes[i] = 0xff - 0x11 * i;
+				return bytes;
+			});
 			action = createAction(target, { content: 'Hello' });
 			await _enter(target);
-			const tooltip = getElement('[role="tooltip"]') as HTMLElement;
-			expect(tooltip).toBeInTheDocument();
-			expect(tooltip.id).toMatch(
-				/^tooltip-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
-			);
-			expect(target.getAttribute('aria-describedby')).toBe(tooltip.id);
+			const id = 'tooltip-ffeeddcc-bbaa-4988-b766-554433221100';
+			expect(getElement('[role="tooltip"]')).toHaveAttribute('id', id);
+			expect(target).toHaveAttribute('aria-describedby', id);
 		});
 
 		test('Two tooltip instances have distinct IDs when crypto.randomUUID is unavailable', async () => {
@@ -2158,6 +2179,7 @@ describe('useTooltip', () => {
 			await _enter(target);
 			await _enter(target2);
 
+			expect(getRandomValues).toHaveBeenCalledTimes(2);
 			const id1 = target.getAttribute('aria-describedby');
 			const id2 = target2.getAttribute('aria-describedby');
 			expect(id1).toBeTruthy();
