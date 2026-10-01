@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, expect, describe, test, vi } from 'vitest';
+import type { Mock } from 'vitest';
 import { fireEvent } from '@testing-library/svelte';
 import { createElement } from '@untemps/utils/dom/createElement';
 import { getElement } from '@untemps/utils/dom/getElement';
@@ -2070,6 +2071,19 @@ describe('useTooltip', () => {
 			expect(target.getAttribute('aria-describedby')).toBe(tooltip.id);
 		});
 
+		test('Builds the tooltip id with crypto.randomUUID when it is available', async () => {
+			const spy = vi
+				.spyOn(crypto, 'randomUUID')
+				.mockReturnValue('01234567-89ab-4def-8123-456789abcdef');
+			action = createAction(target, { content: 'Hello' });
+			await _enter(target);
+			expect(target).toHaveAttribute(
+				'aria-describedby',
+				'tooltip-01234567-89ab-4def-8123-456789abcdef'
+			);
+			spy.mockRestore();
+		});
+
 		test('Removes aria-describedby from target when tooltip is hidden', async () => {
 			action = createAction(target, { content: 'Hello' });
 			await _enter(target);
@@ -2121,6 +2135,55 @@ describe('useTooltip', () => {
 			});
 			await _enter(target);
 			expect(target).not.toHaveAttribute('aria-describedby');
+		});
+	});
+
+	describe('useTooltip non-secure context', () => {
+		let getRandomValues: Mock<(bytes: Uint8Array<ArrayBuffer>) => Uint8Array<ArrayBuffer>>;
+
+		beforeEach(() => {
+			const nativeCrypto = crypto;
+			getRandomValues = vi.fn((bytes) => nativeCrypto.getRandomValues(bytes));
+			vi.stubGlobal('crypto', { getRandomValues });
+		});
+
+		afterEach(() => {
+			vi.unstubAllGlobals();
+		});
+
+		test('Builds a UUID v4 id from crypto.getRandomValues when crypto.randomUUID is unavailable', async () => {
+			getRandomValues.mockImplementationOnce((bytes) => {
+				for (let i = 0; i < bytes.length; i++) bytes[i] = 0xff - 0x11 * i;
+				return bytes;
+			});
+			action = createAction(target, { content: 'Hello' });
+			await _enter(target);
+			const id = 'tooltip-ffeeddcc-bbaa-4988-b766-554433221100';
+			expect(getElement('[role="tooltip"]')).toHaveAttribute('id', id);
+			expect(target).toHaveAttribute('aria-describedby', id);
+		});
+
+		test('Two tooltip instances have distinct IDs when crypto.randomUUID is unavailable', async () => {
+			const target2 = createElement({
+				tag: 'div',
+				attributes: { id: 'target2' },
+				parent: document.body
+			});
+			const action2 = createAction(target2, { content: 'World' });
+
+			action = createAction(target, { content: 'Hello' });
+			await _enter(target);
+			await _enter(target2);
+
+			expect(getRandomValues).toHaveBeenCalledTimes(2);
+			const id1 = target.getAttribute('aria-describedby');
+			const id2 = target2.getAttribute('aria-describedby');
+			expect(id1).toBeTruthy();
+			expect(id2).toBeTruthy();
+			expect(id1).not.toBe(id2);
+
+			await action2.destroy();
+			removeElement('#target2');
 		});
 	});
 
