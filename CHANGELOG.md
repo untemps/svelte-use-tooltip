@@ -1,3 +1,10 @@
+## [4.0.1](https://github.com/untemps/svelte-use-tooltip/compare/v4.0.0...v4.0.1) (2026-10-01)
+
+
+### Bug Fixes
+
+* Generate tooltip ids without crypto.randomUUID in non-secure contexts ([#271](https://github.com/untemps/svelte-use-tooltip/issues/271)) ([d66c542](https://github.com/untemps/svelte-use-tooltip/commit/d66c542595ac648f68c5ef28bf6bfaa6aa2babdd))
+
 # [4.0.0](https://github.com/untemps/svelte-use-tooltip/compare/v3.16.0...v4.0.0) (2026-04-30)
 
 
