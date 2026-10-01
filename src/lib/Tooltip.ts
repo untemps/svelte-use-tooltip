@@ -858,6 +858,7 @@ class Tooltip {
 			await this.#transitionTooltip(false);
 		}
 
+		const returnFocus = this.#tooltip!.contains(document.activeElement);
 		this.#tooltip!.remove();
 		if (!this.#isInteractive()) {
 			this.#target?.removeAttribute('aria-describedby');
@@ -888,7 +889,7 @@ class Tooltip {
 			this.#boundTooltipLeaveHandler = null;
 		}
 
-		this.#teardownFocusTrap();
+		this.#teardownFocusTrap(returnFocus);
 	}
 
 	#syncComputedFont() {
@@ -1014,11 +1015,12 @@ class Tooltip {
 		}
 	}
 
-	#teardownFocusTrap(): void {
+	#teardownFocusTrap(returnFocus: boolean): void {
 		if (this.#trapHandler) {
 			this.#tooltip?.removeEventListener('keydown', this.#trapHandler);
 			this.#tooltip?.removeAttribute('aria-modal');
 			this.#trapHandler = null;
+			if (!returnFocus) return;
 			// Temporarily remove show-event listeners so that returning focus to the trigger
 			// does not re-open the tooltip.
 			const { toggleEvents, showOnlyEvents } = this.#partitionEvents();

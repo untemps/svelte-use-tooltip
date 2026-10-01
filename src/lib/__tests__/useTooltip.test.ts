@@ -2656,19 +2656,66 @@ describe('useTooltip', () => {
 			expect(document.activeElement).toBe(buttons[buttons.length - 1]);
 		});
 
-		test('Escape closes tooltip and returns focus to trigger', async () => {
+		test('Escape closes tooltip and returns focus to trigger when focus is inside the tooltip', async () => {
 			trapAction = createAction(trapTarget, trapOptions);
 			await _enter(trapTarget);
-			await _keyDown(trapTarget);
+			const button = getElement('[role="dialog"] button') as HTMLElement;
+			button.focus();
+			await _keyDown(button);
 			expect(getElement('[role="dialog"]')).not.toBeInTheDocument();
 			expect(document.activeElement).toBe(trapTarget);
 		});
 
-		test('Returns focus to trigger when tooltip closes', async () => {
+		test('Returns focus to trigger when tooltip closes while focus is inside it', async () => {
+			trapAction = createAction(trapTarget, trapOptions);
+			await _enter(trapTarget);
+			(getElement('[role="dialog"] button') as HTMLElement).focus();
+			await _leave(trapTarget);
+			expect(getElement('[role="dialog"]')).not.toBeInTheDocument();
+			expect(document.activeElement).toBe(trapTarget);
+		});
+
+		test('Returns focus to trigger when a portal tooltip closes while focus is inside it', async () => {
+			trapAction = createAction(trapTarget, { ...trapOptions, portal: true });
+			await _enter(trapTarget);
+			const button = getElement('[role="dialog"] button') as HTMLElement;
+			button.focus();
+			await _keyDown(button);
+			expect(getElement('[role="dialog"]')).not.toBeInTheDocument();
+			expect(document.activeElement).toBe(trapTarget);
+		});
+
+		test('Keeps focus on an outside element when tooltip closes on mouse leave', async () => {
+			const input = createElement({
+				tag: 'input',
+				attributes: { id: 'outside-input' },
+				parent: document.body
+			});
+			input.focus();
 			trapAction = createAction(trapTarget, trapOptions);
 			await _enter(trapTarget);
 			await _leave(trapTarget);
-			expect(document.activeElement).toBe(trapTarget);
+			expect(getElement('[role="dialog"]')).not.toBeInTheDocument();
+			expect(document.activeElement).toBe(input);
+			removeElement('#outside-input');
+		});
+
+		test('Keeps focus on the element that receives it when focus leaves the trigger', async () => {
+			const input = createElement({
+				tag: 'input',
+				attributes: { id: 'outside-input' },
+				parent: document.body
+			});
+			trapAction = createAction(trapTarget, trapOptions);
+			await standby(1);
+			trapTarget.focus();
+			await standby(1);
+			expect(getElement('[role="dialog"]')).toHaveAttribute('aria-modal', 'true');
+			input.focus();
+			await standby(1);
+			expect(getElement('[role="dialog"]')).not.toBeInTheDocument();
+			expect(document.activeElement).toBe(input);
+			removeElement('#outside-input');
 		});
 
 		test('Does not trap focus when tooltip has no focusable elements', async () => {
