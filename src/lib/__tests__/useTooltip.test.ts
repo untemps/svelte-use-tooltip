@@ -2139,8 +2139,6 @@ describe('useTooltip', () => {
 	});
 
 	describe('useTooltip non-secure context', () => {
-		// Non-secure contexts (plain HTTP outside localhost) expose crypto.getRandomValues()
-		// but not crypto.randomUUID().
 		let getRandomValues: Mock<(bytes: Uint8Array<ArrayBuffer>) => Uint8Array<ArrayBuffer>>;
 
 		beforeEach(() => {
@@ -2154,8 +2152,6 @@ describe('useTooltip', () => {
 		});
 
 		test('Builds a UUID v4 id from crypto.getRandomValues when crypto.randomUUID is unavailable', async () => {
-			// Known bytes 0xff, 0xee, …, 0x00: the version bits turn byte 6 (0x99) into 0x49, the
-			// variant bits turn byte 8 (0x77) into 0xb7, and 0x00 checks the zero padding.
 			getRandomValues.mockImplementationOnce((bytes) => {
 				for (let i = 0; i < bytes.length; i++) bytes[i] = 0xff - 0x11 * i;
 				return bytes;
