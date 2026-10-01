@@ -1,3 +1,10 @@
+## [4.0.2](https://github.com/untemps/svelte-use-tooltip/compare/v4.0.1...v4.0.2) (2026-10-01)
+
+
+### Bug Fixes
+
+* Export the option types and update CLAUDE.md ([#272](https://github.com/untemps/svelte-use-tooltip/issues/272)) ([e983e94](https://github.com/untemps/svelte-use-tooltip/commit/e983e945fb3c31189c93407bba203a9831d8a046))
+
 ## [4.0.1](https://github.com/untemps/svelte-use-tooltip/compare/v4.0.0...v4.0.1) (2026-10-01)
 
 
