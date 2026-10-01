@@ -1,8 +1,8 @@
-export { default as useTooltip } from './useTooltip.js';
+export { default as useTooltip } from './useTooltip';
 export type {
 	TooltipOptions,
 	TooltipPosition,
 	ContentAction,
 	ContentActionValue,
 	ContentActions
-} from './Tooltip.js';
+} from './Tooltip';

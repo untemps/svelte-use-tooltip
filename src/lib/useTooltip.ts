@@ -1,12 +1,12 @@
 import type { Action } from 'svelte/action';
 
-import Tooltip from './Tooltip.js';
-import type { TooltipOptions } from './Tooltip.js';
+import Tooltip from './Tooltip';
+import type { TooltipOptions } from './Tooltip';
 
 import './useTooltip.css';
 
 export type { TooltipOptions };
-export type { ContentAction, ContentActionValue, ContentActions } from './Tooltip.js';
+export type { ContentAction, ContentActionValue, ContentActions } from './Tooltip';
 
 const useTooltip: Action<HTMLElement, TooltipOptions> = (node, options = {}) => {
 	const tooltip = new Tooltip(node, options);
