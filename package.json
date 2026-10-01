@@ -110,25 +110,7 @@
 			"@semantic-release/changelog",
 			"@semantic-release/npm",
 			"@semantic-release/git",
-			[
-				"@semantic-release/github",
-				{
-					"assets": [
-						{
-							"path": "dist/index.js",
-							"label": "CJS distribution"
-						},
-						{
-							"path": "dist/index.es.js",
-							"label": "ES distribution"
-						},
-						{
-							"path": "dist/index.umd.js",
-							"label": "UMD distribution"
-						}
-					]
-				}
-			]
+			"@semantic-release/github"
 		]
 	},
 	"scripts": {
