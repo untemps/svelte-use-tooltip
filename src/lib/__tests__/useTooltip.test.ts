@@ -2718,6 +2718,15 @@ describe('useTooltip', () => {
 			removeElement('#outside-input');
 		});
 
+		test('Keeps focus inside the tooltip when the pointer enters the trigger again', async () => {
+			trapAction = createAction(trapTarget, { ...trapOptions, portal: true });
+			await _enter(trapTarget);
+			const button = getElement('[role="dialog"] button') as HTMLElement;
+			button.focus();
+			await _enter(trapTarget);
+			expect(document.activeElement).toBe(button);
+		});
+
 		test('Does not trap focus when tooltip has no focusable elements', async () => {
 			trapAction = createAction(trapTarget, {
 				content: 'Hello',

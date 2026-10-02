@@ -785,6 +785,8 @@ class Tooltip {
 	}
 
 	async #appendTooltipToTarget() {
+		if (this.#tooltip?.parentNode) return;
+
 		if (this.#animated) {
 			await this.#transitionTooltip(true);
 		}
