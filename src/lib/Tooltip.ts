@@ -894,7 +894,8 @@ class Tooltip {
 			this.#boundTooltipLeaveHandler = null;
 		}
 
-		this.#teardownFocusTrap(returnFocus);
+		this.#teardownFocusTrap();
+		if (returnFocus) this.#returnFocusToTarget();
 	}
 
 	#syncComputedFont() {
@@ -1020,36 +1021,36 @@ class Tooltip {
 		}
 	}
 
-	#teardownFocusTrap(returnFocus: boolean): void {
+	#teardownFocusTrap(): void {
 		if (this.#trapHandler) {
 			this.#tooltip?.removeEventListener('keydown', this.#trapHandler);
 			this.#tooltip?.removeAttribute('aria-modal');
 			this.#trapHandler = null;
-			if (!returnFocus) return;
-			// Temporarily remove show-event listeners so that returning focus to the trigger
-			// does not re-open the tooltip.
-			const { toggleEvents, showOnlyEvents } = this.#partitionEvents();
-			if (this.#boundEnterHandler) {
-				showOnlyEvents.forEach((evt) =>
-					this.#target?.removeEventListener(evt, this.#boundEnterHandler!)
-				);
-			}
-			if (this.#boundToggleHandler) {
-				toggleEvents.forEach((evt) =>
-					this.#target?.removeEventListener(evt, this.#boundToggleHandler!)
-				);
-			}
-			this.#target?.focus();
-			if (this.#boundEnterHandler) {
-				showOnlyEvents.forEach((evt) =>
-					this.#target?.addEventListener(evt, this.#boundEnterHandler!)
-				);
-			}
-			if (this.#boundToggleHandler) {
-				toggleEvents.forEach((evt) =>
-					this.#target?.addEventListener(evt, this.#boundToggleHandler!)
-				);
-			}
+		}
+	}
+
+	#returnFocusToTarget(): void {
+		// Temporarily remove show-event listeners so that returning focus to the trigger
+		// does not re-open the tooltip.
+		const { toggleEvents, showOnlyEvents } = this.#partitionEvents();
+		if (this.#boundEnterHandler) {
+			showOnlyEvents.forEach((evt) =>
+				this.#target?.removeEventListener(evt, this.#boundEnterHandler!)
+			);
+		}
+		if (this.#boundToggleHandler) {
+			toggleEvents.forEach((evt) =>
+				this.#target?.removeEventListener(evt, this.#boundToggleHandler!)
+			);
+		}
+		this.#target?.focus();
+		if (this.#boundEnterHandler) {
+			showOnlyEvents.forEach((evt) =>
+				this.#target?.addEventListener(evt, this.#boundEnterHandler!)
+			);
+		}
+		if (this.#boundToggleHandler) {
+			toggleEvents.forEach((evt) => this.#target?.addEventListener(evt, this.#boundToggleHandler!));
 		}
 	}
 

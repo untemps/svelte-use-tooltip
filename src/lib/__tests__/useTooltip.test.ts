@@ -2741,6 +2741,17 @@ describe('useTooltip', () => {
 			expect(document.activeElement).toBe(trapTarget);
 		});
 
+		test('Returns focus to trigger when a tooltip open from creation closes while focus is inside it', async () => {
+			trapAction = createAction(trapTarget, { ...trapOptions, open: true });
+			await standby(1);
+			const button = getElement('[role="dialog"] button') as HTMLElement;
+			button.focus();
+			trapAction.update({ open: false });
+			await standby(1);
+			expect(getElement('[role="dialog"]')).not.toBeInTheDocument();
+			expect(document.activeElement).toBe(trapTarget);
+		});
+
 		test('Does not trap focus when tooltip has no focusable elements', async () => {
 			trapAction = createAction(trapTarget, {
 				content: 'Hello',
