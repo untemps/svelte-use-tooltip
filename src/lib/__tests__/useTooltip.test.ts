@@ -2718,6 +2718,21 @@ describe('useTooltip', () => {
 			removeElement('#outside-input');
 		});
 
+		test('Keeps focus on an outside element when Escape closes a portal tooltip', async () => {
+			const input = createElement({
+				tag: 'input',
+				attributes: { id: 'outside-input' },
+				parent: document.body
+			});
+			input.focus();
+			trapAction = createAction(trapTarget, { ...trapOptions, portal: true });
+			await _enter(trapTarget);
+			await _keyDown(input);
+			expect(getElement('[role="dialog"]')).not.toBeInTheDocument();
+			expect(document.activeElement).toBe(input);
+			removeElement('#outside-input');
+		});
+
 		test('Keeps focus inside the tooltip when the pointer enters the trigger again', async () => {
 			trapAction = createAction(trapTarget, { ...trapOptions, portal: true });
 			await _enter(trapTarget);
@@ -2725,6 +2740,27 @@ describe('useTooltip', () => {
 			button.focus();
 			await _enter(trapTarget);
 			expect(document.activeElement).toBe(button);
+		});
+
+		test('Returns focus to trigger when a control with closeOnCallback closes the tooltip', async () => {
+			trapAction = createAction(trapTarget, {
+				...trapOptions,
+				contentActions: {
+					button: {
+						eventType: 'click',
+						callback: vi.fn(),
+						callbackParams: [],
+						closeOnCallback: true
+					}
+				}
+			});
+			await _enter(trapTarget);
+			const button = getElement('[role="dialog"] button') as HTMLElement;
+			button.focus();
+			await fireEvent.click(button);
+			await standby(1);
+			expect(getElement('[role="dialog"]')).not.toBeInTheDocument();
+			expect(document.activeElement).toBe(trapTarget);
 		});
 
 		test('Returns focus to trigger when focus drops to the body during the leave animation', async () => {
