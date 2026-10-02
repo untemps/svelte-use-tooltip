@@ -2727,6 +2727,20 @@ describe('useTooltip', () => {
 			expect(document.activeElement).toBe(button);
 		});
 
+		test('Returns focus to trigger when focus drops to the body during the leave animation', async () => {
+			trapAction = createAction(trapTarget, { ...trapOptions, animated: true });
+			await _enter(trapTarget);
+			const tooltip = getElement('[role="dialog"]') as HTMLElement;
+			const button = getElement('[role="dialog"] button') as HTMLElement;
+			button.focus();
+			await _keyDown(button);
+			button.blur();
+			await fireEvent.animationEnd(tooltip);
+			await standby(1);
+			expect(tooltip).not.toBeInTheDocument();
+			expect(document.activeElement).toBe(trapTarget);
+		});
+
 		test('Does not trap focus when tooltip has no focusable elements', async () => {
 			trapAction = createAction(trapTarget, {
 				content: 'Hello',

@@ -856,11 +856,14 @@ class Tooltip {
 	}
 
 	async #removeTooltipFromTarget(skipAnimation = false) {
+		const focusWasInside = this.#tooltip!.contains(document.activeElement);
 		if (this.#animated && !skipAnimation) {
 			await this.#transitionTooltip(false);
 		}
 
-		const returnFocus = this.#tooltip!.contains(document.activeElement);
+		const returnFocus =
+			this.#tooltip!.contains(document.activeElement) ||
+			(focusWasInside && document.activeElement === document.body);
 		this.#tooltip!.remove();
 		if (!this.#isInteractive()) {
 			this.#target?.removeAttribute('aria-describedby');
